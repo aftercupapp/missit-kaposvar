@@ -292,12 +292,12 @@ body{
 .favwrap{display:flex;flex-wrap:wrap;}
 
 /* ---------- route square grid ---------- */
-.routegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:9px;}
+.routegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:7px;}
 .routesq{
-  aspect-ratio:1;border:1px solid rgba(255,255,255,0.28);border-radius:16px;position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;color:#fff;
+  aspect-ratio:1;border:1px solid rgba(255,255,255,0.28);border-radius:13px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13.5px;color:#fff;
   background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));
-  box-shadow:0 4px 14px rgba(78,23,33,0.22);cursor:pointer;font-family:var(--sans);
+  box-shadow:0 3px 10px rgba(78,23,33,0.20);cursor:pointer;font-family:var(--sans);
   transition:transform .12s ease;opacity:0;animation:fadeInUp .35s cubic-bezier(.22,.9,.32,1) both;
 }
 .routesq:active{transform:scale(0.92);}
@@ -585,6 +585,8 @@ const ICO = {
   sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.3"/><path d="M12 2.5v2.4"/><path d="M12 19.1v2.4"/><path d="M4.4 4.4l1.7 1.7"/><path d="M17.9 17.9l1.7 1.7"/><path d="M2.5 12h2.4"/><path d="M19.1 12h2.4"/><path d="M4.4 19.6l1.7-1.7"/><path d="M17.9 6.1l1.7-1.7"/></svg>',
   moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z"/></svg>',
   auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18Z" fill="currentColor" stroke="none"/></svg>',
+  list:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h12"/><path d="M9 12h12"/><path d="M9 18h12"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>',
 };
 /* ---------------- vehicle fleet (static app data) ---------------- */
 const VEHICLES = [
@@ -803,16 +805,26 @@ function emptyHtml(icon, t1, t2){
   return `<div class="empty"><div class="big">${ICO[icon]}</div><div class="t1">${esc(t1)}</div>${t2?`<div class="t2">${esc(t2)}</div>`:''}</div>`;
 }
 
+function getRouteViewPref(){
+  try{ return localStorage.getItem('mik_routeview') || 'grid'; }catch(e){ return 'grid'; }
+}
+function setRouteViewPref(v){
+  try{ localStorage.setItem('mik_routeview', v); }catch(e){}
+}
+
 function renderRoutes(header, searchSlot, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Helyi busz menetrend · Kaposvár');
   searchSlot.innerHTML = `<div class="searchwrap"><div class="searchbox">${ICO.search}<input id="homesearch" placeholder="Járatszám vagy megálló neve…" autocomplete="off"></div></div>`;
 
+  const viewPref = getRouteViewPref();
   let html = '';
   if(FAVORITES.length){
     html += `<div class="section-label">Kedvencek</div><div class="favwrap" id="favwrap"></div>`;
   }
   html += `<div id="resultsArea"></div>`;
-  html += `<div id="gridWrapOuter"><div class="section-label">Vonalak (${ROUTE_LIST.length})</div><div class="routegrid" id="rgrid"></div></div>`;
+  html += `<div id="gridWrapOuter"><div class="section-label">Vonalak (${ROUTE_LIST.length})</div>`;
+  html += viewPref==='list' ? `<div class="card" id="rlist"></div>` : `<div class="routegrid" id="rgrid"></div>`;
+  html += `</div>`;
   html += `<div class="feedinfo">Adatok legutóbbi frissítése: 2026. aug. 27. 15:22<br>Forrás: hivatalos GTFS menetrendi adatok, Kaposvári Közlekedési Zrt.</div>`;
   content.innerHTML = html;
 
@@ -828,9 +840,15 @@ function renderRoutes(header, searchSlot, content){
     });
   }
 
-  const grid = document.getElementById('rgrid');
-  grid.innerHTML = ROUTE_LIST.map((r,i)=>`<button class="routesq" style="animation-delay:${Math.min(i*18,360)}ms" data-route="${r.id}">${esc(r.short)}</button>`).join('');
-  grid.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>openRoute(b.dataset.route));
+  if(viewPref==='list'){
+    const list = document.getElementById('rlist');
+    list.innerHTML = ROUTE_LIST.map(r=>rowBtnHtml(`<div class="badge">${esc(r.short)}</div>`, r.long, 'Járat', `data-route="${r.id}"`)).join('');
+    list.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>openRoute(b.dataset.route));
+  }else{
+    const grid = document.getElementById('rgrid');
+    grid.innerHTML = ROUTE_LIST.map((r,i)=>`<button class="routesq" style="animation-delay:${Math.min(i*14,320)}ms" data-route="${r.id}">${esc(r.short)}</button>`).join('');
+    grid.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>openRoute(b.dataset.route));
+  }
 
   const input = document.getElementById('homesearch');
   const resultsArea = document.getElementById('resultsArea');
@@ -1056,6 +1074,14 @@ function renderMenu(header, content){
   ).join('') + `</div>`;
   html += `</div>`;
 
+  html += `<div class="section-label">Vonalak nézete</div><div class="card themecard">`;
+  const routeViewPref = getRouteViewPref();
+  const routeViewOpts = [['grid','grid','Egyszerűsített'],['list','list','Részletes']];
+  html += `<div class="themerow">` + routeViewOpts.map(([id,icon,lbl])=>
+    `<button class="themebtn ${routeViewPref===id?'active':''}" data-routeview-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`
+  ).join('') + `</div>`;
+  html += `</div>`;
+
   html += `<div class="section-label">Kaposvári közlekedés</div><div class="card">`;
   html += menuNavHtml('radio','Élő járatkövetés','Hivatalos webes menetrend','data-nav-live="1"');
   html += menuNavHtml('bus','Járművek','A helyi buszflotta bemutatása','data-nav-vehicles="1"');
@@ -1084,6 +1110,11 @@ function renderMenu(header, content){
   content.innerHTML = html;
   content.querySelectorAll('[data-theme-opt]').forEach(b=>b.onclick=()=>{
     setThemePref(b.dataset.themeOpt);
+    renderMenu(header, content);
+    reanimate(content);
+  });
+  content.querySelectorAll('[data-routeview-opt]').forEach(b=>b.onclick=()=>{
+    setRouteViewPref(b.dataset.routeviewOpt);
     renderMenu(header, content);
     reanimate(content);
   });
