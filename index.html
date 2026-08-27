@@ -214,6 +214,23 @@ body{
 }
 .section-label:first-child{margin-top:4px;}
 
+/* ---------- collapsible sections ---------- */
+.collapse-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  background:none;border:none;font-family:var(--sans);text-align:left;padding:2px 2px;
+  cursor:pointer;transition:opacity .15s ease;
+}
+.collapse-toggle:active{opacity:0.55;}
+.collapse-label{display:flex;align-items:center;}
+.collapse-chev{display:flex;color:var(--ink-soft);flex-shrink:0;}
+.collapse-chev svg{width:14px;height:14px;stroke-width:2.4;transition:transform .28s cubic-bezier(.34,1.56,.64,1);transform:rotate(90deg);}
+.collapse-chev.closed svg{transform:rotate(0deg);}
+.collapsebody{
+  max-height:4000px;opacity:1;overflow:hidden;
+  transition:max-height .32s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+.collapsebody.closed{max-height:0;opacity:0;}
+
 /* ---------- list items ---------- */
 .card{
   background:var(--glass);
@@ -374,6 +391,9 @@ table.tt tr:last-child td{border-bottom:none;}
 .dep .time{font-family:var(--mono);font-weight:700;font-size:16.5px;min-width:56px;}
 .dep .dd{flex:1;min-width:0;}
 .dep .dhead{font-size:13.5px;font-weight:600;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dep .depsub{font-size:11.5px;color:var(--ink-soft);opacity:0.8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.livepulse.sm{width:6px;height:6px;}
+.runheader{display:flex;align-items:center;gap:6px;}
 .nowline{
   text-align:center;font-size:11px;font-weight:800;color:var(--turquoise);
   letter-spacing:0.4px;text-transform:uppercase;padding:6px 0;background:var(--turquoise-dim);
@@ -385,10 +405,15 @@ table.tt tr:last-child td{border-bottom:none;}
 }
 .maplink svg{width:15px;height:15px;}
 
-.platformlist .rowbtn .rsub .mini{
-  display:inline-flex;align-items:center;justify-content:center;background:rgba(122,42,58,0.07);
-  color:var(--ink-soft);font-weight:700;font-size:10.5px;border-radius:6px;padding:2px 5px;margin:2px 3px 0 0;
+.mini{
+  display:inline-flex;align-items:center;justify-content:center;background:rgba(122,42,58,0.09);
+  color:var(--maroon);font-weight:700;font-size:10.5px;border-radius:6px;padding:3px 6px;margin:2px 3px 0 0;
+  cursor:pointer;transition:transform .12s ease, background .15s ease;
 }
+.mini:active{transform:scale(0.9);background:rgba(122,42,58,0.18);}
+.badgesub{display:flex;flex-wrap:wrap;}
+.dep .badge.linkbadge{cursor:pointer;transition:transform .12s ease;}
+.dep .badge.linkbadge:active{transform:scale(0.9);}
 
 .feedinfo{font-size:11px;color:var(--ink-soft);text-align:center;padding:14px 20px 4px;line-height:1.5;}
 
@@ -644,6 +669,50 @@ function routesServingStop(sid){
     return a.localeCompare(b,'hu');
   });
 }
+function routeBadgesForStop(sid){
+  const seen = new Set(); const out = [];
+  (VARIANTS_BY_STOP[sid]||[]).forEach(e=>{
+    const rid = e.v.r;
+    if(!seen.has(rid)){ seen.add(rid); out.push({id: rid, short: ROUTES[rid][0]}); }
+  });
+  out.sort((a,b)=>{
+    const na=parseInt(a.short), nb=parseInt(b.short);
+    if(!isNaN(na)&&!isNaN(nb)&&na!==nb) return na-nb;
+    return a.short.localeCompare(b.short,'hu');
+  });
+  return out;
+}
+
+function getCurrentlyRunningTrips(){
+  const now = nowTimeStr();
+  const active = new Set(activeServicesForDate(toYMD(new Date())));
+  const running = [];
+  VARIANTS.forEach(v=>{
+    v.trips.forEach(t=>{
+      if(!active.has(t.s)) return;
+      const first = t.t[0], last = t.t[t.t.length-1];
+      if(now < first || now > last) return;
+      let idx = t.t.length-1;
+      for(let i=0;i<t.t.length-1;i++){
+        if(now >= t.t[i] && now < t.t[i+1]){ idx = i; break; }
+      }
+      const nextIdx = Math.min(idx+1, v.stops.length-1);
+      running.push({
+        routeId: v.r,
+        route: ROUTES[v.r][0],
+        head: v.head,
+        nextStop: STOPS[v.stops[nextIdx]][0],
+        nextTime: t.t[nextIdx]
+      });
+    });
+  });
+  running.sort((a,b)=>{
+    const na=parseInt(a.route), nb=parseInt(b.route);
+    if(!isNaN(na)&&!isNaN(nb)&&na!==nb) return na-nb;
+    return a.route.localeCompare(b.route,'hu');
+  });
+  return running;
+}
 
 function norm(s){
   return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -812,21 +881,80 @@ function setRouteViewPref(v){
   try{ localStorage.setItem('mik_routeview', v); }catch(e){}
 }
 
+function getCollapseState(){
+  try{ return JSON.parse(localStorage.getItem('mik_collapse')||'{}'); }catch(e){ return {}; }
+}
+function isSectionCollapsed(key){ return !!getCollapseState()[key]; }
+function setSectionCollapsed(key, val){
+  const s = getCollapseState();
+  s[key] = val;
+  try{ localStorage.setItem('mik_collapse', JSON.stringify(s)); }catch(e){}
+}
+function collapseHeaderHtml(key, label, live){
+  const collapsed = isSectionCollapsed(key);
+  const dot = live ? `<span class="livepulse sm" style="background:var(--turquoise);margin-right:6px;"></span>` : '';
+  return `<button class="section-label collapse-toggle" data-collapse-key="${key}">
+    <span class="collapse-label">${dot}${label}</span>
+    <span class="collapse-chev ${collapsed?'closed':''}">${ICO.chevronRight}</span>
+  </button>`;
+}
+function wireCollapseToggles(root){
+  root.querySelectorAll('[data-collapse-key]').forEach(btn=>{
+    btn.onclick = ()=>{
+      const key = btn.dataset.collapseKey;
+      const nowCollapsed = !isSectionCollapsed(key);
+      setSectionCollapsed(key, nowCollapsed);
+      const body = document.getElementById('body-'+key);
+      const chev = btn.querySelector('.collapse-chev');
+      if(body) body.classList.toggle('closed', nowCollapsed);
+      if(chev) chev.classList.toggle('closed', nowCollapsed);
+    };
+  });
+}
+
 function renderRoutes(header, searchSlot, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Helyi busz menetrend · Kaposvár');
   searchSlot.innerHTML = `<div class="searchwrap"><div class="searchbox">${ICO.search}<input id="homesearch" placeholder="Járatszám vagy megálló neve…" autocomplete="off"></div></div>`;
 
   const viewPref = getRouteViewPref();
   let html = '';
+
   if(FAVORITES.length){
-    html += `<div class="section-label">Kedvencek</div><div class="favwrap" id="favwrap"></div>`;
+    html += collapseHeaderHtml('favorites','Kedvencek');
+    html += `<div class="collapsebody ${isSectionCollapsed('favorites')?'closed':''}" id="body-favorites"><div class="favwrap" id="favwrap"></div></div>`;
   }
+
+  html += collapseHeaderHtml('running','Jelenleg közlekedik', true);
+  html += `<div class="collapsebody ${isSectionCollapsed('running')?'closed':''}" id="body-running"><div class="card" id="runcard"></div></div>`;
+
   html += `<div id="resultsArea"></div>`;
-  html += `<div id="gridWrapOuter"><div class="section-label">Vonalak (${ROUTE_LIST.length})</div>`;
+  html += collapseHeaderHtml('routes', `Vonalak (${ROUTE_LIST.length})`);
+  html += `<div class="collapsebody ${isSectionCollapsed('routes')?'closed':''}" id="body-routes"><div id="gridWrapOuter">`;
   html += viewPref==='list' ? `<div class="card" id="rlist"></div>` : `<div class="routegrid" id="rgrid"></div>`;
-  html += `</div>`;
+  html += `</div></div>`;
   html += `<div class="feedinfo">Adatok legutóbbi frissítése: 2026. aug. 27. 15:22<br>Forrás: hivatalos GTFS menetrendi adatok, Kaposvári Közlekedési Zrt.</div>`;
   content.innerHTML = html;
+  wireCollapseToggles(content);
+
+  const runcard = document.getElementById('runcard');
+  const running = getCurrentlyRunningTrips();
+  let runHtml = '';
+  if(!running.length){
+    runHtml += `<div class="specrow"><div class="st" style="font-size:13px;color:var(--ink-soft);font-weight:500;">Jelenleg egy járat sem közlekedik a menetrend szerint.</div></div>`;
+  }else{
+    running.slice(0,25).forEach(r=>{
+      runHtml += `<div class="dep">
+        <div class="time">${esc(r.nextTime.slice(0,5))}</div>
+        <div class="badge sm linkbadge" data-route="${r.routeId}">${esc(r.route)}</div>
+        <div class="dd"><div class="dhead">→ ${esc(r.head)}</div><div class="depsub">Köv. megálló: ${esc(r.nextStop)}</div></div>
+      </div>`;
+    });
+  }
+  runHtml += menuNavHtml('radio','Élő térkép megnyitása','Hivatalos webes követés','data-nav-live-home="1"');
+  runcard.innerHTML = runHtml;
+  runcard.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>openRoute(b.dataset.route));
+  const liveHomeBtn = runcard.querySelector('[data-nav-live-home]');
+  if(liveHomeBtn) liveHomeBtn.onclick = ()=>go('live');
 
   if(FAVORITES.length){
     const fw = document.getElementById('favwrap');
@@ -942,6 +1070,13 @@ function drawGrid(v){
 }
 
 /* ---- STOPS LIST ---- */
+function stopRowHtml(n, ids){
+  const badges = routeBadgesForStop(ids[0]).slice(0,8);
+  const sub = badges.length
+    ? `<div class="rsub badgesub">${badges.map(b=>`<span class="mini" data-route="${b.id}">${esc(b.short)}</span>`).join('')}</div>`
+    : `<div class="rsub">Nincs induló járat</div>`;
+  return `<button class="rowbtn" data-stopname="${escAttr(n)}"><div class="rt"><div class="rname">${esc(n)}</div>${sub}</div><span class="chev">${ICO.chevronRight}</span></button>`;
+}
 function renderStops(header, searchSlot, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Megállók · válaszd ki az indulásokhoz');
   searchSlot.innerHTML = `<div class="searchwrap"><div class="searchbox">${ICO.search}<input id="ssearch" placeholder="Megálló neve…" autocomplete="off"></div></div>`;
@@ -950,12 +1085,9 @@ function renderStops(header, searchSlot, content){
     const list = document.getElementById('slist');
     const items = q ? ALL_STOP_NAMES.filter(n=>norm(n).includes(q)) : ALL_STOP_NAMES;
     if(!items.length){ list.outerHTML = emptyHtml('search','Nincs találat'); return; }
-    list.innerHTML = items.slice(0,200).map(n=>{
-      const ids = STOPS_BY_NAME[n];
-      const badges = routesServingStop(ids[0]).slice(0,6).join(' · ');
-      return rowBtnHtml('', n, badges || 'Nincs induló járat', `data-stopname="${escAttr(n)}"`);
-    }).join('');
+    list.innerHTML = items.slice(0,200).map(n=>stopRowHtml(n, STOPS_BY_NAME[n])).join('');
     list.querySelectorAll('[data-stopname]').forEach(b=>b.onclick=()=>openStopByName(b.dataset.stopname));
+    list.querySelectorAll('[data-route]').forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); openRoute(b.dataset.route); });
   }
   draw('');
   document.getElementById('ssearch').oninput = (e)=>draw(norm(e.target.value.trim()));
@@ -972,12 +1104,13 @@ function renderStopPlatforms(header, content){
   document.getElementById('btn-back').onclick = goBack;
   let html = `<div class="section-label">Válassz megállóhelyet</div><div class="card platformlist">`;
   ids.forEach((sid,i)=>{
-    const badges = routesServingStop(sid);
-    html += `<button class="rowbtn" data-sid="${sid}"><div class="rt"><div class="rname">${i+1}. megállóhely</div><div class="rsub">${badges.map(b=>`<span class="mini">${esc(b)}</span>`).join('')}</div></div><span class="chev">${ICO.chevronRight}</span></button>`;
+    const badges = routeBadgesForStop(sid);
+    html += `<button class="rowbtn" data-sid="${sid}"><div class="rt"><div class="rname">${i+1}. megállóhely</div><div class="rsub badgesub">${badges.map(b=>`<span class="mini" data-route="${b.id}">${esc(b.short)}</span>`).join('')}</div></div><span class="chev">${ICO.chevronRight}</span></button>`;
   });
   html += `</div>`;
   content.innerHTML = html;
   content.querySelectorAll('[data-sid]').forEach(b=>b.onclick=()=>openStopDetail(b.dataset.sid));
+  content.querySelectorAll('[data-route]').forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); openRoute(b.dataset.route); });
 }
 function openStopDetail(sid){
   go('stopDetail', {stopId: sid});
@@ -1006,7 +1139,7 @@ function drawDepartures(sid){
   entries.forEach(({v, idx})=>{
     v.trips.forEach(t=>{
       if(active.has(t.s) && t.t[idx]){
-        deps.push({time: t.t[idx], route: ROUTES[v.r][0], head: v.head});
+        deps.push({time: t.t[idx], routeId: v.r, route: ROUTES[v.r][0], head: v.head});
       }
     });
   });
@@ -1029,11 +1162,12 @@ function drawDepartures(sid){
     if(isNext) h += `<div class="nowline">Legközelebbi indulás</div>`;
     h += `<div class="dep ${past?'past':''} ${isNext?'next':''}">
       <div class="time">${d.time.slice(0,5)}</div>
-      <div class="badge sm">${esc(d.route)}</div>
+      <div class="badge sm linkbadge" data-route="${d.routeId}">${esc(d.route)}</div>
       <div class="dd"><div class="dhead">→ ${esc(d.head)}</div></div>
     </div>`;
   });
   area.innerHTML = h;
+  area.querySelectorAll('[data-route]').forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); openRoute(b.dataset.route); });
   reanimate(area);
   if(nextIdx>0){
     setTimeout(()=>{
