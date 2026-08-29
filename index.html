@@ -34,6 +34,7 @@
   --bg-base-b:#F2ECE4;
   --popup-bg:#FFFFFF;
   --popup-text:#241A1C;
+  --navfade-tint:transparent;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --mono:ui-monospace,"SF Mono","Courier New",SFMono-Regular,Menlo,Consolas,monospace;
 }
@@ -59,6 +60,7 @@
   --bg-base-b:#0D0A0B;
   --popup-bg:#241A1C;
   --popup-text:#F3ECE8;
+  --navfade-tint:rgba(13,10,11,0.55);
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -83,6 +85,7 @@
     --bg-base-b:#0D0A0B;
     --popup-bg:#241A1C;
     --popup-text:#F3ECE8;
+    --navfade-tint:rgba(13,10,11,0.55);
   }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -227,12 +230,12 @@ input, textarea{
 
 /* ---------- nav (floating glass bar) ---------- */
 .navfade{
-  position:absolute;left:0;right:0;bottom:0;height:170px;pointer-events:none;z-index:25;
-  -webkit-backdrop-filter:blur(16px) saturate(160%);
-  backdrop-filter:blur(16px) saturate(160%);
-  background:linear-gradient(to bottom, transparent, var(--bg-base-b) 82%);
-  -webkit-mask-image:linear-gradient(to bottom, transparent, rgba(0,0,0,0.35) 38%, black 64%);
-  mask-image:linear-gradient(to bottom, transparent, rgba(0,0,0,0.35) 38%, black 64%);
+  position:absolute;left:0;right:0;bottom:0;height:220px;pointer-events:none;z-index:25;
+  -webkit-backdrop-filter:blur(22px);
+  backdrop-filter:blur(22px);
+  background:var(--navfade-tint);
+  -webkit-mask-image:linear-gradient(to bottom, transparent, black 55%);
+  mask-image:linear-gradient(to bottom, transparent, black 55%);
   transition:background .3s ease;
 }
 .bottomnav{
