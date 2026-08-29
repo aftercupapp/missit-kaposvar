@@ -180,8 +180,17 @@ body{
 .searchbox svg{flex-shrink:0;opacity:0.5;width:17px;height:17px;color:var(--ink-soft);}
 
 /* ---------- nav (floating glass bar) ---------- */
+.navfade{
+  position:absolute;left:0;right:0;bottom:0;height:170px;pointer-events:none;z-index:25;
+  -webkit-backdrop-filter:blur(16px) saturate(160%);
+  backdrop-filter:blur(16px) saturate(160%);
+  background:linear-gradient(to bottom, transparent, var(--bg-base-b) 82%);
+  -webkit-mask-image:linear-gradient(to bottom, transparent, rgba(0,0,0,0.35) 38%, black 64%);
+  mask-image:linear-gradient(to bottom, transparent, rgba(0,0,0,0.35) 38%, black 64%);
+  transition:background .3s ease;
+}
 .bottomnav{
-  position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));
+  position:absolute;left:12px;right:12px;bottom:calc(6px + env(safe-area-inset-bottom));
   display:flex;border-radius:30px;z-index:30;overflow:hidden;
   background:var(--glass-strong);
   -webkit-backdrop-filter:blur(26px) saturate(190%);
@@ -397,8 +406,9 @@ table.tt tr:last-child td{border-bottom:none;}
 .dep .depsub{font-size:11.5px;color:var(--ink-soft);opacity:0.8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .livepulse.sm{width:6px;height:6px;}
 .runheader{display:flex;align-items:center;gap:6px;}
-#runcard{transition:opacity .2s ease;}
-#runcard.refreshing{opacity:0;}
+.dep.rowfade{animation:fadeInUp .35s cubic-bezier(.22,.9,.32,1) both;}
+.dep.rowpulse{animation:rowPulseFlash .7s ease;}
+@keyframes rowPulseFlash{0%{background:var(--turquoise-dim);}100%{background:transparent;}}
 .nowline{
   text-align:center;font-size:11px;font-weight:800;color:var(--turquoise);
   letter-spacing:0.4px;text-transform:uppercase;padding:6px 0;background:var(--turquoise-dim);
@@ -502,6 +512,7 @@ a.rowbtn{display:flex;}
   <div id="header"></div>
   <div id="search-slot"></div>
   <div class="content" id="content"></div>
+  <div class="navfade"></div>
   <div class="bottomnav" id="bottomnav"></div>
 </div>
 <input type="date" id="datepick">
@@ -916,50 +927,83 @@ function wireCollapseToggles(root){
       if(chev) chev.classList.toggle('closed', nowCollapsed);
       if(key === 'running'){
         if(nowCollapsed){ stopRunningRefresh(); }
-        else{ renderRunningCard(true); startRunningRefresh(); }
+        else{ renderRunningCard(); startRunningRefresh(); }
       }
     };
   });
 }
 
 /* ---- running-trips card: build, wire, animate, auto-refresh ---- */
-function buildRunningHtml(){
+function buildRunningRows(){
   const running = getCurrentlyRunningTrips();
-  let runHtml = '';
-  if(!running.length){
-    runHtml += `<div class="specrow"><div class="st" style="font-size:13px;color:var(--ink-soft);font-weight:500;">Jelenleg egy járat sem közlekedik a menetrend szerint.</div></div>`;
-  }else{
-    running.slice(0,25).forEach(r=>{
-      runHtml += `<div class="dep">
-        <div class="time">${esc(r.nextTime.slice(0,5))}</div>
-        <div class="badge sm linkbadge" data-route="${r.routeId}">${esc(r.route)}</div>
-        <div class="dd"><div class="dhead">→ ${esc(r.head)}</div><div class="depsub">Köv. megálló: ${esc(r.nextStop)}</div></div>
-      </div>`;
-    });
-  }
-  runHtml += menuNavHtml('radio','Élő térkép megnyitása','Hivatalos webes követés','data-nav-live-home="1"');
-  return runHtml;
+  const seen = {};
+  return running.slice(0,25).map(r=>{
+    const gkey = r.routeId+'|'+r.head;
+    seen[gkey] = (seen[gkey]||0)+1;
+    return Object.assign({}, r, {key: gkey+'|'+seen[gkey]});
+  });
 }
-function wireRunningCard(runcard){
-  runcard.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>openRoute(b.dataset.route));
+function runningRowNode(r){
+  const node = el(`<div class="dep" data-key="${escAttr(r.key)}">
+    <div class="time">${esc(r.nextTime.slice(0,5))}</div>
+    <div class="badge sm linkbadge" data-route="${r.routeId}">${esc(r.route)}</div>
+    <div class="dd"><div class="dhead">→ ${esc(r.head)}</div><div class="depsub">Köv. megálló: ${esc(r.nextStop)}</div></div>
+  </div>`);
+  node.querySelector('[data-route]').onclick = ()=>openRoute(r.routeId);
+  return node;
+}
+function wireRunningLiveBtn(runcard){
   const liveHomeBtn = runcard.querySelector('[data-nav-live-home]');
   if(liveHomeBtn) liveHomeBtn.onclick = ()=>go('live');
 }
-function renderRunningCard(animate){
+function renderRunningCard(){
   const runcard = document.getElementById('runcard');
   if(!runcard) return;
-  const html = buildRunningHtml();
-  if(animate){
-    runcard.classList.add('refreshing');
-    setTimeout(()=>{
-      runcard.innerHTML = html;
-      wireRunningCard(runcard);
-      runcard.classList.remove('refreshing');
-    }, 220);
-  }else{
-    runcard.innerHTML = html;
-    wireRunningCard(runcard);
+  const rows = buildRunningRows();
+
+  if(!rows.length){
+    runcard.innerHTML = `<div class="specrow"><div class="st" style="font-size:13px;color:var(--ink-soft);font-weight:500;">Jelenleg egy járat sem közlekedik a menetrend szerint.</div></div>` +
+      menuNavHtml('radio','Élő adatok megnyitása','Hivatalos webes követés','data-nav-live-home="1"');
+    wireRunningLiveBtn(runcard);
+    return;
   }
+
+  let liveBtn = runcard.querySelector('[data-nav-live-home]');
+  const existing = {};
+  runcard.querySelectorAll('.dep[data-key]').forEach(n=>{ existing[n.dataset.key] = n; });
+  runcard.querySelectorAll('.specrow').forEach(n=>n.remove());
+
+  let newCount = 0;
+  rows.forEach(r=>{
+    const newTime = r.nextTime.slice(0,5);
+    const newSub = 'Köv. megálló: '+r.nextStop;
+    let node = existing[r.key];
+    if(node){
+      const timeEl = node.querySelector('.time');
+      const subEl = node.querySelector('.depsub');
+      if(timeEl.textContent !== newTime || subEl.textContent !== newSub){
+        timeEl.textContent = newTime;
+        subEl.textContent = newSub;
+        node.classList.remove('rowpulse'); void node.offsetWidth; node.classList.add('rowpulse');
+      }
+      delete existing[r.key];
+    } else {
+      node = runningRowNode(r);
+      node.classList.add('rowfade');
+      node.style.animationDelay = Math.min(newCount*30, 240)+'ms';
+      newCount++;
+    }
+    if(liveBtn) runcard.insertBefore(node, liveBtn);
+    else runcard.appendChild(node);
+  });
+
+  Object.values(existing).forEach(n=>n.remove());
+
+  if(!liveBtn){
+    runcard.insertAdjacentHTML('beforeend', menuNavHtml('radio','Élő adatok megnyitása','Hivatalos webes követés','data-nav-live-home="1"'));
+    liveBtn = runcard.querySelector('[data-nav-live-home]');
+  }
+  liveBtn.onclick = ()=>go('live');
 }
 let RUNNING_TIMER = null;
 function stopRunningRefresh(){
@@ -969,7 +1013,7 @@ function startRunningRefresh(){
   stopRunningRefresh();
   RUNNING_TIMER = setInterval(()=>{
     if(state.view !== 'routes' || isSectionCollapsed('running')){ stopRunningRefresh(); return; }
-    renderRunningCard(true);
+    renderRunningCard();
   }, 20000);
 }
 
@@ -997,7 +1041,7 @@ function renderRoutes(header, searchSlot, content){
   content.innerHTML = html;
   wireCollapseToggles(content);
 
-  renderRunningCard(false);
+  renderRunningCard();
   if(!isSectionCollapsed('running')) startRunningRefresh();
 
   if(FAVORITES.length){
@@ -1283,6 +1327,7 @@ function renderMenu(header, content){
 
   html += `<div class="infocard"><b>MissIt Kaposvár</b><br>
     Nem hivatalos, önerőből fejlesztett kaposvári menetrend alkalmazás, hivatalosan közzétett GTFS menetrendi adatok alapján.<br><br>
+    <b>Verzió</b><br>2.0 (2.0.2)<br><br>
     <b>Elérhetőség</b><br><a href="mailto:aftercup@aftercup.space">aftercup@aftercup.space</a></div>`;
 
   content.innerHTML = html;
