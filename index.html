@@ -243,6 +243,39 @@ body{
 }
 .collapsebody.closed{max-height:0;opacity:0;}
 
+/* ---------- nearby departures ---------- */
+.nearbyprompt{padding:20px 16px 16px;text-align:center;}
+.nearbyprompt .np-icon{display:flex;justify-content:center;margin-bottom:10px;color:var(--ink-soft);opacity:0.7;}
+.nearbyprompt .np-icon svg{width:32px;height:32px;stroke-width:1.6;}
+.nearbyprompt .np-text{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-bottom:14px;}
+.locbtn{
+  display:inline-flex;align-items:center;gap:7px;border:none;border-radius:12px;
+  padding:10px 16px;font-size:13.5px;font-weight:700;font-family:var(--sans);cursor:pointer;
+  background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));color:#fff;
+  transition:transform .12s ease;box-shadow:0 3px 10px rgba(78,23,33,0.25);
+}
+.locbtn svg{width:15px;height:15px;}
+.locbtn:active{transform:scale(0.95);}
+.locbtn.ghost{background:rgba(122,42,58,0.08);color:var(--maroon);box-shadow:none;}
+.nearby-topline{display:flex;gap:8px;padding:12px 13px 4px;flex-wrap:wrap;}
+.nearby-searchwrap{padding:0 13px 14px;}
+.nearby-searchwrap .searchbox{padding:9px 13px;}
+.nearby-searchwrap .searchbox input{font-size:13.5px;}
+.nearbysuggest{margin:0 13px 12px;}
+.nearbysuggest .rowbtn{padding:10px 12px;}
+.nearbygroup{border-top:1px solid var(--grey-line);}
+.nearbygroup:first-of-type{border-top:none;}
+.nearbygroup-head{
+  display:flex;align-items:center;justify-content:space-between;width:100%;
+  border:none;background:rgba(122,42,58,0.04);padding:9px 13px;cursor:pointer;
+  font-family:var(--sans);text-align:left;transition:background .15s ease;
+}
+.nearbygroup-head:active{background:rgba(122,42,58,0.1);}
+.ngh-name{font-size:13px;font-weight:700;color:var(--ink);}
+.ngh-dist{font-size:11px;font-weight:700;color:var(--turquoise);flex-shrink:0;margin-left:8px;}
+.nearbyempty{padding:10px 13px 12px;font-size:12.5px;color:var(--ink-soft);}
+.favchiprow{padding:0 13px 10px;display:flex;flex-wrap:wrap;}
+
 /* ---------- list items ---------- */
 .card{
   background:var(--glass);
@@ -593,6 +626,8 @@ const ICO = {
   home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>',
   bus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18h2.5a1 1 0 0 0 1-1.2l-1.2-5.6c-.3-1.4-1.5-2.2-2.8-2.2H6.5c-1.3 0-2.5.8-2.8 2.2L2.5 16.8a1 1 0 0 0 1 1.2H6"/><path d="M4 12h16"/><path d="M8 6.5v5.5"/><path d="M16 6.5v5.5"/><circle cx="7.5" cy="18" r="2"/><circle cx="16.5" cy="18" r="2"/><path d="M9.5 18h5"/></svg>',
   route:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.4"/><circle cx="18" cy="5" r="2.4"/><path d="M8.2 19h7.3a3 3 0 0 0 3-3v-.8a3 3 0 0 0-3-3H8.5a3 3 0 0 1-3-3v-.8a3 3 0 0 1 3-3H16"/></svg>',
+  locate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2v3.2"/><path d="M12 18.8v3.2"/><path d="M2 12h3.2"/><path d="M18.8 12H22"/></svg>',
+  refresh:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.3-6.4L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.3 6.4L3 16"/><path d="M3 21v-5h5"/></svg>',
   mapPin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
   radio:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M8.3 8.3a5.3 5.3 0 0 0 0 7.4"/><path d="M15.7 8.3a5.3 5.3 0 0 1 0 7.4"/><path d="M5.4 5.4a9.6 9.6 0 0 0 0 13.2"/><path d="M18.6 5.4a9.6 9.6 0 0 1 0 13.2"/></svg>',
   menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>',
@@ -699,12 +734,65 @@ function routeBadgesForStop(sid){
   return out;
 }
 
+/* ---------- nearby departures: distance + state helpers ---------- */
+function haversineMeters(lat1, lon1, lat2, lon2){
+  const R = 6371000;
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+function fmtDistance(m){
+  if(m < 1000) return Math.round(m/10)*10 + ' m';
+  return (m/1000).toFixed(1).replace('.', ',') + ' km';
+}
+function getNearbyRef(){
+  try{ return JSON.parse(localStorage.getItem('mik_nearby_ref')||'null'); }catch(e){ return null; }
+}
+function setNearbyRef(ref){
+  try{ localStorage.setItem('mik_nearby_ref', JSON.stringify(ref)); }catch(e){}
+}
+function clearNearbyRef(){
+  try{ localStorage.removeItem('mik_nearby_ref'); }catch(e){}
+}
+function nearbyRefCoords(ref){
+  if(!ref) return null;
+  if(ref.type==='geo') return {lat: ref.lat, lon: ref.lon};
+  if(ref.type==='stop' && STOPS[ref.stopId]) return {lat: STOPS[ref.stopId][1], lon: STOPS[ref.stopId][2]};
+  return null;
+}
+function nearestStops(lat, lon, limit){
+  const list = Object.keys(STOPS).map(sid=>{
+    const s = STOPS[sid];
+    return {sid, name: s[0], dist: haversineMeters(lat, lon, s[1], s[2])};
+  });
+  list.sort((a,b)=>a.dist-b.dist);
+  return list.slice(0, limit);
+}
+function upcomingDeparturesForStop(sid, limit){
+  const todayYMD = toYMD(new Date());
+  const active = new Set(activeServicesForDate(todayYMD));
+  const now = nowTimeStr();
+  const entries = VARIANTS_BY_STOP[sid] || [];
+  let deps = [];
+  entries.forEach(({v, idx})=>{
+    v.trips.forEach(t=>{
+      if(active.has(t.s) && t.t[idx] && t.t[idx] >= now){
+        deps.push({time: t.t[idx], routeId: v.r, route: ROUTES[v.r][0], head: v.head});
+      }
+    });
+  });
+  deps.sort((a,b)=> a.time < b.time ? -1 : a.time > b.time ? 1 : 0);
+  return deps.slice(0, limit);
+}
+
 function getCurrentlyRunningTrips(){
   const now = nowTimeStr();
   const active = new Set(activeServicesForDate(toYMD(new Date())));
   const running = [];
   VARIANTS.forEach(v=>{
-    v.trips.forEach(t=>{
+    v.trips.forEach((t, ti)=>{
       if(!active.has(t.s)) return;
       const first = t.t[0], last = t.t[t.t.length-1];
       if(now < first || now > last) return;
@@ -714,6 +802,7 @@ function getCurrentlyRunningTrips(){
       }
       const nextIdx = Math.min(idx+1, v.stops.length-1);
       running.push({
+        key: v.id+'_'+ti,
         routeId: v.r,
         route: ROUTES[v.r][0],
         head: v.head,
@@ -935,13 +1024,7 @@ function wireCollapseToggles(root){
 
 /* ---- running-trips card: build, wire, animate, auto-refresh ---- */
 function buildRunningRows(){
-  const running = getCurrentlyRunningTrips();
-  const seen = {};
-  return running.slice(0,25).map(r=>{
-    const gkey = r.routeId+'|'+r.head;
-    seen[gkey] = (seen[gkey]||0)+1;
-    return Object.assign({}, r, {key: gkey+'|'+seen[gkey]});
-  });
+  return getCurrentlyRunningTrips().slice(0,25);
 }
 function runningRowNode(r){
   const node = el(`<div class="dep" data-key="${escAttr(r.key)}">
@@ -1017,6 +1100,121 @@ function startRunningRefresh(){
   }, 20000);
 }
 
+/* ---- nearby departures card ---- */
+function renderNearbyCard(){
+  const card = document.getElementById('nearbycard');
+  if(!card) return;
+  const ref = getNearbyRef();
+  const coords = nearbyRefCoords(ref);
+
+  if(!coords){
+    card.innerHTML = nearbyIdleHtml();
+    wireNearbyIdle(card);
+    return;
+  }
+
+  const stops = nearestStops(coords.lat, coords.lon, 3);
+  let html = `<div class="nearby-topline">
+    <button class="locbtn" id="nearby-relocate">${ICO.locate} Frissítés</button>
+    <button class="locbtn ghost" id="nearby-change">Módosítás</button>
+  </div>`;
+  stops.forEach(s=>{
+    const deps = upcomingDeparturesForStop(s.sid, 2);
+    html += `<div class="nearbygroup">
+      <button class="nearbygroup-head" data-sid="${s.sid}"><span class="ngh-name">${esc(s.name)}</span><span class="ngh-dist">${fmtDistance(s.dist)}</span></button>`;
+    if(!deps.length){
+      html += `<div class="nearbyempty">Ma már nincs több induló járat innen.</div>`;
+    }else{
+      deps.forEach(d=>{
+        html += `<div class="dep">
+          <div class="time">${esc(d.time.slice(0,5))}</div>
+          <div class="badge sm linkbadge" data-route="${d.routeId}">${esc(d.route)}</div>
+          <div class="dd"><div class="dhead">→ ${esc(d.head)}</div></div>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  });
+  card.innerHTML = html;
+  card.querySelectorAll('[data-route]').forEach(b=>b.onclick=()=>openRoute(b.dataset.route));
+  card.querySelectorAll('[data-sid]').forEach(b=>b.onclick=()=>openStopDetail(b.dataset.sid));
+  const relocateBtn = card.querySelector('#nearby-relocate');
+  if(relocateBtn) relocateBtn.onclick = ()=>{
+    if(ref && ref.type==='geo') requestGeoLocation();
+    else renderNearbyCard();
+  };
+  const changeBtn = card.querySelector('#nearby-change');
+  if(changeBtn) changeBtn.onclick = ()=>{ clearNearbyRef(); renderNearbyCard(); };
+}
+function nearbyIdleHtml(){
+  const favStops = FAVORITES.filter(f=>f.type==='stop');
+  let html = `<div class="nearbyprompt">
+    <div class="np-icon">${ICO.mapPin}</div>
+    <div class="np-text">Engedélyezd a helymeghatározást, hogy megmutassuk a hozzád legközelebbi indulásokat.</div>
+    <button class="locbtn primary" id="nearby-locate">${ICO.locate} Helyzetem meghatározása</button>
+  </div>`;
+  html += `<div class="nearby-searchwrap"><div class="searchbox">${ICO.search}<input id="nearbysearch" placeholder="vagy add meg egy megálló nevét…" autocomplete="off"></div></div>`;
+  html += `<div id="nearbySuggest"></div>`;
+  if(favStops.length){
+    html += `<div class="section-label" style="margin:0 0 6px;padding:0 13px;">Kedvenc megállóból</div>`;
+    html += `<div class="favchiprow" id="nearbyFavRow">` + favStops.map(f=>`<div class="favchip" data-stopid="${f.id}">${ICO.star} ${esc(f.label)}</div>`).join('') + `</div>`;
+  }
+  return html;
+}
+function wireNearbyIdle(card){
+  const locateBtn = card.querySelector('#nearby-locate');
+  if(locateBtn) locateBtn.onclick = requestGeoLocation;
+
+  const input = card.querySelector('#nearbysearch');
+  const suggest = card.querySelector('#nearbySuggest');
+  if(input){
+    input.oninput = ()=>{
+      const q = norm(input.value.trim());
+      if(!q){ suggest.innerHTML=''; return; }
+      const matches = ALL_STOP_NAMES.filter(n=>norm(n).includes(q)).slice(0,6);
+      if(!matches.length){ suggest.innerHTML = `<div class="nearbyempty">Nincs találat.</div>`; return; }
+      suggest.innerHTML = `<div class="card nearbysuggest">` + matches.map(n=>
+        rowBtnHtml('', n, routesServingStop(STOPS_BY_NAME[n][0]).slice(0,4).join(', '), `data-pickstop="${escAttr(n)}"`)
+      ).join('') + `</div>`;
+      suggest.querySelectorAll('[data-pickstop]').forEach(b=>b.onclick=()=>{
+        const ids = STOPS_BY_NAME[b.dataset.pickstop];
+        setNearbyRef({type:'stop', stopId: ids[0]});
+        renderNearbyCard();
+      });
+    };
+  }
+  card.querySelectorAll('#nearbyFavRow [data-stopid]').forEach(chip=>{
+    chip.onclick = ()=>{
+      setNearbyRef({type:'stop', stopId: chip.dataset.stopid});
+      renderNearbyCard();
+    };
+  });
+}
+function requestGeoLocation(){
+  const card = document.getElementById('nearbycard');
+  if(!card) return;
+  if(!navigator.geolocation){
+    card.innerHTML = emptyHtml('mapPin','A helymeghatározás nem elérhető','A böngésződ nem támogatja. Válassz egy megállót kézzel.') + nearbySearchOnlyHtml();
+    wireNearbyIdle(card);
+    return;
+  }
+  card.innerHTML = `<div class="loadingrow"><span class="spinner"></span>Helyzet meghatározása…</div>`;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      setNearbyRef({type:'geo', lat: pos.coords.latitude, lon: pos.coords.longitude});
+      renderNearbyCard();
+    },
+    ()=>{
+      card.innerHTML = emptyHtml('mapPin','Nem sikerült meghatározni a helyzeted','Ellenőrizd a helymeghatározási engedélyt, vagy válassz egy megállót kézzel.') + nearbySearchOnlyHtml();
+      wireNearbyIdle(card);
+    },
+    {enableHighAccuracy:false, timeout:8000, maximumAge:60000}
+  );
+}
+function nearbySearchOnlyHtml(){
+  return `<div class="nearby-searchwrap"><div class="searchbox">${ICO.search}<input id="nearbysearch" placeholder="Megálló neve…" autocomplete="off"></div></div><div id="nearbySuggest"></div>`;
+}
+
 function renderRoutes(header, searchSlot, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Helyi busz menetrend · Kaposvár');
   searchSlot.innerHTML = `<div class="searchwrap"><div class="searchbox">${ICO.search}<input id="homesearch" placeholder="Járatszám vagy megálló neve…" autocomplete="off"></div></div>`;
@@ -1032,6 +1230,9 @@ function renderRoutes(header, searchSlot, content){
   html += collapseHeaderHtml('running','Jelenleg közlekedik', true);
   html += `<div class="collapsebody ${isSectionCollapsed('running')?'closed':''}" id="body-running"><div class="card" id="runcard"></div></div>`;
 
+  html += collapseHeaderHtml('nearby','Hozzám közeli járatok');
+  html += `<div class="collapsebody ${isSectionCollapsed('nearby')?'closed':''}" id="body-nearby"><div class="card" id="nearbycard"></div></div>`;
+
   html += `<div id="resultsArea"></div>`;
   html += collapseHeaderHtml('routes', `Vonalak (${ROUTE_LIST.length})`);
   html += `<div class="collapsebody ${isSectionCollapsed('routes')?'closed':''}" id="body-routes"><div id="gridWrapOuter">`;
@@ -1043,6 +1244,7 @@ function renderRoutes(header, searchSlot, content){
 
   renderRunningCard();
   if(!isSectionCollapsed('running')) startRunningRefresh();
+  renderNearbyCard();
 
   if(FAVORITES.length){
     const fw = document.getElementById('favwrap');
