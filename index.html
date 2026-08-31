@@ -444,6 +444,15 @@ input, textarea{
 
 /* ---------- variant tabs ---------- */
 .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:2px;}
+.routedetailtoggle{margin-bottom:2px;}
+.routemappanel{
+  height:52vh;max-height:480px;min-height:320px;margin-top:10px;
+  border-radius:var(--radius);position:relative;overflow:hidden;
+  background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);
+  border:1px solid var(--glass-border);
+  box-shadow:0 4px 20px rgba(60,20,26,0.07), inset 0 1px 0 rgba(255,255,255,0.55);
+}
+#routeMap{width:100%;height:100%;background:var(--surface-solid-2);}
 .tabs::-webkit-scrollbar{display:none;}
 .tabbtn{
   flex-shrink:0;border:1px solid var(--glass-border);background:var(--glass);color:var(--ink-soft);
@@ -1082,6 +1091,7 @@ function reanimate(el){
 function render(){
   stopRunningRefresh();
   destroyStopsMap();
+  destroyRouteMap();
   renderNav();
   const header = document.getElementById('header');
   const searchSlot = document.getElementById('search-slot');
@@ -1436,6 +1446,12 @@ function openRoute(routeId, variantIndex){
 }
 
 /* ---- ROUTE DETAIL ---- */
+function getRouteDetailViewPref(){
+  try{ return localStorage.getItem('mik_routedetailview') || 'schedule'; }catch(e){ return 'schedule'; }
+}
+function setRouteDetailViewPref(v){
+  try{ localStorage.setItem('mik_routedetailview', v); }catch(e){}
+}
 function renderRouteDetail(header, content){
   const r = ROUTES[state.routeId];
   const variants = VARIANTS_BY_ROUTE[state.routeId] || [];
@@ -1446,6 +1462,7 @@ function renderRouteDetail(header, content){
   document.getElementById('btn-back').onclick = goBack;
   document.getElementById('btn-star').onclick = ()=>{ toggleFav('route', state.routeId, `${r[0]} vonal`, r[1]); render(); };
 
+  const viewPref = getRouteDetailViewPref();
   let html = '';
   if(variants.length>1){
     html += `<div class="tabs">` + variants.map((vv,i)=>{
@@ -1453,15 +1470,127 @@ function renderRouteDetail(header, content){
       return `<button class="tabbtn ${i===vi?'active':''}" data-vi="${i}">${esc(first)} → ${esc(vv.head)}</button>`;
     }).join('') + `</div>`;
   }
-  html += dateNavHtml();
-  html += `<div id="gridarea"></div>`;
+  html += `<div class="themerow routedetailtoggle">
+    <button class="themebtn ${viewPref==='schedule'?'active':''}" data-rdview-opt="schedule">${ICO.list}<span>Menetrend</span></button>
+    <button class="themebtn ${viewPref==='map'?'active':''}" data-rdview-opt="map">${ICO.mapPin}<span>Térkép</span></button>
+  </div>`;
+
+  if(viewPref==='map'){
+    html += `<div class="routemappanel" id="routeMapWrap">
+      <div id="routeMap"></div>
+      <div class="loadingrow" id="routeMapLoadingRow"><span class="spinner"></span>Térkép betöltése…</div>
+    </div>`;
+  }else{
+    html += dateNavHtml();
+    html += `<div id="gridarea"></div>`;
+  }
   content.innerHTML = html;
 
   if(variants.length>1){
     content.querySelectorAll('[data-vi]').forEach(b=>b.onclick=()=>{ state.variantIndex = parseInt(b.dataset.vi); render(); });
   }
-  wireDateNav(render);
-  drawGrid(v);
+  content.querySelectorAll('[data-rdview-opt]').forEach(b=>b.onclick=()=>{
+    setRouteDetailViewPref(b.dataset.rdviewOpt);
+    render();
+  });
+
+  if(viewPref==='map'){
+    initRouteMap(v);
+  }else{
+    wireDateNav(render);
+    drawGrid(v);
+  }
+}
+
+/* ---- route map (single-route shape + stops + estimated positions) ---- */
+let RMAP = null, RMAP_VEHLAYER = null, RMAP_TIMER = null;
+let rmapVehicleMarkers = {};
+function destroyRouteMap(){
+  if(RMAP_TIMER){ clearInterval(RMAP_TIMER); RMAP_TIMER = null; }
+  if(RMAP){ RMAP.remove(); RMAP = null; RMAP_VEHLAYER = null; }
+  rmapVehicleMarkers = {};
+}
+function initRouteMap(v){
+  ensureLeaflet(()=>{
+    const container = document.getElementById('routeMap');
+    if(!container) return;
+    const map = L.map('routeMap', {zoomControl:true, attributionControl:true});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:19, attribution:'© OpenStreetMap közreműködők'
+    }).addTo(map);
+
+    let bounds = [];
+    if(v.shapePts && v.shapePts.length){
+      L.polyline(v.shapePts, {color:'#7A2A3A', weight:4, opacity:0.75}).addTo(map);
+      bounds = v.shapePts.slice();
+    }
+    v.stops.forEach((sid, idx)=>{
+      const s = STOPS[sid];
+      const m = L.circleMarker([s[1], s[2]], {radius:6, color:'#2B6FD4', weight:2, fillColor:'#2B6FD4', fillOpacity:0.85}).addTo(map);
+      m.bindPopup(`<div class="mappopup"><b>${idx+1}. ${esc(s[0])}</b><br><a href="#" data-popup-stop="${sid}">Megállólap megnyitása →</a></div>`);
+      m.on('popupopen', (e)=>{
+        const el = e.popup.getElement().querySelector('[data-popup-stop]');
+        if(el) el.onclick = (ev)=>{ ev.preventDefault(); openStopDetail(sid); };
+      });
+      if(!bounds.length) bounds.push([s[1], s[2]]);
+    });
+    if(bounds.length) map.fitBounds(bounds, {padding:[22,22]});
+    else map.setView([46.3597,17.7963], 13);
+
+    const vehLayer = L.layerGroup().addTo(map);
+    RMAP = map; RMAP_VEHLAYER = vehLayer;
+    const loadingRow = document.getElementById('routeMapLoadingRow');
+    if(loadingRow) loadingRow.remove();
+    refreshRouteVehicleMarkers(v);
+    RMAP_TIMER = setInterval(()=>{
+      if(state.view !== 'routeDetail' || getRouteDetailViewPref() !== 'map'){ destroyRouteMap(); return; }
+      refreshRouteVehicleMarkers(v);
+    }, 15000);
+  }, ()=>{
+    const wrap = document.getElementById('routeMapWrap');
+    if(wrap) wrap.innerHTML = emptyHtml('cloudOff','A térkép nem tölthető be','Ellenőrizd az internetkapcsolatot, és próbáld újra.');
+  });
+}
+function refreshRouteVehicleMarkers(v){
+  if(!RMAP_VEHLAYER) return;
+  const now = nowTimeStr();
+  const nowSec = timeToSec(now);
+  const active = new Set(activeServicesForDate(toYMD(new Date())));
+  const route = ROUTES[v.r][0];
+  const seenKeys = new Set();
+  v.trips.forEach((t, ti)=>{
+    if(!active.has(t.s)) return;
+    const first = t.t[0], last = t.t[t.t.length-1];
+    if(now < first || now > last) return;
+    let idx = t.t.length-1;
+    for(let i=0;i<t.t.length-1;i++){ if(now >= t.t[i] && now < t.t[i+1]){ idx = i; break; } }
+    const nextIdx = Math.min(idx+1, v.stops.length-1);
+    const startSec = timeToSec(t.t[idx]), endSec = timeToSec(t.t[nextIdx]);
+    const frac = endSec>startSec ? Math.min(1, Math.max(0, (nowSec-startSec)/(endSec-startSec))) : 0;
+    let lat, lon;
+    if(v.shapePts && v.stopDist){
+      const d1 = v.stopDist[idx], d2 = v.stopDist[nextIdx];
+      const pos = pointAlongShape(v, d1 + (d2-d1)*frac);
+      lat = pos[0]; lon = pos[1];
+    }else{
+      const s1 = STOPS[v.stops[idx]], s2 = STOPS[v.stops[nextIdx]];
+      lat = lerp(s1[1], s2[1], frac); lon = lerp(s1[2], s2[2], frac);
+    }
+    const key = v.id+'_'+ti;
+    seenKeys.add(key);
+    let marker = rmapVehicleMarkers[key];
+    if(marker){
+      marker.setLatLng([lat, lon]);
+    }else{
+      const icon = L.divIcon({className:'', html:`<div class="vehiclepin">${esc(route)}</div>`, iconSize:[30,30], iconAnchor:[15,15]});
+      marker = L.marker([lat, lon], {icon}).addTo(RMAP_VEHLAYER);
+      rmapVehicleMarkers[key] = marker;
+    }
+    marker.bindPopup(`<div class="mappopup"><b>${esc(route)}</b> → ${esc(v.head)}<br><span class="mp-sub">Becsült pozíció · köv. megálló: ${esc(STOPS[v.stops[nextIdx]][0])} (${esc(t.t[nextIdx].slice(0,5))})</span><br><span class="mp-note">${ICO.info} Ez nem élő adat, csak menetrendi információ.</span></div>`);
+  });
+  Object.keys(rmapVehicleMarkers).forEach(k=>{
+    if(!seenKeys.has(k)){ RMAP_VEHLAYER.removeLayer(rmapVehicleMarkers[k]); delete rmapVehicleMarkers[k]; }
+  });
 }
 
 function drawGrid(v){
