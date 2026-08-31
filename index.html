@@ -1786,7 +1786,6 @@ function renderLive(header, content){
   content.classList.add('noscroll');
   content.classList.add('nopad');
   content.innerHTML = `<div class="livewrap">
-    <div class="livenotice">${ICO.globe} Élő adatok a Kaposvári Közlekedési Zrt. hivatalos rendszeréből — internetkapcsolat szükséges</div>
     <iframe id="liveFrame" title="Kaposbusz élő menetrend"></iframe>
   </div>`;
   document.getElementById('liveFrame').src = 'https://menetrend.kaposbusz.hu/app/schedules/';
