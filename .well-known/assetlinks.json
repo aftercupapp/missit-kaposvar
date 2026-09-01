@@ -1,8 +1,11 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.aftercup.menetrendk",
-        "sha256_cert_fingerprints": ["85:05:5B:B3:2A:E6:4F:82:F4:95:47:27:D1:56:35:E2:02:D3:96:E2:0F:DA:E8:15:8C:2C:59:8E:4B:D3:E9:5E"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aftercup.menetrendk",
+      "sha256_cert_fingerprints":
+        ["F3:12:24:5C:9F:2B:17:1C:94:D9:62:16:44:CB:24:FF:8A:98:B5:D6:F4:FB:6B:83:04:1D:83:12:80:4F:AE:D7", "9D:51:C8:FE:BB:DA:CA:89:F8:28:2A:18:D6:F5:50:C3:0F:40:46:73:6D:51:E1:60:FF:CB:ED:80:7E:0B:D4:54"]
+    }
+  }
+]
