@@ -677,25 +677,24 @@ if(window.matchMedia){
   });
 }
 
-/* ---------------- real viewport height (fixes Android pull-to-refresh / iOS browser-chrome resize issues) ---------------- */
+/* ---------------- real viewport height (fixes Android pull-to-refresh resize issues) ----------------
+   iOS Safari's native 100dvh unit already tracks the true visible area correctly (including
+   safe areas, with no JS timing issues), so on iOS we deliberately do NOT set --app-height and
+   let the CSS fall back to 100dvh. Overriding it with a JS-measured pixel value on iOS was the
+   cause of the bottom nav being pushed off-screen / clipped. Android's WebView has historically
+   had a resize bug with dvh on pull-to-refresh, so it keeps the JS-measured fallback. */
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 function setAppHeight(){
-  // visualViewport.height is the true visible area on iOS/Android (excludes any browser
-  // chrome such as Safari's bottom toolbar), and stays in sync as that chrome shows/hides.
-  // window.innerHeight can briefly report a stale/smaller value before chrome settles.
-  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
-  document.documentElement.style.setProperty('--app-height', h + 'px');
+  if(IS_IOS) return; // let native 100dvh handle it
+  document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
 }
 setAppHeight();
-// re-measure shortly after load too, in case the initial value was taken before the
-// browser's own chrome (address bar / toolbar) finished collapsing into place
-window.addEventListener('load', ()=>{ setAppHeight(); setTimeout(setAppHeight, 300); setTimeout(setAppHeight, 1000); });
 window.addEventListener('resize', setAppHeight);
-window.addEventListener('orientationchange', ()=>{ setAppHeight(); setTimeout(setAppHeight, 300); });
+window.addEventListener('orientationchange', setAppHeight);
 window.addEventListener('pageshow', setAppHeight);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) setAppHeight(); });
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize', setAppHeight);
-  window.visualViewport.addEventListener('scroll', setAppHeight);
 }
 
 const RAW = JSON.parse(document.getElementById('gtfs-data').textContent);
