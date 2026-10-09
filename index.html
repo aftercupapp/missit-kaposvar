@@ -114,7 +114,11 @@ input, textarea{
 .leaflet-container, .leaflet-container *{touch-action:auto;}
 #app{
   display:flex;flex-direction:column;
-  height:100vh;height:100dvh;height:calc(var(--app-height, 100dvh));
+  /* body is pinned to the true viewport via position:fixed;inset:0 above, so 100% here
+     exactly matches the real visible area in every mode (standalone PWA, Safari tab,
+     Android Chrome) — no vh/dvh unit is reliable enough on its own for the home-indicator
+     safe area in installed iOS PWAs, which was leaving a gap under the bottom nav. */
+  height:100%;
   max-width:560px;margin:0 auto;
   position:relative;overflow:hidden;
 }
