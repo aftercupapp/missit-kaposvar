@@ -271,7 +271,7 @@ input, textarea{
 .navbtn svg{width:27px;height:27px;position:relative;stroke-width:2;transition:transform .15s ease;}
 
 /* ---------- content ---------- */
-.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 14px 112px;max-width:100%;}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 14px calc(112px + env(safe-area-inset-bottom));max-width:100%;}
 .content.nopad{padding:0;}
 .content.noscroll{overflow:hidden;}
 
