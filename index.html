@@ -92,6 +92,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:none;position:fixed;inset:0;width:100%;}
 html{background:var(--bg-base-b);}
+html.ios-standalone, html.ios-standalone body{inset:auto;top:0;left:0;right:0;bottom:auto;height:var(--app-height);}
 body{
   font-family:var(--sans);
   color:var(--ink);
@@ -688,9 +689,21 @@ if(window.matchMedia){
    cause of the bottom nav being pushed off-screen / clipped. Android's WebView has historically
    had a resize bug with dvh on pull-to-refresh, so it keeps the JS-measured fallback. */
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_STANDALONE = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
 function setAppHeight(){
-  if(IS_IOS) return; // let native 100dvh handle it
-  document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+  const root = document.documentElement;
+  if(IS_IOS && IS_STANDALONE){
+    // Installed iOS PWA: the layout viewport can come out shorter than the physical screen
+    // (leaving a blank strip under the bottom nav), so size the shell to the real screen.
+    const portrait = window.innerHeight >= window.innerWidth;
+    const sh = Math.max(screen.width, screen.height), sw = Math.min(screen.width, screen.height);
+    const full = portrait ? sh : sw;
+    root.classList.add('ios-standalone');
+    root.style.setProperty('--app-height', Math.max(full, window.innerHeight) + 'px');
+    return;
+  }
+  if(IS_IOS) return; // iOS Safari tab: let the native viewport handle it
+  root.style.setProperty('--app-height', window.innerHeight + 'px');
 }
 setAppHeight();
 window.addEventListener('resize', setAppHeight);
