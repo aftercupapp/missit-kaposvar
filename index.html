@@ -114,7 +114,7 @@ input, textarea{
 .leaflet-container, .leaflet-container *{touch-action:auto;}
 #app{
   display:flex;flex-direction:column;
-  height:100vh;height:100dvh;height:calc(var(--app-height, 100vh));
+  height:100vh;height:100dvh;height:calc(var(--app-height, 100dvh));
   max-width:560px;margin:0 auto;
   position:relative;overflow:hidden;
 }
@@ -677,17 +677,25 @@ if(window.matchMedia){
   });
 }
 
-/* ---------------- real viewport height (fixes Android pull-to-refresh / browser-chrome resize issues) ---------------- */
+/* ---------------- real viewport height (fixes Android pull-to-refresh / iOS browser-chrome resize issues) ---------------- */
 function setAppHeight(){
-  document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
+  // visualViewport.height is the true visible area on iOS/Android (excludes any browser
+  // chrome such as Safari's bottom toolbar), and stays in sync as that chrome shows/hides.
+  // window.innerHeight can briefly report a stale/smaller value before chrome settles.
+  const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', h + 'px');
 }
 setAppHeight();
+// re-measure shortly after load too, in case the initial value was taken before the
+// browser's own chrome (address bar / toolbar) finished collapsing into place
+window.addEventListener('load', ()=>{ setAppHeight(); setTimeout(setAppHeight, 300); setTimeout(setAppHeight, 1000); });
 window.addEventListener('resize', setAppHeight);
-window.addEventListener('orientationchange', setAppHeight);
+window.addEventListener('orientationchange', ()=>{ setAppHeight(); setTimeout(setAppHeight, 300); });
 window.addEventListener('pageshow', setAppHeight);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) setAppHeight(); });
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize', setAppHeight);
+  window.visualViewport.addEventListener('scroll', setAppHeight);
 }
 
 const RAW = JSON.parse(document.getElementById('gtfs-data').textContent);
