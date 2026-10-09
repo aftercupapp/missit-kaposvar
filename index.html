@@ -2018,10 +2018,37 @@ function renderMenu(header, content){
   html += `</div>`;
 
   html += `<div class="infocard"><b>MissIt Kaposvár</b><br>
-    <b>Verzió</b><br>2.0 (2.0.2)<br><br>
+    <b>Verzió</b><br><span id="diagTap">2.0 (2.0.2)</span><div id="diagBox" style="display:none;margin-top:8px;font:11px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;user-select:text;-webkit-user-select:text"></div><br><br>
     <b>Elérhetőség</b><br><a href="mailto:aftercup@aftercup.space">aftercup@aftercup.space</a></div>`;
 
   content.innerHTML = html;
+  const dt = content.querySelector('#diagTap');
+  if(dt) dt.onclick = ()=>{
+    const box = content.querySelector('#diagBox');
+    const probe = document.createElement('div');
+    probe.style.cssText='position:fixed;left:0;top:0;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+    document.body.appendChild(probe);
+    const cs = getComputedStyle(probe);
+    const r = id => { const e=document.getElementById(id); return e? Math.round(e.getBoundingClientRect().height)+' / bottom '+Math.round(e.getBoundingClientRect().bottom) : '-'; };
+    const vv = window.visualViewport;
+    box.textContent = [
+      'innerWxH: '+innerWidth+' x '+innerHeight,
+      'screen: '+screen.width+' x '+screen.height,
+      'visualViewport: '+(vv? Math.round(vv.width)+' x '+Math.round(vv.height)+' off '+Math.round(vv.offsetTop):'n/a'),
+      'html clientH: '+document.documentElement.clientHeight,
+      'body h/bottom: '+(function(){const b=document.body.getBoundingClientRect();return Math.round(b.height)+' / '+Math.round(b.bottom)})(),
+      '#app h/bottom: '+r('app'),
+      'nav h/bottom: '+r('bottomnav'),
+      'safe top/bottom: '+cs.paddingTop+' / '+cs.paddingBottom,
+      'standalone: nav='+navigator.standalone+' mq='+(matchMedia('(display-mode: standalone)').matches),
+      'html class: '+document.documentElement.className,
+      '--app-height: '+getComputedStyle(document.documentElement).getPropertyValue('--app-height'),
+      'dpr: '+devicePixelRatio
+    ].join('\n');
+    probe.remove();
+    box.style.display = box.style.display==='none' ? 'block' : 'none';
+    if(box.style.display==='block') box.style.display='block';
+  };
   content.querySelectorAll('[data-theme-opt]').forEach(b=>b.onclick=()=>{
     setThemePref(b.dataset.themeOpt);
     renderMenu(header, content);
