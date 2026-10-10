@@ -94,7 +94,7 @@ html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:non
 html{background:var(--bg-base-b);}
 /* iOS 26 WebKit regression: in standalone + black-translucent the web view ends above the physical
    screen bottom (gap ~ top safe inset). Nothing can be drawn there, so blend the app into the page colour. */
-html.ios-gap{--safe-bottom:30px;}
+html.ios-gap{--safe-bottom:33px;}
 html.ios-gap .navfade{background:linear-gradient(to bottom,transparent,var(--bg-base-b) 88%);-webkit-mask-image:none;mask-image:none;-webkit-backdrop-filter:none;backdrop-filter:none;}
 html.ios-gap body{background:var(--bg-base-b);}
 body{
@@ -254,7 +254,7 @@ input, textarea{
   transition:background .3s ease;
 }
 .bottomnav{
-  position:absolute;left:12px;right:12px;bottom:calc(6px + var(--safe-bottom, max(env(safe-area-inset-bottom), 38px)));
+  position:absolute;left:12px;right:12px;bottom:calc(6px + var(--safe-bottom, max(env(safe-area-inset-bottom), 33px)));
   display:flex;border-radius:999px;z-index:30;overflow:hidden;
   background:var(--glass-strong);
   -webkit-backdrop-filter:blur(26px) saturate(190%);
@@ -264,7 +264,7 @@ input, textarea{
   transition:background .3s ease, border-color .3s ease;
 }
 .navbtn{
-  flex:1;border:none;background:none;padding:20px 2px;position:relative;
+  flex:1;border:none;background:none;padding:25px 2px;position:relative;
   display:flex;align-items:center;justify-content:center;
   color:var(--ink-soft);font-family:var(--sans);cursor:pointer;
   transition:color .15s ease;
@@ -280,7 +280,7 @@ input, textarea{
 .navbtn svg{width:27px;height:27px;position:relative;stroke-width:2;transition:transform .15s ease;}
 
 /* ---------- content ---------- */
-.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 14px calc(112px + var(--safe-bottom, max(env(safe-area-inset-bottom), 38px)));max-width:100%;}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:10px 14px calc(120px + var(--safe-bottom, max(env(safe-area-inset-bottom), 33px)));max-width:100%;}
 .content.nopad{padding:0;}
 .content.noscroll{overflow:hidden;}
 
