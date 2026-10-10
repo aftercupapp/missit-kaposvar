@@ -880,15 +880,9 @@ const VEHICLES = [
   {
     id:'byd1', name:'BYD B12.b szólóbusz', type:'Szólóbusz · Elektromos',
     img:'https://i.postimg.cc/sgK9W77R/IMG-0921.jpg',
-    seats:'37', standing:null, total:null,
-    features:['ac','low'],
-    year:'2026', fleet:'10 db', drivetrain:{icon:'zap', label:'Elektromos meghajtás'},
-    specs:[
-      ['ruler','Hossz','12 m · 3 ajtó'],
-      ['battery','Akkumulátor','BYD Blade Battery (LFP), 491 kWh'],
-      ['zap','Hatótáv','akár 633 km (UITP SORT 2)'],
-      ['factory','Gyártás','BYD, Komárom']
-    ]
+    seats:'37', standing:'68', total:'105',
+    features:['ac','heat','low'],
+    year:'2026', fleet:'10 db', drivetrain:{icon:'zap', label:'Elektromos meghajtás'}
   }
 ];
 const VEHICLE_BY_ID = {};
@@ -2133,7 +2127,7 @@ function renderVehicles(header, content){
   document.getElementById('btn-back').onclick = goBack;
   let html = `<div class="section-label">Jelenlegi állomány</div>`;
   VEHICLES.forEach(v=>{
-    const cap = v.total ? `${v.total} fő` : `${v.seats} ülőhely`;
+    const cap = `${v.total} fő`;
     html += `<button class="vcard" data-veh="${v.id}"><img class="vthumb" src="${v.img}" alt="${escAttr(v.name)}" loading="lazy"><div class="vinfo"><div class="rowicon">${ICO.bus}</div><div class="rt"><div class="rname">${esc(v.name)}</div><div class="rsub">${esc(v.type)} · ${esc(cap)}</div></div><span class="chev">${ICO.chevronRight}</span></div></button>`;
   });
   content.innerHTML = html;
