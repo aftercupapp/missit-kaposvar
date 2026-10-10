@@ -133,6 +133,11 @@ input, textarea{
 @keyframes popScale{0%{transform:scale(1);}45%{transform:scale(1.4);}100%{transform:scale(1);}}
 @keyframes spin{to{transform:rotate(360deg);}}
 .fx{animation:fadeInUp .3s cubic-bezier(.22,.9,.32,1) both;}
+@keyframes slideFromR{from{opacity:.0;transform:translateX(38px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideFromL{from{opacity:.0;transform:translateX(-38px);}to{opacity:1;transform:translateX(0);}}
+.slide-r{animation:slideFromR .34s cubic-bezier(.22,.9,.32,1) both;}
+.slide-l{animation:slideFromL .34s cubic-bezier(.22,.9,.32,1) both;}
+@media (prefers-reduced-motion:reduce){.slide-r,.slide-l{animation:fadeInUp .2s ease both;}}
 .spinner{
   width:18px;height:18px;border-radius:50%;border:2.5px solid var(--grey-line);
   border-top-color:var(--maroon);display:inline-block;animation:spin .7s linear infinite;
@@ -215,10 +220,10 @@ input, textarea{
   background:var(--bg-base-a);
   -webkit-backdrop-filter:blur(30px) saturate(180%);
   backdrop-filter:blur(30px) saturate(180%);
-  transform:translateY(-8px);opacity:0;pointer-events:none;
-  transition:transform .22s cubic-bezier(.22,.9,.32,1), opacity .18s ease;
+  transform:translateX(100%);visibility:hidden;pointer-events:none;
+  transition:transform .3s cubic-bezier(.22,.9,.32,1), visibility 0s linear .3s;
 }
-.search-overlay.open{transform:translateY(0);opacity:1;pointer-events:auto;}
+.search-overlay.open{transform:translateX(0);visibility:visible;pointer-events:auto;transition:transform .3s cubic-bezier(.22,.9,.32,1), visibility 0s;}
 .search-overlay-head{
   display:flex;align-items:center;gap:9px;
   padding:calc(14px + env(safe-area-inset-top)) 16px 12px;
@@ -1027,19 +1032,27 @@ function toggleFav(type,id,label,sub){
   saveFavs();
 }
 
+let slideDir = null;
+const NAV_ORDER = ['routes','stops','news','menu'];
+const NAV_MAP = {routeDetail:'routes', stopDetail:'stops', stopPlatforms:'stops', vehicles:'menu', vehicleDetail:'menu', tickets:'menu', wifi:'menu', live:'menu', blog:'menu', tekergo:'menu'};
+function navIdx(v){ return NAV_ORDER.indexOf(NAV_MAP[v]||v); }
 function go(view, extra){
+  slideDir = 'r';
   state.stack.push({view: state.view, routeId: state.routeId, variantIndex: state.variantIndex, stopId: state.stopId, vehicleId: state.vehicleId});
   state.view = view;
   Object.assign(state, extra||{});
   render();
 }
 function goRoot(view){
+  const a = navIdx(state.view), b = navIdx(view);
+  slideDir = (a>=0 && b>=0 && a!==b) ? (b>a?'r':'l') : (state.view===view && !state.stack.length ? null : 'l');
   state.stack = [];
   state.view = view;
   render();
 }
 function goBack(){
   if(state.stack.length===0){ goRoot('home'); return; }
+  slideDir = 'l';
   const prev = state.stack.pop();
   state.view = prev.view; state.routeId = prev.routeId; state.variantIndex = prev.variantIndex; state.stopId = prev.stopId; state.vehicleId = prev.vehicleId;
   render();
@@ -1159,7 +1172,10 @@ function render(){
   else if(state.view==='blog') renderBlog(header, content);
   else if(state.view==='tekergo') renderTekergo(header, content);
   content.scrollTop = 0;
-  reanimate(content);
+  const d = slideDir; slideDir = null;
+  if(d){
+    [content, header].forEach(e=>{ e.classList.remove('fx','slide-r','slide-l'); void e.offsetWidth; e.classList.add('slide-'+d); });
+  } else reanimate(content);
 }
 /* ---- ROUTES (home / landing screen) ---- */
 function fmtShortRange(){
