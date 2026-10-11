@@ -642,6 +642,13 @@ a.rowbtn{display:flex;}
 .maplocatebtn:active{transform:scale(0.9);}
 .maplocatebtn svg{width:19px;height:19px;}
 #mapLoadingRow{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--surface-solid-2);z-index:15;}
+.vpin{position:relative;width:46px;height:46px;}
+.vdrop{position:absolute;left:5px;top:5px;width:36px;height:36px;box-sizing:border-box;border-radius:0 50% 50% 50%;
+  background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));border:3px solid #fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;
+  transform:rotate(calc(var(--r,0deg) + 45deg));}
+.vtxt{display:block;font-weight:800;font-size:11px;line-height:1;transform:rotate(calc(-1 * (var(--r,0deg) + 45deg)));}
+.vehiclepin{position:absolute;left:11px;top:11px;}
 .vehiclepin{
   width:28px;height:28px;border-radius:50%;background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));
   color:#fff;font-weight:800;font-size:10.5px;display:flex;align-items:center;justify-content:center;
@@ -790,6 +797,28 @@ function pointAlongShape(v, targetDist){
   return pts[last];
 }
 
+function bearingDeg(lat1,lon1,lat2,lon2){
+  const k = Math.cos(lat1*Math.PI/180);
+  return (Math.atan2((lon2-lon1)*k, lat2-lat1)*180/Math.PI + 360) % 360;
+}
+function headingAt(v, idx, nextIdx, targetDist){
+  if(v.shapePts && v.shapeCumDist && targetDist!=null){
+    let a = pointAlongShape(v, targetDist), b = pointAlongShape(v, targetDist+25);
+    if(Math.abs(a[0]-b[0])<1e-9 && Math.abs(a[1]-b[1])<1e-9){ a = pointAlongShape(v, targetDist-25); b = pointAlongShape(v, targetDist); }
+    if(a[0]!==b[0] || a[1]!==b[1]) return bearingDeg(a[0],a[1],b[0],b[1]);
+  }
+  const s1 = STOPS[v.stops[idx]], s2 = STOPS[v.stops[nextIdx]];
+  if(s1 && s2 && (s1[1]!==s2[1]||s1[2]!==s2[2])) return bearingDeg(s1[1],s1[2],s2[1],s2[2]);
+  return 0;
+}
+function vehPinIcon(route, brg){
+  return L.divIcon({className:'', html:`<div class="vpin"><div class="vdrop" style="--r:${Math.round(brg)}deg"><span class="vtxt">${esc(route)}</span></div></div>`, iconSize:[46,46], iconAnchor:[23,23]});
+}
+function setPinHeading(marker, brg){
+  const el = marker.getElement && marker.getElement();
+  const d = el && el.querySelector('.vdrop');
+  if(d) d.style.setProperty('--r', Math.round(brg)+'deg');
+}
 const STOPS_BY_NAME = {}; // name -> [sid,...]
 Object.keys(STOPS).forEach(sid => {
   const name = STOPS[sid][0];
@@ -1658,22 +1687,25 @@ function refreshRouteVehicleMarkers(v){
     const nextIdx = Math.min(idx+1, v.stops.length-1);
     const startSec = timeToSec(t.t[idx]), endSec = timeToSec(t.t[nextIdx]);
     const frac = endSec>startSec ? Math.min(1, Math.max(0, (nowSec-startSec)/(endSec-startSec))) : 0;
-    let lat, lon;
+    let lat, lon, brg = 0;
     if(v.shapePts && v.stopDist){
       const d1 = v.stopDist[idx], d2 = v.stopDist[nextIdx];
       const pos = pointAlongShape(v, d1 + (d2-d1)*frac);
       lat = pos[0]; lon = pos[1];
+      brg = headingAt(v, idx, nextIdx, d1 + (d2-d1)*frac);
     }else{
       const s1 = STOPS[v.stops[idx]], s2 = STOPS[v.stops[nextIdx]];
       lat = lerp(s1[1], s2[1], frac); lon = lerp(s1[2], s2[2], frac);
+      brg = headingAt(v, idx, nextIdx, null);
     }
     const key = v.id+'_'+ti;
     seenKeys.add(key);
     let marker = rmapVehicleMarkers[key];
     if(marker){
       marker.setLatLng([lat, lon]);
+      setPinHeading(marker, brg);
     }else{
-      const icon = L.divIcon({className:'', html:`<div class="vehiclepin">${esc(route)}</div>`, iconSize:[30,30], iconAnchor:[15,15]});
+      const icon = vehPinIcon(route, brg);
       marker = L.marker([lat, lon], {icon}).addTo(RMAP_VEHLAYER);
       rmapVehicleMarkers[key] = marker;
     }
@@ -1817,17 +1849,19 @@ function computeVehiclePositions(){
       const nextIdx = Math.min(idx+1, v.stops.length-1);
       const startSec = timeToSec(t.t[idx]), endSec = timeToSec(t.t[nextIdx]);
       const frac = endSec>startSec ? Math.min(1, Math.max(0, (nowSec-startSec)/(endSec-startSec))) : 0;
-      let lat, lon;
+      let lat, lon, brg = 0;
       if(v.shapePts && v.stopDist){
         const d1 = v.stopDist[idx], d2 = v.stopDist[nextIdx];
         const targetDist = d1 + (d2-d1)*frac;
         const pos = pointAlongShape(v, targetDist);
         lat = pos[0]; lon = pos[1];
+        brg = headingAt(v, idx, nextIdx, targetDist);
       }else{
         const s1 = STOPS[v.stops[idx]], s2 = STOPS[v.stops[nextIdx]];
         lat = lerp(s1[1], s2[1], frac); lon = lerp(s1[2], s2[2], frac);
+        brg = headingAt(v, idx, nextIdx, null);
       }
-      out.push({
+      out.push({ brg,
         key: v.id+'_'+ti, routeId: v.r, route: ROUTES[v.r][0], head: v.head,
         variantIndex: VARIANT_INDEX_IN_ROUTE[v.id] || 0,
         lat, lon,
@@ -1889,8 +1923,9 @@ function refreshVehicleMarkers(){
     let marker = vehicleMarkers[p.key];
     if(marker){
       marker.setLatLng([p.lat, p.lon]);
+      setPinHeading(marker, p.brg);
     }else{
-      const icon = L.divIcon({className:'', html:`<div class="vehiclepin">${esc(p.route)}</div>`, iconSize:[30,30], iconAnchor:[15,15]});
+      const icon = vehPinIcon(p.route, p.brg);
       marker = L.marker([p.lat, p.lon], {icon}).addTo(STOPS_MAP_VEHLAYER);
       marker.on('popupopen', (e)=>{
         const el = e.popup.getElement().querySelector('[data-popup-open-route]');
