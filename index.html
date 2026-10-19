@@ -216,6 +216,81 @@ input, textarea{
 .searchbox input::placeholder{color:#a89d97;}
 .searchbox svg{flex-shrink:0;opacity:0.5;width:17px;height:17px;color:var(--ink-soft);}
 
+/* ---------- planner ---------- */
+.planpanel{position:absolute;left:10px;right:10px;top:10px;z-index:1100;background:var(--glass);border-radius:16px;
+  box-shadow:0 1px 3px rgba(0,0,0,.2),0 6px 18px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;
+  max-height:calc(100% - 150px);}
+.planbar{display:flex;align-items:center;}
+.planbar-main{flex:1;display:flex;align-items:center;gap:12px;border:none;background:none;color:inherit;font:inherit;text-align:left;padding:10px 8px 10px 12px;cursor:pointer;min-width:0;}
+.planbar-main .pb-ic{width:36px;height:36px;border-radius:12px;background:var(--maroon);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.planbar-main .pb-ic svg{width:19px;height:19px;}
+.planbar-main .pb-tx{flex:1;min-width:0;display:flex;flex-direction:column;}
+.planbar-main .pb-tx b{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.planbar-main .pb-tx span{font-size:12px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.planbar-main .pb-chev{display:flex;color:var(--ink-soft);transition:transform .25s ease;}
+.planbar-main .pb-chev svg{width:20px;height:20px;}
+.planpanel.open .pb-chev{transform:rotate(180deg);}
+.planbar-x{border:none;background:none;color:var(--ink-soft);width:40px;height:40px;margin-right:6px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.planbar-x.hidden{display:none;}
+.planbar-x svg{width:18px;height:18px;}
+.planbody{display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 12px 12px;border-top:1px solid var(--grey-line);}
+.planpanel.open .planbody{display:block;animation:fadeInUp .22s ease both;}
+.planbox{position:relative;margin:4px 0 6px;}
+.planfield{display:flex;align-items:center;gap:12px;width:100%;border:none;background:none;color:inherit;font:inherit;text-align:left;padding:10px 52px 10px 4px;cursor:pointer;}
+.planfield .pft{display:flex;flex-direction:column;min-width:0;}
+.planfield .pfl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);}
+.planfield .pfv{font-size:15.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.planfield .pfv.ph{font-weight:600;color:var(--ink-soft);opacity:.75;}
+.pdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;box-sizing:border-box;}
+.pdot.a{border:3px solid var(--turquoise);}
+.pdot.b{background:var(--maroon);border-radius:50% 50% 50% 0;transform:rotate(-45deg);}
+.planline{height:1px;background:var(--grey-line);margin:0 0 0 28px;}
+.planswap{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:none;background:var(--glass-strong);color:var(--maroon);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.planswap svg{width:18px;height:18px;}
+.planswap:active{transform:translateY(-50%) scale(.92);}
+.plantime{margin-bottom:10px;}
+.planchips{display:flex;gap:8px;}
+.planchip{flex:1;border:1px solid var(--grey-line);background:none;color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:8px 6px;border-radius:10px;cursor:pointer;}
+.planchip.active{background:var(--maroon);border-color:var(--maroon);color:#fff;}
+.planinputs{display:flex;gap:8px;margin-top:8px;}
+.planinputs.hidden{display:none;}
+.planinputs input{flex:1;min-width:0;font:inherit;font-size:15px;font-weight:600;padding:8px 10px;border-radius:10px;border:1px solid var(--grey-line);background:var(--glass);color:var(--ink);}
+.plango{width:100%;justify-content:center;margin-bottom:4px;}
+.planmsg{margin-top:10px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;}
+.planpanel .section-label{margin:14px 2px 8px;}
+.planpanel .feedinfo{padding:6px 0 0;}
+.jcard{padding:0;margin-bottom:10px;overflow:hidden;border-radius:14px;border:1px solid var(--grey-line);background:var(--glass);}
+.jcard.sel{border-color:var(--maroon);box-shadow:0 0 0 1px var(--maroon);}
+.jtop{display:block;width:100%;border:none;background:none;color:inherit;font:inherit;text-align:left;padding:0;cursor:pointer;}
+.jhead{display:flex;align-items:baseline;justify-content:space-between;padding:12px 14px 4px;}
+.jtimes{font-family:var(--mono);font-size:19px;}
+.jtimes b{font-weight:800;}
+.jarrow{color:var(--ink-soft);margin:0 6px;font-weight:700;}
+.jdur{font-weight:800;font-size:14px;color:var(--turquoise);}
+.jbadges{display:flex;align-items:center;flex-wrap:wrap;gap:2px;padding:2px 14px 6px;}
+.jbadges .jarrow{margin:0 3px;}
+.jbadges .jmeta{margin-left:auto;font-size:12px;color:var(--ink-soft);font-weight:600;}
+.jmapbtn{display:flex;align-items:center;gap:6px;padding:4px 14px 10px;font-size:12.5px;font-weight:700;color:var(--maroon);}
+.jmapbtn svg{width:14px;height:14px;}
+.badge.sm{min-width:30px;height:24px;font-size:12.5px;border-radius:8px;padding:0 6px;display:inline-flex;}
+.jwalkic svg{width:16px;height:16px;color:var(--ink-soft);vertical-align:middle;}
+.jlegs{border-top:1px solid var(--grey-line);padding:6px 0;}
+.jleg{display:flex;gap:12px;padding:8px 14px;}
+.jl-ic{width:34px;display:flex;justify-content:center;flex-shrink:0;padding-top:1px;}
+.jleg.walk .jl-ic svg{width:19px;height:19px;color:var(--ink-soft);}
+.jleg.walk .jl-tx{font-size:13px;color:var(--ink-soft);padding-top:2px;}
+.jl-tx{flex:1;min-width:0;font-size:14px;}
+.jrow{display:flex;justify-content:space-between;gap:10px;}
+.jrow .jt,.jstop .jt{font-family:var(--mono);font-weight:700;flex-shrink:0;}
+.jsub{font-size:12.5px;color:var(--ink-soft);margin:2px 0;}
+.jwait{font-size:11.5px;font-weight:700;color:var(--amber);padding:0 14px 0 60px;}
+.jtoggle{border:none;background:none;color:var(--maroon);font:inherit;font-size:12.5px;font-weight:700;padding:5px 0 0;cursor:pointer;}
+.jstops{margin-top:6px;border-left:2px solid var(--grey-line);padding-left:10px;}
+.jstops.hidden{display:none;}
+.jstop{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--ink-soft);padding:2px 0;}
+.jstop.em{color:var(--ink);font-weight:700;}
+.jmapbadge{min-width:34px;height:22px;border-radius:11px;color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4);padding:0 4px;box-sizing:border-box;}
+.mapwrap .leaflet-top.leaflet-left{margin-top:68px;}
 /* ---------- search overlay ---------- */
 .search-overlay{
   position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;
@@ -322,7 +397,7 @@ input, textarea{
 .locbtn{
   display:inline-flex;align-items:center;gap:7px;border:none;border-radius:12px;
   padding:10px 16px;font-size:13.5px;font-weight:700;font-family:var(--sans);cursor:pointer;
-  background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));color:#fff;
+  background:var(--maroon);color:#fff;
   transition:transform .12s ease;box-shadow:0 3px 10px rgba(78,23,33,0.25);
 }
 .locbtn svg{width:15px;height:15px;}
@@ -372,7 +447,7 @@ input, textarea{
 
 .badge{
   flex-shrink:0;min-width:38px;height:30px;padding:0 8px;border-radius:10px;
-  background:linear-gradient(160deg,var(--maroon),var(--maroon-dark));color:#fff;font-weight:800;font-size:14px;
+  background:var(--maroon);color:#fff;font-weight:800;font-size:14px;
   display:flex;align-items:center;justify-content:center;font-family:var(--sans);
   box-shadow:0 2px 6px rgba(78,23,33,0.3);
 }
@@ -399,10 +474,10 @@ input, textarea{
 .herobtn::after{
   content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid rgba(255,255,255,0.28);pointer-events:none;
 }
-.herobtn.a{background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));}
-.herobtn.b{background:linear-gradient(150deg,#2b8078,var(--turquoise));}
-.herobtn.c{background:linear-gradient(150deg,#c0812f,#a8631f);}
-.herobtn.d{background:linear-gradient(150deg,#5c4e51,#3d3234);}
+.herobtn.a{background:var(--maroon);}
+.herobtn.b{background:var(--turquoise);}
+.herobtn.c{background:#B8741F;}
+.herobtn.d{background:#4E4245;}
 .herobtn .hicon{position:relative;margin-bottom:8px;opacity:0.92;}
 .herobtn .hicon svg{width:22px;height:22px;stroke-width:2;}
 .herobtn .hl{font-size:15px;font-weight:800;position:relative;display:flex;align-items:center;gap:6px;}
@@ -429,7 +504,7 @@ input, textarea{
 .routesq{
   aspect-ratio:1;border:1px solid rgba(255,255,255,0.28);border-radius:13px;position:relative;overflow:hidden;
   display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13.5px;color:#fff;
-  background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));
+  background:var(--maroon);
   box-shadow:0 3px 10px rgba(78,23,33,0.20);cursor:pointer;font-family:var(--sans);
   transition:transform .12s ease;opacity:0;animation:fadeInUp .35s cubic-bezier(.22,.9,.32,1) both;
 }
@@ -483,7 +558,7 @@ input, textarea{
   font-family:var(--sans);white-space:nowrap;transition:transform .12s ease, background .2s ease, color .2s ease;
 }
 .tabbtn:active{transform:scale(0.95);}
-.tabbtn.active{background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));color:#fff;border-color:transparent;}
+.tabbtn.active{background:var(--maroon);color:#fff;border-color:transparent;}
 
 /* ---------- grid table ---------- */
 .gridwrap{
@@ -644,13 +719,13 @@ a.rowbtn{display:flex;}
 #mapLoadingRow{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--surface-solid-2);z-index:15;}
 .vpin{position:relative;width:46px;height:46px;}
 .vdrop{position:absolute;left:5px;top:5px;width:36px;height:36px;box-sizing:border-box;border-radius:0 50% 50% 50%;
-  background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));border:3px solid #fff;
+  background:var(--maroon);border:3px solid #fff;
   box-shadow:0 2px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;color:#fff;
   transform:rotate(calc(var(--r,0deg) + 45deg));}
 .vtxt{display:block;font-weight:800;font-size:11px;line-height:1;transform:rotate(calc(-1 * (var(--r,0deg) + 45deg)));}
 .vehiclepin{position:absolute;left:11px;top:11px;}
 .vehiclepin{
-  width:28px;height:28px;border-radius:50%;background:linear-gradient(150deg,var(--maroon),var(--maroon-dark));
+  width:28px;height:28px;border-radius:50%;background:var(--maroon);
   color:#fff;font-weight:800;font-size:10.5px;display:flex;align-items:center;justify-content:center;
   box-shadow:0 2px 8px rgba(0,0,0,0.4);border:2px solid #fff;transition:transform 1s linear;
 }
@@ -665,6 +740,53 @@ a.rowbtn{display:flex;}
 .leaflet-popup-tip{background:var(--popup-bg)!important;}
 .leaflet-popup-close-button{color:var(--popup-text)!important;opacity:0.55;}
 .leaflet-container{font-family:var(--sans);}
+
+/* ---------- Material look: flat tonal surfaces + elevation instead of glass ---------- */
+:root{
+  --radius:16px;--radius-sm:12px;
+  --glass:#FFFFFF;--glass-strong:#F3ECE8;--glass-border:rgba(78,23,33,0.05);
+  --surface-solid:#FFFFFF;--surface-solid-2:#EDE5E0;
+  --bg-amber:transparent;--bg-turq:transparent;--bg-maroon:transparent;
+  --bg-base-a:#F8F3F0;--bg-base-b:#F8F3F0;
+  --appbar:#7A2A3A;--nav-bg:#FFFFFF;
+  --elev1:0 1px 2px rgba(60,18,25,.12),0 1px 3px 1px rgba(60,18,25,.07);
+  --elev2:0 1px 2px rgba(60,18,25,.16),0 2px 6px 2px rgba(60,18,25,.10);
+  --elev3:0 2px 4px rgba(60,18,25,.16),0 6px 12px 4px rgba(60,18,25,.10);
+}
+:root[data-theme="dark"]{
+  --glass:#241C1F;--glass-strong:#2F2629;--glass-border:rgba(255,255,255,0.06);
+  --surface-solid:#241C1F;--surface-solid-2:#2F2629;
+  --bg-base-a:#151012;--bg-base-b:#151012;
+  --appbar:#3E1822;--nav-bg:#2A2124;
+  --elev1:0 1px 2px rgba(0,0,0,.5),0 1px 3px 1px rgba(0,0,0,.3);
+  --elev2:0 1px 2px rgba(0,0,0,.55),0 2px 6px 2px rgba(0,0,0,.35);
+  --elev3:0 2px 4px rgba(0,0,0,.55),0 6px 12px 4px rgba(0,0,0,.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --glass:#241C1F;--glass-strong:#2F2629;--glass-border:rgba(255,255,255,0.06);
+    --surface-solid:#241C1F;--surface-solid-2:#2F2629;
+    --bg-base-a:#151012;--bg-base-b:#151012;
+    --appbar:#3E1822;--nav-bg:#2A2124;
+    --elev1:0 1px 2px rgba(0,0,0,.5),0 1px 3px 1px rgba(0,0,0,.3);
+    --elev2:0 1px 2px rgba(0,0,0,.55),0 2px 6px 2px rgba(0,0,0,.35);
+    --elev3:0 2px 4px rgba(0,0,0,.55),0 6px 12px 4px rgba(0,0,0,.4);
+  }
+}
+*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
+html,body{background:var(--bg-base-a)!important;}
+.navfade{display:none!important;}
+.topbar{background:var(--appbar)!important;border-bottom:none;box-shadow:var(--elev2);}
+.bottomnav{background:var(--nav-bg);border:none;box-shadow:var(--elev3);}
+.card,.infocard,.datenav,.vcard,.searchbox,.themecard,.favchip{box-shadow:var(--elev1);}
+.card,.infocard,.datenav,.vcard{border-color:transparent;}
+.search-overlay{background:var(--bg-base-a);}
+.maplocatebtn{background:var(--glass);border:none;box-shadow:var(--elev2);}
+.herobtn::before,.herobtn::after,.routesq::before{display:none;}
+.herobtn,.routesq,.locbtn{box-shadow:var(--elev1);}
+.locbtn:active,.herobtn:active,.routesq:active{box-shadow:none;}
+.planpanel{box-shadow:var(--elev3);}
+.jcard{box-shadow:none;}
 </style></head>
 <body>
 <div id="app">
@@ -878,6 +1000,9 @@ const ICO = {
   ruler:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>',
   battery:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M6 11v2"/><path d="M10 11v2"/></svg>',
   factory:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l6 4V8l6 4V5h3v15Z"/><path d="M2 20h20"/><path d="M17 20h5V9h-5"/></svg>',
+  chevronDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M3 8l4-4 4 4"/><path d="M17 20V4"/><path d="M13 16l4 4 4-4"/></svg>',
+  walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.8"/><path d="M10 21l1.8-6.2L9.5 12.5 11 8.5l3.2 1.6 2.3 3"/><path d="M13.5 15l2.5 2 .5 4"/><path d="M8.5 11l-1.5 3"/></svg>',
   grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>',
 };
 /* ---------------- vehicle fleet (static app data) ---------------- */
@@ -1487,7 +1612,8 @@ function nearbySearchOnlyHtml(){
 }
 
 function renderRoutes(header, searchSlot, content){
-  header.innerHTML = headerSimple('MissIt Kaposvár','Helyi busz menetrend · Kaposvár', {id:'btn-headersearch', icon:'search'});
+  header.innerHTML = headerSimple('MissIt Kaposvár','Helyi busz menetrend · Kaposvár', [{id:'btn-planner', icon:'route'},{id:'btn-headersearch', icon:'search'}]);
+  document.getElementById('btn-planner').onclick = ()=>{ PLAN.open = true; goRoot('stops'); };
   searchSlot.innerHTML = '';
   document.getElementById('btn-headersearch').onclick = ()=>{
     openSearchOverlay('Járatszám vagy megálló neve…', (val, body)=>{
@@ -1531,7 +1657,7 @@ function renderRoutes(header, searchSlot, content){
   html += `<div class="collapsebody ${isSectionCollapsed('routes')?'closed':''}" id="body-routes"><div id="gridWrapOuter">`;
   html += viewPref==='list' ? `<div class="card" id="rlist"></div>` : `<div class="routegrid" id="rgrid"></div>`;
   html += `</div></div>`;
-  html += `<div class="feedinfo">Adatok legutóbbi frissítése: 2026. okt. 4. 22:30<br>Forrás: hivatalos GTFS menetrendi adatok, <a href="https://www.kaposbusz.hu/" target="_blank" rel="noopener">Kaposvári Közlekedési Zrt.</a><br>Ez egy független, nem hivatalos alkalmazás.</div>`;
+  html += `<div class="feedinfo">Adatok legutóbbi frissítése: 2026. okt. 19. 17:50<br>Forrás: hivatalos GTFS menetrendi adatok, <a href="https://www.kaposbusz.hu/" target="_blank" rel="noopener">Kaposvári Közlekedési Zrt.</a><br>Ez egy független, nem hivatalos alkalmazás.</div>`;
   content.innerHTML = html;
   wireCollapseToggles(content);
 
@@ -1787,8 +1913,10 @@ function renderStops(header, searchSlot, content){
   content.innerHTML = `<div class="mapwrap" id="stopsMapWrap">
     <div id="stopsMap"></div>
     <button class="maplocatebtn" id="mapLocateBtn" title="Saját helyzetem">${ICO.locate}</button>
+    <div class="planpanel" id="planPanel"></div>
     <div class="loadingrow" id="mapLoadingRow"><span class="spinner"></span>Térkép betöltése…</div>
   </div>`;
+  planRenderPanel();
   initStopsMap();
 }
 function openStopsListOverlay(){
@@ -1893,6 +2021,7 @@ function initStopsMap(){
     });
     const vehLayer = L.layerGroup().addTo(map);
     STOPS_MAP = map; STOPS_MAP_VEHLAYER = vehLayer;
+    planDrawMap();
     const loadingRow = document.getElementById('mapLoadingRow');
     if(loadingRow) loadingRow.remove();
     refreshVehicleMarkers();
@@ -1947,6 +2076,7 @@ function stopStopsMapRefresh(){
 function destroyStopsMap(){
   stopStopsMapRefresh();
   if(STOPS_MAP){ STOPS_MAP.remove(); STOPS_MAP = null; STOPS_MAP_VEHLAYER = null; }
+  PLAN_LAYER = null;
   stopMarkers = {}; vehicleMarkers = {};
 }
 
@@ -2154,6 +2284,494 @@ function renderMenu(header, content){
   if(tkbtn) tkbtn.onclick = ()=>go('tekergo');
   const bbtn = content.querySelector('[data-nav-blog]');
   if(bbtn) bbtn.onclick = ()=>go('blog');
+}
+
+/* ---------------- ROUTE PLANNER (RAPTOR-style, runs fully offline) ---------------- */
+const PLAN_SPEED = 1.25, PLAN_DETOUR = 1.3, PLAN_MAX_FOOT = 300, PLAN_XFER_BUF = 60, PLAN_MAXK = 5, PLAN_GEO_RADIUS = 1000;
+let PLAN_WALK_ON = true;
+let PLAN_DATA = null;
+const PLAN_DAYCACHE = {};
+function planInit(){
+  if(PLAN_DATA) return PLAN_DATA;
+  const names = Object.keys(STOPS_BY_NAME);
+  const idx = {}; names.forEach((n,i)=>idx[n]=i);
+  const lat = [], lon = [];
+  names.forEach(n=>{
+    const ids = STOPS_BY_NAME[n]; let a=0,b=0;
+    ids.forEach(id=>{ a+=STOPS[id][1]; b+=STOPS[id][2]; });
+    lat.push(a/ids.length); lon.push(b/ids.length);
+  });
+  const adj = names.map(()=>[]);
+  for(let i=0;i<names.length;i++) for(let j=i+1;j<names.length;j++){
+    const d = haversineMetersStatic(lat[i],lon[i],lat[j],lon[j]);
+    if(d<=PLAN_MAX_FOOT){
+      const m = d*PLAN_DETOUR, s = Math.round(m/PLAN_SPEED);
+      adj[i].push([j,s,m]); adj[j].push([i,s,m]);
+    }
+  }
+  const stopPlace = {};
+  Object.keys(STOPS).forEach(sid=>{ stopPlace[sid] = idx[STOPS[sid][0]]; });
+  PLAN_DATA = {names, idx, lat, lon, adj, stopPlace};
+  return PLAN_DATA;
+}
+function planDay(ymd){
+  if(PLAN_DAYCACHE[ymd]) return PLAN_DAYCACHE[ymd];
+  const P = planInit();
+  const active = new Set(activeServicesForDate(ymd));
+  const pats = [];
+  VARIANTS.forEach(v=>{
+    const trips = [];
+    v.trips.forEach(t=>{
+      if(!active.has(t.s)) return;
+      trips.push({ts: t.t.map(x=> x ? timeToSec(x) : NaN)});
+    });
+    if(!trips.length) return;
+    trips.sort((a,b)=>a.ts[0]-b.ts[0]);
+    pats.push({v, seq: v.stops.map(s=>P.stopPlace[s]), trips});
+  });
+  const atPlace = P.names.map(()=>[]);
+  pats.forEach((pt,pi)=>pt.seq.forEach((p,i)=>atPlace[p].push([pi,i])));
+  return PLAN_DAYCACHE[ymd] = {pats, atPlace, count: pats.reduce((a,p)=>a+p.trips.length,0)};
+}
+function planRaptor(day, srcs, dsts, t0){
+  const P = PLAN_DATA, n = P.names.length, INF = 1e12, pats = day.pats, atPlace = day.atPlace;
+  const tau = [new Float64Array(n).fill(INF)], par = [new Array(n).fill(null)], via = [new Uint8Array(n)];
+  const star = new Float64Array(n).fill(INF);
+  let marked = new Set();
+  srcs.forEach(s=>{
+    const a = t0 + s.walk;
+    if(a < tau[0][s.p]){ tau[0][s.p] = a; star[s.p] = a; par[0][s.p] = {type:'src', k:0, walk:s.walk, meters:s.meters}; marked.add(s.p); }
+  });
+  function relax(k, list){
+    if(!PLAN_WALK_ON) return [];
+    const cand = [];
+    list.forEach(p=>{
+      const base = tau[k][p];
+      P.adj[p].forEach(([q,secs,m])=>{ cand.push([q, base+secs, p, secs, m]); });
+    });
+    const got = [];
+    cand.forEach(([q,a,from,secs,m])=>{
+      if(a < star[q]){
+        tau[k][q] = a; star[q] = a; par[k][q] = {type:'walk', k, from, secs, meters:m}; via[k][q] = 0; got.push(q);
+      }
+    });
+    return got;
+  }
+  relax(0, Array.from(marked)).forEach(q=>marked.add(q));
+  let kMax = 0;
+  for(let k=1;k<=PLAN_MAXK;k++){
+    tau[k] = tau[k-1].slice(); par[k] = par[k-1].slice(); via[k] = via[k-1].slice();
+    const Q = new Map();
+    marked.forEach(p=>atPlace[p].forEach(([pi,i])=>{ if(!Q.has(pi) || Q.get(pi) > i) Q.set(pi,i); }));
+    const newM = new Set();
+    Q.forEach((i0,pi)=>{
+      const pt = pats[pi]; let cur = null;
+      for(let i=i0;i<pt.seq.length;i++){
+        const p = pt.seq[i];
+        if(cur){
+          const arr = cur.trip.ts[i];
+          if(arr < star[p]){
+            tau[k][p] = arr; star[p] = arr; par[k][p] = {type:'ride', k, pi, trip:cur.trip, from:cur.i, to:i}; via[k][p] = 1; newM.add(p);
+          }
+        }
+        const prev = tau[k-1][p];
+        if(prev < INF){
+          const thr = prev + (via[k-1][p] ? PLAN_XFER_BUF : 0);
+          let best = null, bd = INF;
+          for(const tr of pt.trips){ const d = tr.ts[i]; if(d >= thr && d < bd){ bd = d; best = tr; } }
+          if(best && (!cur || bd < cur.trip.ts[i])) cur = {trip:best, i};
+        }
+      }
+    });
+    if(!newM.size){ kMax = k-1; break; }
+    relax(k, Array.from(newM)).forEach(q=>newM.add(q));
+    marked = newM; kMax = k;
+  }
+  function arrivalAt(k){
+    let best = INF, bd = null;
+    dsts.forEach(d=>{ const a = tau[k][d.p] + d.walk; if(tau[k][d.p] < INF && a < best){ best = a; bd = d; } });
+    return {arr:best, d:bd};
+  }
+  function build(k, d){
+    const out = [];
+    function rec(kk, p){
+      const pr = par[kk][p];
+      if(!pr) return;
+      if(pr.type === 'ride'){ out.push(pr); rec(pr.k-1, pats[pr.pi].seq[pr.from]); }
+      else if(pr.type === 'walk'){ out.push(pr); rec(pr.k, pr.from); }
+      else out.push(pr);
+    }
+    rec(k, d.p);
+    out.reverse();
+    return planCompile(out, pats, d, t0);
+  }
+  const opts = [];
+  let bestSoFar = INF;
+  for(let k=0;k<=kMax;k++){
+    const {arr, d} = arrivalAt(k);
+    if(arr >= INF) continue;
+    if(bestSoFar >= INF || arr < bestSoFar - 120){
+      if(bestSoFar >= INF || arr < bestSoFar){ const j = build(k, d); if(j) opts.push(j); }
+      bestSoFar = Math.min(bestSoFar, arr);
+    }
+  }
+  return opts;
+}
+function planCompile(raw, pats, d, t0){
+  const legs = [];
+  raw.forEach(r=>{
+    if(r.type === 'ride'){
+      const pt = pats[r.pi], v = pt.v;
+      legs.push({type:'ride', v, route: ROUTES[v.r][0], routeId: v.r, vIdx: VARIANT_INDEX_IN_ROUTE[v.id]||0,
+        head: v.head, from: r.from, to: r.to, dep: r.trip.ts[r.from], arr: r.trip.ts[r.to],
+        fromName: STOPS[v.stops[r.from]][0], toName: STOPS[v.stops[r.to]][0], trip: r.trip});
+    }else{
+      const secs = r.type === 'src' ? r.walk : r.secs, m = r.meters || 0;
+      if(secs > 0) legs.push({type:'walk', secs, meters:m});
+    }
+  });
+  if(d.walk > 0) legs.push({type:'walk', secs:d.walk, meters:d.meters||0, toDest:true});
+  // merge consecutive walks
+  const merged = [];
+  legs.forEach(l=>{
+    const last = merged[merged.length-1];
+    if(l.type==='walk' && last && last.type==='walk'){ last.secs += l.secs; last.meters += l.meters; last.toDest = last.toDest || l.toDest; }
+    else merged.push(Object.assign({}, l));
+  });
+  const rides = merged.filter(l=>l.type==='ride');
+  if(!rides.length){
+    const w = merged.reduce((a,l)=>a+l.secs,0);
+    return {legs:merged, dep:t0, arr:t0+w, transfers:0, walkOnly:true, key:'walk'};
+  }
+  // timeline for walks
+  merged.forEach((l,i)=>{
+    if(l.type !== 'walk') return;
+    const nxt = merged.slice(i+1).find(x=>x.type==='ride'), prv = merged.slice(0,i).reverse().find(x=>x.type==='ride');
+    if(!prv && nxt){ l.end = nxt.dep; l.start = nxt.dep - l.secs; }
+    else if(prv){ l.start = prv.arr; l.end = prv.arr + l.secs; }
+  });
+  const first = merged[0], last = merged[merged.length-1];
+  const dep = first.type==='walk' ? first.start : first.dep;
+  const arr = last.type==='walk' ? last.end : last.arr;
+  return {legs:merged, dep, arr, transfers: rides.length-1, key: rides.map(r=>r.v.id+'@'+r.dep).join('|')};
+}
+function planResolve(pt){
+  const P = planInit();
+  if(pt.type === 'place'){
+    const p = P.idx[pt.name]; return p===undefined ? [] : [{p, walk:0, meters:0}];
+  }
+  const arr = [];
+  for(let i=0;i<P.names.length;i++){
+    const d = haversineMetersStatic(pt.lat, pt.lon, P.lat[i], P.lon[i]);
+    if(d <= PLAN_GEO_RADIUS){ const m = d*PLAN_DETOUR; arr.push({p:i, walk:Math.round(m/PLAN_SPEED), meters:m}); }
+  }
+  arr.sort((a,b)=>a.walk-b.walk);
+  return arr.slice(0,12);
+}
+function planJourneys(from, to, ymd, t0){
+  planInit();
+  const day = planDay(ymd);
+  const srcs = planResolve(from), dsts = planResolve(to);
+  if(!srcs.length) return {error:'from'};
+  if(!dsts.length) return {error:'to'};
+  if(!day.count) return {error:'noservice'};
+  const all = [], seen = new Set();
+  let t = t0;
+  for(let run=0; run<4; run++){
+    const opts = planRaptor(day, srcs, dsts, t);
+    if(!opts.length) break;
+    const take = run===0 ? opts : [opts[opts.length-1]];
+    let next = null;
+    take.forEach(j=>{ if(!seen.has(j.key)){ seen.add(j.key); all.push(j); } });
+    const best = opts[opts.length-1];
+    if(best.walkOnly) break;
+    next = Math.min(...take.map(j=>j.dep)) ;
+    const nt = Math.max(best.dep, next) + 60;
+    if(nt <= t) break;
+    t = nt;
+  }
+  const kept = all.filter(x=> !all.some(y=> y!==x && y.dep>=x.dep && y.arr<=x.arr && y.transfers<=x.transfers && (y.dep>x.dep || y.arr<x.arr || y.transfers<x.transfers)));
+  kept.sort((a,b)=> a.dep-b.dep || a.arr-b.arr);
+  return {journeys: kept.slice(0,6)};
+}
+
+/* ---- planner UI (expandable panel on the stops map) ---- */
+let PLAN = {from:null, to:null, mode:'now', date:null, time:null, results:null, status:'', open:false, sel:-1};
+let PLAN_LAYER = null;
+const PLAN_COLORS = ['#7A2A3A','#1E9C93','#C97A2B','#2B6FD4','#8A4FB0'];
+function planFmt(sec){ const s = Math.round(sec); const h = Math.floor(s/3600)%24, m = Math.floor((s%3600)/60); return pad2(h)+':'+pad2(m); }
+function planMin(sec){ return Math.max(1, Math.round(sec/60)); }
+function planPtLabel(p){ return p ? (p.type==='geo' ? 'Jelenlegi helyzetem' : p.name) : ''; }
+function planWhenSec(){
+  const now = new Date();
+  if(PLAN.mode === 'now') return {ymd: toYMD(now), t: now.getHours()*3600 + now.getMinutes()*60};
+  const ymd = PLAN.date || toYMD(now);
+  const tm = (PLAN.time || (pad2(now.getHours())+':'+pad2(now.getMinutes()))).split(':');
+  return {ymd, t: (+tm[0])*3600 + (+tm[1])*60};
+}
+function planSelJourney(){
+  const R = PLAN.results;
+  return (R && R.journeys && PLAN.sel>=0) ? R.journeys[PLAN.sel] : null;
+}
+function planMetaText(j){ return j.walkOnly ? 'Csak gyaloglás' : (j.transfers===0 ? 'Átszállás nélkül' : j.transfers+' átszállás'); }
+function planUpdateBar(){
+  const el = document.getElementById('planBarText');
+  if(!el) return;
+  const sel = planSelJourney();
+  let t1, t2;
+  if(sel){
+    t1 = planFmt(sel.dep)+' → '+planFmt(sel.arr)+' · '+planMin(sel.arr-sel.dep)+' perc';
+    t2 = planPtLabel(PLAN.from)+' → '+planPtLabel(PLAN.to)+' · '+planMetaText(sel);
+  }else if(PLAN.from && PLAN.to){
+    t1 = planPtLabel(PLAN.from)+' → '+planPtLabel(PLAN.to); t2 = 'Útvonaltervező';
+  }else{
+    t1 = 'Útvonaltervező'; t2 = 'Honnan hová szeretnél menni?';
+  }
+  el.innerHTML = `<b>${esc(t1)}</b><span>${esc(t2)}</span>`;
+  const x = document.getElementById('planClear');
+  if(x) x.classList.toggle('hidden', !(sel || PLAN.from || PLAN.to));
+}
+function planRenderPanel(){
+  const el = document.getElementById('planPanel');
+  if(!el) return;
+  const today = new Date();
+  if(!PLAN.date) PLAN.date = toYMD(today);
+  if(!PLAN.time) PLAN.time = pad2(today.getHours())+':'+pad2(today.getMinutes());
+  const iso = s=>s.slice(0,4)+'-'+s.slice(4,6)+'-'+s.slice(6,8);
+  const fld = (id, cls, label, val, ph)=>`<button class="planfield" id="${id}"><span class="pdot ${cls}"></span><span class="pft"><span class="pfl">${label}</span><span class="pfv ${val?'':'ph'}">${val?esc(val):ph}</span></span></button>`;
+  el.classList.toggle('open', !!PLAN.open);
+  el.innerHTML = `<div class="planbar">
+    <button class="planbar-main" id="planBar" aria-label="Útvonaltervező">
+      <span class="pb-ic">${ICO.route}</span><span class="pb-tx" id="planBarText"></span><span class="pb-chev">${ICO.chevronDown}</span>
+    </button>
+    <button class="planbar-x hidden" id="planClear" aria-label="Törlés">${ICO.close}</button>
+  </div>
+  <div class="planbody">
+    <div class="planbox">
+      ${fld('pf-from','a','Honnan', planPtLabel(PLAN.from), 'Indulási megálló vagy helyzet')}
+      <div class="planline"></div>
+      ${fld('pf-to','b','Hová', planPtLabel(PLAN.to), 'Úti cél megállója')}
+      <button class="planswap" id="pswap" aria-label="Csere">${ICO.swap}</button>
+    </div>
+    <div class="plantime">
+      <div class="planchips">
+        <button class="planchip ${PLAN.mode==='now'?'active':''}" data-pmode="now">Indulás most</button>
+        <button class="planchip ${PLAN.mode==='custom'?'active':''}" data-pmode="custom">Időpont megadása</button>
+      </div>
+      <div class="planinputs ${PLAN.mode==='custom'?'':'hidden'}" id="planinputs">
+        <input type="date" id="pdate" value="${iso(PLAN.date)}" min="${iso(MIN_DATE)}" max="${iso(MAX_DATE)}">
+        <input type="time" id="ptime" value="${PLAN.time}">
+      </div>
+    </div>
+    <button class="locbtn primary plango" id="pgo">${ICO.search} Útvonal keresése</button>
+    <div id="planresults"></div>
+  </div>`;
+  const run = ()=>{ if(PLAN.from && PLAN.to) planRun(); };
+  document.getElementById('planBar').onclick = ()=>{ PLAN.open = !PLAN.open; el.classList.toggle('open', PLAN.open); };
+  document.getElementById('planClear').onclick = ()=>{
+    if(PLAN.sel >= 0){ PLAN.sel = -1; planClearMap(); planUpdateBar(); PLAN.open = true; el.classList.add('open'); planDrawResults(); return; }
+    PLAN.from = PLAN.to = null; PLAN.results = null; PLAN.status = ''; PLAN.sel = -1; planClearMap(); planRenderPanel();
+  };
+  document.getElementById('pf-from').onclick = ()=>planPick('from');
+  document.getElementById('pf-to').onclick = ()=>planPick('to');
+  document.getElementById('pswap').onclick = ()=>{
+    const t = PLAN.from; PLAN.from = PLAN.to; PLAN.to = t; PLAN.results = null; PLAN.sel = -1; planClearMap();
+    planRenderPanel(); run();
+  };
+  el.querySelectorAll('[data-pmode]').forEach(b=>b.onclick=()=>{
+    PLAN.mode = b.dataset.pmode;
+    el.querySelectorAll('[data-pmode]').forEach(x=>x.classList.toggle('active', x===b));
+    document.getElementById('planinputs').classList.toggle('hidden', PLAN.mode!=='custom');
+    run();
+  });
+  document.getElementById('pdate').onchange = e=>{ if(e.target.value){ PLAN.date = e.target.value.replace(/-/g,''); run(); } };
+  document.getElementById('ptime').onchange = e=>{ if(e.target.value){ PLAN.time = e.target.value; run(); } };
+  document.getElementById('pgo').onclick = planRun;
+  planUpdateBar();
+  planDrawResults();
+}
+function planPick(which){
+  openSearchOverlay(which==='from' ? 'Honnan indulsz?' : 'Hová mész?', (val, body)=>{
+    const q = norm(val.trim());
+    let out = '<div class="card">';
+    if(!q || norm('jelenlegi helyzetem').includes(q)){
+      out += rowBtnHtml(`<div class="rowicon">${ICO.locate}</div>`, 'Jelenlegi helyzetem', 'Helymeghatározás engedélyezése szükséges', 'data-pgeo="1"');
+    }
+    let names = ALL_STOP_NAMES.filter(n=>!q || norm(n).includes(q));
+    if(!q){
+      const fav = FAVORITES.filter(f=>f.type==='stop').map(f=>f.label).filter(n=>STOPS_BY_NAME[n]);
+      names = Array.from(new Set(fav.concat(names)));
+    }
+    names.slice(0,60).forEach(n=>{
+      out += rowBtnHtml(`<div class="rowicon">${ICO.mapPin}</div>`, n, routesServingStop(STOPS_BY_NAME[n][0]).slice(0,5).join(', '), `data-pstop="${escAttr(n)}"`);
+    });
+    out += '</div>';
+    if(q && !names.length && !norm('jelenlegi helyzetem').includes(q)) out = emptyHtml('search','Nincs találat','Próbálj más keresőszót.');
+    body.innerHTML = out;
+    body.querySelectorAll('[data-pstop]').forEach(b=>b.onclick=()=>{
+      PLAN[which] = {type:'place', name:b.dataset.pstop};
+      closeSearchOverlay(); planAfterPick();
+    });
+    const g = body.querySelector('[data-pgeo]');
+    if(g) g.onclick = ()=>{
+      if(!navigator.geolocation){ PLAN.status = 'A böngésző nem támogatja a helymeghatározást.'; closeSearchOverlay(); planAfterPick(true); return; }
+      g.querySelector('.rsub').textContent = 'Helyzet meghatározása…';
+      navigator.geolocation.getCurrentPosition(pos=>{
+        PLAN[which] = {type:'geo', lat:pos.coords.latitude, lon:pos.coords.longitude};
+        closeSearchOverlay(); planAfterPick();
+      }, ()=>{
+        PLAN.status = 'Nem sikerült meghatározni a helyzeted. Ellenőrizd a helymeghatározási engedélyt, vagy válassz megállót.';
+        closeSearchOverlay(); planAfterPick(true);
+      }, {enableHighAccuracy:false, timeout:8000, maximumAge:60000});
+    };
+  });
+  const inp = document.getElementById('searchOverlayInput');
+  if(inp && inp.oninput) inp.oninput();
+}
+function planAfterPick(keepStatus){
+  if(!document.getElementById('planPanel')) return;
+  if(!keepStatus) PLAN.status = '';
+  PLAN.results = null; PLAN.sel = -1; PLAN.open = true; planClearMap();
+  planRenderPanel();
+  if(PLAN.from && PLAN.to && !keepStatus) planRun();
+}
+function planRun(){
+  PLAN.sel = -1; planClearMap();
+  if(!PLAN.from || !PLAN.to){ PLAN.status = 'Add meg az indulási és az érkezési helyet.'; PLAN.results = null; planUpdateBar(); planDrawResults(); return; }
+  if(PLAN.from.type==='place' && PLAN.to.type==='place' && PLAN.from.name===PLAN.to.name){ PLAN.status = 'Az indulási és az érkezési hely megegyezik.'; PLAN.results = null; planUpdateBar(); planDrawResults(); return; }
+  const w = planWhenSec();
+  if(w.ymd < MIN_DATE || w.ymd > MAX_DATE){
+    PLAN.status = 'Erre a napra nincs menetrendi adat ('+fmtShortRange()+').'; PLAN.results = null; planUpdateBar(); planDrawResults(); return;
+  }
+  PLAN.status = '';
+  PLAN.results = planJourneys(PLAN.from, PLAN.to, w.ymd, w.t);
+  PLAN.results.ymd = w.ymd; PLAN.results.t0 = w.t;
+  planUpdateBar();
+  planDrawResults();
+}
+function planLegHtml(l, prev){
+  if(l.type === 'walk'){
+    const m = l.meters ? ' · '+(l.meters>=950 ? (l.meters/1000).toFixed(1).replace('.',',')+' km' : Math.round(l.meters/10)*10+' m') : '';
+    return `<div class="jleg walk"><div class="jl-ic">${ICO.walk}</div><div class="jl-tx"><b>Gyaloglás</b> · ${planMin(l.secs)} perc${m}</div></div>`;
+  }
+  const v = l.v, nst = l.to - l.from;
+  let wait = '';
+  if(prev && prev.type==='ride'){ const w = Math.round((l.dep - prev.arr)/60); if(w>=1) wait = `<div class="jwait">Átszállás · ${w} perc várakozás</div>`; }
+  else if(prev && prev.type==='walk' && prev.end!==undefined){ const w = Math.round((l.dep - prev.end)/60); if(w>=3) wait = `<div class="jwait">${w} perc várakozás</div>`; }
+  let stops = '';
+  for(let i=l.from;i<=l.to;i++){
+    const tm = l.trip.ts[i];
+    stops += `<div class="jstop ${i===l.from||i===l.to?'em':''}"><span>${esc(STOPS[v.stops[i]][0])}</span><span class="jt">${isNaN(tm)?'':planFmt(tm)}</span></div>`;
+  }
+  return `${wait}<div class="jleg ride"><div class="jl-ic"><div class="badge sm" data-jroute="${l.routeId}" data-jv="${l.vIdx}">${esc(l.route)}</div></div>
+    <div class="jl-tx">
+      <div class="jrow"><b>${esc(l.fromName)}</b><span class="jt">${planFmt(l.dep)}</span></div>
+      <div class="jsub">${esc(l.head)} irányába · ${nst} megálló · ${planMin(l.arr-l.dep)} perc</div>
+      <div class="jrow"><span>Leszállás: <b>${esc(l.toName)}</b></span><span class="jt">${planFmt(l.arr)}</span></div>
+      <button class="jtoggle" data-jtoggle="1">Megállók mutatása</button>
+      <div class="jstops hidden">${stops}</div>
+    </div></div>`;
+}
+function planDrawResults(){
+  const box = document.getElementById('planresults');
+  if(!box) return;
+  const R = PLAN.results;
+  if(!R){
+    box.innerHTML = PLAN.status ? `<div class="planmsg">${esc(PLAN.status)}</div>` : '';
+    return;
+  }
+  if(R.error){
+    const msg = R.error==='noservice' ? 'Erre a napra nincs közlekedő járat.' : (R.error==='from' ? 'Az indulási helyhez nem található közeli megálló (1 km-en belül).' : 'Az úti célhoz nem található közeli megálló (1 km-en belül).');
+    box.innerHTML = emptyHtml('bus','Nincs útvonal', msg); return;
+  }
+  if(!R.journeys.length){
+    box.innerHTML = emptyHtml('bus','Nem találtam útvonalat','Erre az időpontra nincs megfelelő összeköttetés. Próbálj korábbi időpontot vagy másik napot.');
+    return;
+  }
+  let html = `<div class="section-label">Javasolt útvonalak · ${fmtDateLong(ymdToDate(R.ymd))}</div>`;
+  R.journeys.forEach((j,ji)=>{
+    const badges = j.legs.map(l=> l.type==='ride' ? `<span class="badge sm">${esc(l.route)}</span>` : `<span class="jwalkic">${ICO.walk}</span>`).join('<span class="jarrow">›</span>');
+    html += `<div class="jcard ${ji===PLAN.sel?'sel':''}" data-ji="${ji}">
+      <button class="jtop" data-jshow="${ji}">
+        <span class="jhead"><span class="jtimes"><b>${planFmt(j.dep)}</b><span class="jarrow">→</span><b>${planFmt(j.arr)}</b></span><span class="jdur">${planMin(j.arr-j.dep)} perc</span></span>
+        <span class="jbadges">${badges}<span class="jmeta">${planMetaText(j)}</span></span>
+        <span class="jmapbtn">${ICO.mapPin} Megjelenítés a térképen</span>
+      </button>
+      <div class="jlegs">`;
+    j.legs.forEach((l,i)=>{ html += planLegHtml(l, i? j.legs[i-1] : null); });
+    html += `</div></div>`;
+  });
+  html += `<div class="feedinfo">A tervezés a menetrendi adatok alapján készül, nem élő forgalmi adatokkal. A gyaloglási idők becsültek.</div>`;
+  box.innerHTML = html;
+  box.querySelectorAll('[data-jtoggle]').forEach(b=>b.onclick=()=>{
+    const s = b.nextElementSibling; const h = s.classList.toggle('hidden');
+    b.textContent = h ? 'Megállók mutatása' : 'Megállók elrejtése';
+  });
+  box.querySelectorAll('[data-jroute]').forEach(b=>b.onclick=()=>openRoute(b.dataset.jroute, +b.dataset.jv));
+  box.querySelectorAll('[data-jshow]').forEach(b=>b.onclick=()=>planShow(+b.dataset.jshow));
+}
+function planShow(ji){
+  PLAN.sel = ji; PLAN.open = false;
+  const el = document.getElementById('planPanel');
+  if(el) el.classList.remove('open');
+  planUpdateBar();
+  planDrawMap();
+  document.querySelectorAll('#planresults .jcard').forEach(c=>c.classList.toggle('sel', +c.dataset.ji===ji));
+}
+function planClearMap(){
+  if(PLAN_LAYER && STOPS_MAP){ try{ STOPS_MAP.removeLayer(PLAN_LAYER); }catch(e){} }
+  PLAN_LAYER = null;
+}
+function planShapeSlice(l){
+  const v = l.v;
+  if(v.shapePts && v.shapeCumDist && v.stopDist){
+    const d1 = v.stopDist[l.from], d2 = v.stopDist[l.to];
+    const out = [pointAlongShape(v, d1)];
+    for(let i=0;i<v.shapePts.length;i++){ const c = v.shapeCumDist[i]; if(c>d1 && c<d2) out.push(v.shapePts[i]); }
+    out.push(pointAlongShape(v, d2));
+    return out;
+  }
+  const out = [];
+  for(let i=l.from;i<=l.to;i++){ const s = STOPS[v.stops[i]]; out.push([s[1], s[2]]); }
+  return out;
+}
+function planDrawMap(){
+  planClearMap();
+  if(!STOPS_MAP || !window.L) return;
+  const j = planSelJourney();
+  if(!j || !PLAN.from || !PLAN.to) return;
+  const P = planInit(), g = L.layerGroup(), all = [];
+  const co = pt => pt.type==='geo' ? [pt.lat, pt.lon] : [P.lat[P.idx[pt.name]], P.lon[P.idx[pt.name]]];
+  const stopLL = (v,i)=>{ const s = STOPS[v.stops[i]]; return [s[1], s[2]]; };
+  let cur = co(PLAN.from); const dest = co(PLAN.to);
+  let ci = 0;
+  j.legs.forEach((l,i)=>{
+    if(l.type === 'walk'){
+      const nxt = j.legs.slice(i+1).find(x=>x.type==='ride');
+      const end = nxt ? stopLL(nxt.v, nxt.from) : dest;
+      L.polyline([cur,end], {color:'#6f6259', weight:4, dashArray:'1 9', lineCap:'round'}).addTo(g);
+      all.push(cur, end); cur = end;
+    }else{
+      const col = PLAN_COLORS[ci++ % PLAN_COLORS.length];
+      const sl = planShapeSlice(l);
+      L.polyline(sl, {color:'#fff', weight:10, opacity:.95, lineJoin:'round'}).addTo(g);
+      L.polyline(sl, {color:col, weight:6, lineJoin:'round'}).addTo(g);
+      sl.forEach(p=>all.push(p));
+      const mid = sl[Math.floor(sl.length/2)];
+      L.marker(mid, {interactive:false, icon:L.divIcon({className:'', html:`<div class="jmapbadge" style="background:${col}">${esc(l.route)}</div>`, iconSize:[34,22], iconAnchor:[17,11]})}).addTo(g);
+      const a = stopLL(l.v, l.from), b = stopLL(l.v, l.to);
+      [[a,l.fromName,l.dep,'Felszállás'],[b,l.toName,l.arr,'Leszállás']].forEach(([pt,nm,tm,lbl])=>{
+        L.circleMarker(pt, {radius:6, color:col, weight:3, fillColor:'#fff', fillOpacity:1}).bindPopup(`<div class="mappopup"><b>${esc(nm)}</b><br><span class="mp-sub">${lbl} · ${l.route} · ${planFmt(tm)}</span></div>`).addTo(g);
+      });
+      cur = b;
+    }
+  });
+  L.circleMarker(co(PLAN.from), {radius:9, color:'#fff', weight:3, fillColor:'#1E9C93', fillOpacity:1}).addTo(g);
+  L.circleMarker(dest, {radius:9, color:'#fff', weight:3, fillColor:'#7A2A3A', fillOpacity:1}).addTo(g);
+  g.addTo(STOPS_MAP);
+  PLAN_LAYER = g;
+  all.push(co(PLAN.from), dest);
+  try{ STOPS_MAP.fitBounds(L.latLngBounds(all), {paddingTopLeft:[24,100], paddingBottomRight:[24,160], maxZoom:16}); }catch(e){}
 }
 
 /* ---- VEHICLES ---- */
