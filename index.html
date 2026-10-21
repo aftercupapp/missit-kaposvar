@@ -787,6 +787,12 @@ html,body{background:var(--bg-base-a)!important;}
 .locbtn:active,.herobtn:active,.routesq:active{box-shadow:none;}
 .planpanel{box-shadow:var(--elev3);}
 .jcard{box-shadow:none;}
+.legalcard.hidden,.legalmini.hidden{display:none;}
+.legalmini{display:flex;align-items:center;gap:10px;width:100%;border:none;background:var(--glass);color:var(--ink-soft);font:inherit;font-size:13px;font-weight:700;padding:10px 14px;border-radius:var(--radius-sm);box-shadow:var(--elev1);cursor:pointer;margin-bottom:9px;text-align:left;}
+.legalmini svg{width:16px;height:16px;color:var(--maroon);flex-shrink:0;}
+.legalmini span:nth-child(2){flex:1;}
+.legalmini .chev{display:flex;opacity:.5;}
+.legalactions{display:flex;justify-content:flex-end;margin-top:10px;}
 </style></head>
 <body>
 <div id="app">
@@ -2187,11 +2193,16 @@ function renderMenu(header, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Menü · további információk és hivatkozások');
   let html = '';
 
-  html += `<div class="infocard" style="border-color:var(--maroon);">
+  let legalHidden = false;
+  try{ legalHidden = localStorage.getItem('mik_legal_hidden')==='1'; }catch(e){}
+  html += `<div id="legalWrap">`
+    + `<button class="legalmini ${legalHidden?'':'hidden'}" id="legalOpen">${ICO.info}<span>Jogi nyilatkozat</span><span class="chev">${ICO.chevronRight}</span></button>`
+    + `<div class="infocard legalcard ${legalHidden?'hidden':''}" id="legalCard" style="border-color:var(--maroon);">
     <b>Jogi nyilatkozat</b><br>
     A MissIt Kaposvár egy <b>független, nem hivatalos</b> alkalmazás. Nem áll kapcsolatban, és nem képviseli a Kaposvári Közlekedési Zrt.-t, Kaposvár Megyei Jogú Várost, sem semmilyen kormányzati, önkormányzati vagy állami szervet.<br><br>
     A megjelenített menetrendi és közlekedési adatok hivatalos forrása: <a href="https://www.kaposbusz.hu/" target="_blank" rel="noopener">kaposbusz.hu</a> (Kaposvári Közlekedési Zrt.)
-  </div>`;
+    <div class="legalactions"><button class="locbtn" id="legalOk">Rendben</button></div>
+  </div></div>`;
 
   html += `<div class="section-label">Megjelenés</div><div class="card themecard">`;
   const themePref = getThemePref();
@@ -2262,6 +2273,11 @@ function renderMenu(header, content){
     box.style.display = box.style.display==='none' ? 'block' : 'none';
     if(box.style.display==='block') box.style.display='block';
   };
+  const lc = document.getElementById('legalCard'), lo = document.getElementById('legalOpen'), lk = document.getElementById('legalOk');
+  if(lc && lo && lk){
+    lk.onclick = ()=>{ lc.classList.add('hidden'); lo.classList.remove('hidden'); try{ localStorage.setItem('mik_legal_hidden','1'); }catch(e){} };
+    lo.onclick = ()=>{ lo.classList.add('hidden'); lc.classList.remove('hidden'); try{ localStorage.removeItem('mik_legal_hidden'); }catch(e){} };
+  }
   content.querySelectorAll('[data-theme-opt]').forEach(b=>b.onclick=()=>{
     setThemePref(b.dataset.themeOpt);
     renderMenu(header, content);
