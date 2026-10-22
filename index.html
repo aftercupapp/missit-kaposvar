@@ -793,6 +793,21 @@ html,body{background:var(--bg-base-a)!important;}
 .legalmini span:nth-child(2){flex:1;}
 .legalmini .chev{display:flex;opacity:.5;}
 .legalactions{display:flex;justify-content:flex-end;margin-top:10px;}
+.dirrow{display:flex;align-items:center;gap:10px;margin-top:9px;}
+.dirbtn{width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.dirbtn svg{width:18px;height:18px;}
+.dirbtn:active{transform:scale(.92);background:rgba(255,255,255,0.3);}
+.dirtxt{min-width:0;display:flex;flex-direction:column;line-height:1.25;}
+.dirtxt .dirlbl{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.75;}
+.dirtxt b{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rdseg{display:flex;gap:4px;background:var(--glass-strong);border-radius:12px;padding:3px;margin-bottom:2px;}
+.rdseg button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:none;background:none;color:var(--ink-soft);font:inherit;font-size:13px;font-weight:700;padding:8px 6px;border-radius:9px;cursor:pointer;}
+.rdseg button svg{width:15px;height:15px;}
+.rdseg button.active{background:var(--maroon);color:#fff;}
+.rdseg.float{position:absolute;top:10px;left:10px;width:230px;z-index:1100;margin:0;background:var(--glass);box-shadow:var(--elev2);}
+.routemappanel.full{position:relative;width:100%;height:100%;max-height:none;min-height:0;margin:0;border-radius:0;border:none;box-shadow:none;overflow:hidden;}
+.routemappanel.full .leaflet-top.leaflet-left{margin-top:56px;}
+.headerbtn.spin svg{animation:spin .8s linear infinite;}
 </style></head>
 <body>
 <div id="app">
@@ -1007,6 +1022,7 @@ const ICO = {
   battery:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M6 11v2"/><path d="M10 11v2"/></svg>',
   factory:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l6 4V8l6 4V5h3v15Z"/><path d="M2 20h20"/><path d="M17 20h5V9h-5"/></svg>',
   chevronDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  swaph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3.5l4 4-4 4"/><path d="M3 7.5h18"/><path d="M7 12.5l-4 4 4 4"/><path d="M21 16.5H3"/></svg>',
   swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M3 8l4-4 4 4"/><path d="M17 20V4"/><path d="M13 16l4 4 4-4"/></svg>',
   walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.8"/><path d="M10 21l1.8-6.2L9.5 12.5 11 8.5l3.2 1.6 2.3 3"/><path d="M13.5 15l2.5 2 .5 4"/><path d="M8.5 11l-1.5 3"/></svg>',
   grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>',
@@ -1275,7 +1291,7 @@ function headerSimple(title, sub, actions){
   const list = Array.isArray(actions) ? actions : [actions];
   const btns = list.map(a=>`<button class="headerbtn" id="${a.id}">${ICO[a.icon]}</button>`).join('');
   return `<div class="topbar"><div class="headerrow">
-    <div class="headertitle"><div class="brand">${title}</div><div class="sub">${sub}</div></div>
+    <div class="headertitle"><div class="brand">${title}</div>${sub?`<div class="sub">${sub}</div>`:''}</div>
     ${btns}
   </div></div>`;
 }
@@ -1618,7 +1634,7 @@ function nearbySearchOnlyHtml(){
 }
 
 function renderRoutes(header, searchSlot, content){
-  header.innerHTML = headerSimple('MissIt Kaposvár','Helyi busz menetrend · Kaposvár', [{id:'btn-planner', icon:'route'},{id:'btn-headersearch', icon:'search'}]);
+  header.innerHTML = headerSimple('MissIt Kaposvár','', [{id:'btn-planner', icon:'route'},{id:'btn-headersearch', icon:'search'}]);
   document.getElementById('btn-planner').onclick = ()=>{ PLAN.open = true; goRoot('stops'); };
   searchSlot.innerHTML = '';
   document.getElementById('btn-headersearch').onclick = ()=>{
@@ -1715,32 +1731,32 @@ function renderRouteDetail(header, content){
   document.getElementById('btn-star').onclick = ()=>{ toggleFav('route', state.routeId, `${r[0]} vonal`, r[1]); render(); };
 
   const viewPref = getRouteDetailViewPref();
-  let html = '';
   if(variants.length>1){
-    html += `<div class="tabs">` + variants.map((vv,i)=>{
-      const first = STOPS[vv.stops[0]][0];
-      return `<button class="tabbtn ${i===vi?'active':''}" data-vi="${i}">${esc(first)} → ${esc(vv.head)}</button>`;
-    }).join('') + `</div>`;
+    const first = STOPS[v.stops[0]][0];
+    const tb = header.querySelector('.topbar');
+    if(tb) tb.insertAdjacentHTML('beforeend', `<div class="dirrow"><button class="dirbtn" id="btn-dir" aria-label="Irány váltása">${ICO.swaph}</button><div class="dirtxt"><span class="dirlbl">Irány${variants.length>2?' · '+(vi+1)+'/'+variants.length:''}</span><b>${esc(first)} → ${esc(v.head)}</b></div></div>`);
   }
-  html += `<div class="themerow routedetailtoggle">
-    <button class="themebtn ${viewPref==='schedule'?'active':''}" data-rdview-opt="schedule">${ICO.list}<span>Menetrend</span></button>
-    <button class="themebtn ${viewPref==='map'?'active':''}" data-rdview-opt="map">${ICO.mapPin}<span>Térkép</span></button>
+  const toggleHtml = `<div class="rdseg ${viewPref==='map'?'float':''}">
+    <button class="${viewPref==='schedule'?'active':''}" data-rdview-opt="schedule">${ICO.list}<span>Menetrend</span></button>
+    <button class="${viewPref==='map'?'active':''}" data-rdview-opt="map">${ICO.mapPin}<span>Térkép</span></button>
   </div>`;
-
+  let html = '';
   if(viewPref==='map'){
-    html += `<div class="routemappanel" id="routeMapWrap">
+    content.classList.add('nopad'); content.classList.add('noscroll');
+    html += `<div class="routemappanel full" id="routeMapWrap">
       <div id="routeMap"></div>
+      ${toggleHtml}
       <div class="loadingrow" id="routeMapLoadingRow"><span class="spinner"></span>Térkép betöltése…</div>
     </div>`;
   }else{
+    html += toggleHtml;
     html += dateNavHtml();
     html += `<div id="gridarea"></div>`;
   }
   content.innerHTML = html;
 
-  if(variants.length>1){
-    content.querySelectorAll('[data-vi]').forEach(b=>b.onclick=()=>{ state.variantIndex = parseInt(b.dataset.vi); render(); });
-  }
+  const dirBtn = document.getElementById('btn-dir');
+  if(dirBtn) dirBtn.onclick = ()=>{ state.variantIndex = (vi+1) % variants.length; render(); };
   content.querySelectorAll('[data-rdview-opt]').forEach(b=>b.onclick=()=>{
     setRouteDetailViewPref(b.dataset.rdviewOpt);
     render();
@@ -1786,7 +1802,8 @@ function initRouteMap(v){
       });
       if(!bounds.length) bounds.push([s[1], s[2]]);
     });
-    if(bounds.length) map.fitBounds(bounds, {padding:[22,22]});
+    map.invalidateSize();
+    if(bounds.length) map.fitBounds(bounds, {paddingTopLeft:[22,70], paddingBottomRight:[22,130]});
     else map.setView([46.3597,17.7963], 13);
 
     const vehLayer = L.layerGroup().addTo(map);
@@ -2871,7 +2888,11 @@ function renderTickets(header, content){
 /* ---- NEWS (RSS) ---- */
 const NEWS_FEED_URL = 'https://politepol.com/fd/IszG7V3gplxS.xml';
 const NEWS_FALLBACK_URL = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(NEWS_FEED_URL);
-let NEWS_CACHE = null;
+let NEWS_CACHE = null, NEWS_TS = 0, NEWS_LOADING = false;
+try{
+  const c = JSON.parse(localStorage.getItem('mik_news')||'null');
+  if(c && Array.isArray(c.items)){ NEWS_CACHE = c.items.map(i=>Object.assign({}, i, {date:new Date(i.date)})); NEWS_TS = c.ts||0; }
+}catch(e){}
 function fmtNewsDate(d){ return d.getFullYear()+'. '+MO[d.getMonth()]+' '+d.getDate()+'.'; }
 function cleanDesc(desc){
   let d = (desc||'').replace(/<[^>]*>/g,'');
@@ -2890,13 +2911,13 @@ function parseRssXmlText(text){
 }
 async function fetchNewsItems(){
   try{
-    const r = await fetch(NEWS_FEED_URL);
+    const r = await fetch(NEWS_FEED_URL, {cache:'no-store'});
     if(r.ok){
       const items = parseRssXmlText(await r.text());
       if(items.length) return items;
     }
   }catch(e){ /* fall through */ }
-  const r2 = await fetch(NEWS_FALLBACK_URL);
+  const r2 = await fetch(NEWS_FALLBACK_URL + '&_=' + Date.now(), {cache:'no-store'});
   if(!r2.ok) throw new Error('fallback failed');
   const data = await r2.json();
   if(data.status !== 'ok' || !Array.isArray(data.items)) throw new Error('bad fallback payload');
@@ -2908,19 +2929,41 @@ async function fetchNewsItems(){
   }));
 }
 function renderNews(header, content){
-  header.innerHTML = headerSimple('MissIt Kaposvár','Közlekedési információk · kaposbusz.hu');
-  content.innerHTML = `<div class="card"><div class="loadingrow"><span class="spinner"></span>Hírek betöltése…</div></div>`;
-  reanimate(content);
-
-  if(NEWS_CACHE){ drawNews(content, NEWS_CACHE); return; }
-
+  header.innerHTML = headerSimple('MissIt Kaposvár','Közlekedési információk · kaposbusz.hu', [{id:'btn-newsrefresh', icon:'refresh'}]);
+  document.getElementById('btn-newsrefresh').onclick = ()=>loadNews(true);
+  if(NEWS_CACHE){
+    drawNews(content, NEWS_CACHE);
+    if(Date.now() - NEWS_TS > 60*1000) loadNews(false);
+  }else{
+    content.innerHTML = `<div class="card"><div class="loadingrow"><span class="spinner"></span>Hírek betöltése…</div></div>`;
+    reanimate(content);
+    loadNews(false);
+  }
+}
+function loadNews(manual){
+  if(NEWS_LOADING) return;
+  NEWS_LOADING = true;
+  const btn = document.getElementById('btn-newsrefresh');
+  if(btn) btn.classList.add('spin');
   fetchNewsItems().then(items=>{
-    NEWS_CACHE = items;
-    drawNews(content, items);
+    NEWS_CACHE = items; NEWS_TS = Date.now();
+    try{ localStorage.setItem('mik_news', JSON.stringify({ts:NEWS_TS, items})); }catch(e){}
+    const content = document.getElementById('content');
+    if(state.view==='news' && content) drawNews(content, items);
   }).catch(()=>{
+    const content = document.getElementById('content');
+    if(state.view!=='news' || !content) return;
+    if(NEWS_CACHE){
+      const old = document.getElementById('newsStamp');
+      if(old) old.textContent = 'A frissítés nem sikerült, a legutóbb letöltött hírek láthatók.';
+      return;
+    }
     content.innerHTML = emptyHtml('cloudOff','A hírek jelenleg nem tölthetők be','Ellenőrizd az internetkapcsolatot, vagy nézd meg a híreket közvetlenül a hivatalos oldalon.')
       .replace('</div>', `<a class="maplink" style="justify-content:center;width:100%;" href="https://www.kaposbusz.hu/hirek/" target="_blank" rel="noopener">Hírek megnyitása ${ICO.chevronRight}</a></div>`);
     reanimate(content);
+  }).finally(()=>{
+    NEWS_LOADING = false;
+    const b2 = document.getElementById('btn-newsrefresh'); if(b2) b2.classList.remove('spin');
   });
 }
 function drawNews(content, items){
@@ -2939,8 +2982,11 @@ function drawNews(content, items){
     </div>`;
   });
   html += '</div>';
+  const d = new Date(NEWS_TS || Date.now());
+  html += `<div class="feedinfo" id="newsStamp">Utoljára frissítve: ${pad2(d.getHours())}:${pad2(d.getMinutes())} · a ↻ gombbal frissíthetsz</div>`;
+  const keep = content.scrollTop;
   content.innerHTML = html;
-  reanimate(content);
+  content.scrollTop = keep;
 }
 
 /* ---- WIFI ---- */
