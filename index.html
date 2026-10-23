@@ -1285,6 +1285,7 @@ function renderNav(){
 }
 
 function headerSimple(title, sub, actions){
+  sub = '';
   if(!actions){
     return `<div class="topbar"><div class="brand">${title}</div><div class="sub">${sub}</div></div>`;
   }
@@ -1316,7 +1317,7 @@ function headerBack(name, meta, opts){
   opts = opts||{};
   return `<div class="topbar compact"><div class="headerrow">
     <button class="backbtn" id="btn-back">${ICO.chevronLeft}</button>
-    <div class="headertitle"><div class="name">${name}</div><div class="meta">${meta}</div></div>
+    <div class="headertitle"><div class="name">${name}</div>${opts.keepMeta?`<div class="meta">${meta}</div>`:''}</div>
     ${opts.starType? `<button class="starbtn ${isFav(opts.starType,opts.starId)?'active':''}" id="btn-star">${ICO.star}</button>`:''}
   </div></div>`;
 }
@@ -2821,7 +2822,7 @@ function renderVehicles(header, content){
 }
 function renderVehicleDetail(header, content){
   const v = VEHICLE_BY_ID[state.vehicleId];
-  header.innerHTML = headerBack(v.name, v.type);
+  header.innerHTML = headerBack(v.name, v.type, {keepMeta:true});
   document.getElementById('btn-back').onclick = goBack;
 
   let html = `<img class="vhero" src="${v.img}" alt="${escAttr(v.name)}" id="vimg">`;
@@ -2911,22 +2912,31 @@ function parseRssXmlText(text){
 }
 async function fetchNewsItems(){
   try{
-    const r = await fetch(NEWS_FEED_URL, {cache:'no-store'});
+    const r = await fetch(NEWS_FEED_URL + '?_=' + Date.now());
     if(r.ok){
       const items = parseRssXmlText(await r.text());
       if(items.length) return items;
     }
   }catch(e){ /* fall through */ }
-  const r2 = await fetch(NEWS_FALLBACK_URL + '&_=' + Date.now(), {cache:'no-store'});
-  if(!r2.ok) throw new Error('fallback failed');
-  const data = await r2.json();
-  if(data.status !== 'ok' || !Array.isArray(data.items)) throw new Error('bad fallback payload');
-  return data.items.map(it=>({
-    title: it.title || '',
-    link: it.link || '',
-    desc: cleanDesc(it.description || ''),
-    date: new Date(it.pubDate || Date.now())
-  }));
+  try{
+    const r2 = await fetch(NEWS_FALLBACK_URL + '&_=' + Date.now());
+    if(r2.ok){
+      const data = await r2.json();
+      if(data.status === 'ok' && Array.isArray(data.items) && data.items.length){
+        return data.items.map(it=>({
+          title: it.title || '',
+          link: it.link || '',
+          desc: cleanDesc(it.description || ''),
+          date: new Date(it.pubDate || Date.now())
+        }));
+      }
+    }
+  }catch(e){ /* fall through */ }
+  const r3 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(NEWS_FEED_URL) + '&_=' + Date.now());
+  if(!r3.ok) throw new Error('all sources failed');
+  const items3 = parseRssXmlText(await r3.text());
+  if(!items3.length) throw new Error('empty feed');
+  return items3;
 }
 function renderNews(header, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Közlekedési információk · kaposbusz.hu', [{id:'btn-newsrefresh', icon:'refresh'}]);
