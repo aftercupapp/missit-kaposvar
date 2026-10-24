@@ -808,6 +808,8 @@ html,body{background:var(--bg-base-a)!important;}
 .routemappanel.full{position:relative;width:100%;height:100%;max-height:none;min-height:0;margin:0;border-radius:0;border:none;box-shadow:none;overflow:hidden;}
 .routemappanel.full .leaflet-top.leaflet-left{margin-top:56px;}
 .headerbtn.spin svg{animation:spin .8s linear infinite;}
+.newsseg{margin-bottom:10px;}
+.nthumb{width:100%;max-height:170px;object-fit:cover;border-radius:12px;margin-bottom:9px;display:block;background:var(--surface-solid-2);}
 </style></head>
 <body>
 <div id="app">
@@ -1023,6 +1025,7 @@ const ICO = {
   factory:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l6 4V8l6 4V5h3v15Z"/><path d="M2 20h20"/><path d="M17 20h5V9h-5"/></svg>',
   chevronDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   swaph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3.5l4 4-4 4"/><path d="M3 7.5h18"/><path d="M7 12.5l-4 4 4 4"/><path d="M21 16.5H3"/></svg>',
+  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6"/></svg>',
   swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16"/><path d="M3 8l4-4 4 4"/><path d="M17 20V4"/><path d="M13 16l4 4 4-4"/></svg>',
   walk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4.5" r="1.8"/><path d="M10 21l1.8-6.2L9.5 12.5 11 8.5l3.2 1.6 2.3 3"/><path d="M13.5 15l2.5 2 .5 4"/><path d="M8.5 11l-1.5 3"/></svg>',
   grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>',
@@ -1241,7 +1244,7 @@ function resetPageScroll(){
   document.addEventListener('DOMContentLoaded', ()=>{ const a=document.getElementById('app'); if(a) a.addEventListener(ev, resetPageScroll, {passive:true}); window.addEventListener(ev, resetPageScroll, {passive:true}); });
 });
 const NAV_ORDER = ['routes','stops','news','menu'];
-const NAV_MAP = {routeDetail:'routes', stopDetail:'stops', stopPlatforms:'stops', vehicles:'menu', vehicleDetail:'menu', tickets:'menu', wifi:'menu', live:'menu', blog:'menu', tekergo:'menu'};
+const NAV_MAP = {routeDetail:'routes', stopDetail:'stops', stopPlatforms:'stops', vehicles:'menu', vehicleDetail:'menu', tickets:'menu', wifi:'menu', live:'menu', tekergo:'menu'};
 function navIdx(v){ return NAV_ORDER.indexOf(NAV_MAP[v]||v); }
 function go(view, extra){
   slideDir = 'r';
@@ -1270,7 +1273,7 @@ function el(html){ const d=document.createElement('div'); d.innerHTML=html; retu
 
 function renderNav(){
   const nav = document.getElementById('bottomnav');
-  const map = {routeDetail:'routes', stopDetail:'stops', stopPlatforms:'stops', vehicles:'menu', vehicleDetail:'menu', tickets:'menu', wifi:'menu', live:'menu', blog:'menu', tekergo:'menu'};
+  const map = {routeDetail:'routes', stopDetail:'stops', stopPlatforms:'stops', vehicles:'menu', vehicleDetail:'menu', tickets:'menu', wifi:'menu', live:'menu', tekergo:'menu'};
   const top = map[state.view] || state.view;
   const items = [
     ['routes','home','Járatok'],
@@ -1377,7 +1380,6 @@ function render(){
   else if(state.view==='tickets') renderTickets(header, content);
   else if(state.view==='news') renderNews(header, content);
   else if(state.view==='wifi') renderWifi(header, content);
-  else if(state.view==='blog') renderBlog(header, content);
   else if(state.view==='tekergo') renderTekergo(header, content);
   content.scrollTop = 0; resetPageScroll();
   const d = slideDir; slideDir = null;
@@ -2244,7 +2246,6 @@ function renderMenu(header, content){
   html += menuNavHtml('ticket','Értékesítési pontok','Jegy- és bérletárusítás, nyitvatartás','data-nav-tickets="1"');
   html += menuNavHtml('wifi','Wifi hozzáférés','Elérhető hálózatok a járműveken','data-nav-wifi="1"');
   html += menuNavHtml('bike','Kaposvári Tekergő','Közbringa-rendszer, dokkolók','data-nav-tekergo="1"');
-  html += menuNavHtml('newspaper','KaposGO Blog','Beszámolók, hírek a helyi közlekedésről','data-nav-blog="1"');
   html += `</div>`;
 
   html += `<div class="section-label">Külső hivatkozások</div><div class="card">`;
@@ -2316,8 +2317,6 @@ function renderMenu(header, content){
   if(wbtn) wbtn.onclick = ()=>go('wifi');
   const tkbtn = content.querySelector('[data-nav-tekergo]');
   if(tkbtn) tkbtn.onclick = ()=>go('tekergo');
-  const bbtn = content.querySelector('[data-nav-blog]');
-  if(bbtn) bbtn.onclick = ()=>go('blog');
 }
 
 /* ---------------- ROUTE PLANNER (RAPTOR-style, runs fully offline) ---------------- */
@@ -2886,19 +2885,27 @@ function renderTickets(header, content){
   content.innerHTML = html;
 }
 
-/* ---- NEWS (RSS) ---- */
+/* ---- NEWS + KAPOSGO BLOG (RSS / Blogger JSON) ---- */
 const NEWS_FEED_URL = 'https://politepol.com/fd/IszG7V3gplxS.xml';
-const NEWS_FALLBACK_URL = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(NEWS_FEED_URL);
-let NEWS_CACHE = null, NEWS_TS = 0, NEWS_LOADING = false;
-try{
-  const c = JSON.parse(localStorage.getItem('mik_news')||'null');
-  if(c && Array.isArray(c.items)){ NEWS_CACHE = c.items.map(i=>Object.assign({}, i, {date:new Date(i.date)})); NEWS_TS = c.ts||0; }
-}catch(e){}
-function fmtNewsDate(d){ return d.getFullYear()+'. '+MO[d.getMonth()]+' '+d.getDate()+'.'; }
+const BLOG_FEED_URL = 'https://kaposgo.blogspot.com/feeds/posts/default?alt=rss';
+const BLOG_JSON_URL = 'https://kaposgo.blogspot.com/feeds/posts/default?alt=json&max-results=15';
+const rss2json = u => 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(u);
+const allorigins = u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u);
+function fmtNewsDate(d){ return isNaN(d) ? '' : d.getFullYear()+'. '+MO[d.getMonth()]+' '+d.getDate()+'.'; }
+function decodeEntities(t){ const x = document.createElement('textarea'); x.innerHTML = t; return x.value; }
+function htmlToText(html){
+  let h = (html||'').replace(/<img[^>]*>/gi,' ').replace(/<br\s*\/?>/gi,'\n').replace(/<\/(p|div|li|h\d)>/gi,'\n');
+  h = h.replace(/<[^>]*>/g,'');
+  return decodeEntities(h).replace(/[ \t]+/g,' ').replace(/\n\s*\n+/g,'\n').trim();
+}
 function cleanDesc(desc){
-  let d = (desc||'').replace(/<[^>]*>/g,'');
+  let d = htmlToText(desc);
   d = d.split(/\n\s*Delivered by/i)[0];
   return d.trim();
+}
+function excerpt(text, max){
+  text = (text||'').trim();
+  return text.length > max ? text.slice(0, max).replace(/\s+\S*$/, '') + '…' : text;
 }
 function parseRssXmlText(text){
   const xml = new DOMParser().parseFromString(text, 'application/xml');
@@ -2910,93 +2917,164 @@ function parseRssXmlText(text){
     date: new Date(it.querySelector('pubDate')?.textContent || Date.now())
   }));
 }
-async function fetchNewsItems(){
-  try{
-    const r = await fetch(NEWS_FEED_URL + '?_=' + Date.now());
-    if(r.ok){
-      const items = parseRssXmlText(await r.text());
-      if(items.length) return items;
-    }
-  }catch(e){ /* fall through */ }
-  try{
-    const r2 = await fetch(NEWS_FALLBACK_URL + '&_=' + Date.now());
-    if(r2.ok){
-      const data = await r2.json();
-      if(data.status === 'ok' && Array.isArray(data.items) && data.items.length){
-        return data.items.map(it=>({
-          title: it.title || '',
-          link: it.link || '',
-          desc: cleanDesc(it.description || ''),
-          date: new Date(it.pubDate || Date.now())
-        }));
-      }
-    }
-  }catch(e){ /* fall through */ }
-  const r3 = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent(NEWS_FEED_URL) + '&_=' + Date.now());
-  if(!r3.ok) throw new Error('all sources failed');
-  const items3 = parseRssXmlText(await r3.text());
-  if(!items3.length) throw new Error('empty feed');
-  return items3;
+/* tolerant RSS parser: survives truncated / oversized feeds (e.g. base64 images inside posts) */
+function parseRssLoose(text){
+  const out = [];
+  const re = /<item>([\s\S]*?)(?:<\/item>|$)/g;
+  let m;
+  const tag = (blk, name)=>{
+    const r = new RegExp('<'+name+'[^>]*>([\\s\\S]*?)</'+name+'>').exec(blk);
+    if(!r) return '';
+    return r[1].replace(/^<!\[CDATA\[|\]\]>$/g,'');
+  };
+  while((m = re.exec(text))){
+    const blk = m[1];
+    const title = decodeEntities(tag(blk,'title')).trim();
+    const link = tag(blk,'link').trim();
+    if(!title || !link) continue;
+    const th = /<media:thumbnail[^>]*url=["']([^"']+)["']/.exec(blk);
+    out.push({title, link, desc: cleanDesc(decodeEntities(tag(blk,'description'))), date: new Date(tag(blk,'pubDate') || Date.now()), thumb: th ? th[1].replace(/=s\d+(-c)?$/,'=s400') : ''});
+  }
+  return out;
 }
+function parseBloggerJson(data){
+  const entries = (data && data.feed && data.feed.entry) || [];
+  return entries.map(e=>{
+    const alt = (e.link||[]).find(l=>l.rel==='alternate');
+    const th = e['media$thumbnail'] && e['media$thumbnail'].url;
+    return {
+      title: (e.title && e.title.$t) || '',
+      link: alt ? alt.href : 'https://kaposgo.blogspot.com/',
+      desc: cleanDesc((e.content && e.content.$t) || (e.summary && e.summary.$t) || ''),
+      date: new Date((e.published && e.published.$t) || Date.now()),
+      thumb: th ? th.replace(/=s\d+(-c)?$/,'=s400') : ''
+    };
+  }).filter(i=>i.title);
+}
+function parseRss2json(data){
+  if(data.status !== 'ok' || !Array.isArray(data.items)) throw new Error('bad payload');
+  return data.items.map(it=>({
+    title: it.title || '', link: it.link || '',
+    desc: cleanDesc(it.description || ''),
+    date: new Date((it.pubDate||'').replace(' ','T') || Date.now()),
+    thumb: it.thumbnail || ''
+  }));
+}
+async function tryList(attempts){
+  for(const fn of attempts){
+    try{
+      const items = await fn();
+      if(items && items.length) return items;
+    }catch(e){ /* next */ }
+  }
+  throw new Error('all sources failed');
+}
+const bust = u => u + (u.includes('?') ? '&' : '?') + '_=' + Date.now();
+function fetchNewsItems(){
+  return tryList([
+    async()=>{ const r = await fetch(bust(NEWS_FEED_URL)); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); },
+    async()=>{ const r = await fetch(bust(rss2json(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRss2json(await r.json()); },
+    async()=>{ const r = await fetch(bust(allorigins(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); }
+  ]);
+}
+function fetchBlogItems(){
+  const lim = it=>({...it, desc: excerpt(it.desc, 220)});
+  return tryList([
+    async()=>{ const r = await fetch(bust(BLOG_JSON_URL)); if(!r.ok) throw 0; return parseBloggerJson(await r.json()).map(lim); },
+    async()=>{ const r = await fetch(bust(BLOG_FEED_URL)); if(!r.ok) throw 0; return parseRssLoose(await r.text()).map(lim); },
+    async()=>{ const r = await fetch(bust(allorigins(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRssLoose(await r.text()).map(lim); },
+    async()=>{ const r = await fetch(bust(allorigins(BLOG_JSON_URL))); if(!r.ok) throw 0; return parseBloggerJson(await r.json()).map(lim); },
+    async()=>{ const r = await fetch(bust(rss2json(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRss2json(await r.json()).map(lim); }
+  ]);
+}
+const NEWS_SRC = {
+  news:{label:'Hivatalos hírek', ls:'mik_news', fetch:fetchNewsItems, link:'https://www.kaposbusz.hu/hirek/', linkText:'Hírek megnyitása', cache:null, ts:0, loading:false},
+  blog:{label:'KaposGO Blog',   ls:'mik_blog', fetch:fetchBlogItems, link:'https://kaposgo.blogspot.com/', linkText:'Blog megnyitása', cache:null, ts:0, loading:false}
+};
+Object.keys(NEWS_SRC).forEach(k=>{
+  try{
+    const c = JSON.parse(localStorage.getItem(NEWS_SRC[k].ls)||'null');
+    if(c && Array.isArray(c.items)){ NEWS_SRC[k].cache = c.items.map(i=>Object.assign({}, i, {date:new Date(i.date)})); NEWS_SRC[k].ts = c.ts||0; }
+  }catch(e){}
+});
+let NEWS_TAB = 'news';
+try{ NEWS_TAB = localStorage.getItem('mik_newstab')==='blog' ? 'blog' : 'news'; }catch(e){}
+
 function renderNews(header, content){
-  header.innerHTML = headerSimple('MissIt Kaposvár','Közlekedési információk · kaposbusz.hu', [{id:'btn-newsrefresh', icon:'refresh'}]);
-  document.getElementById('btn-newsrefresh').onclick = ()=>loadNews(true);
-  if(NEWS_CACHE){
-    drawNews(content, NEWS_CACHE);
-    if(Date.now() - NEWS_TS > 60*1000) loadNews(false);
+  header.innerHTML = headerSimple('MissIt Kaposvár','', [{id:'btn-newsrefresh', icon:'refresh'}]);
+  document.getElementById('btn-newsrefresh').onclick = ()=>loadNews(NEWS_TAB, true);
+  content.innerHTML = `<div class="rdseg newsseg">
+      <button data-ntab="news" class="${NEWS_TAB==='news'?'active':''}">${ICO.newspaper}<span>Hivatalos hírek</span></button>
+      <button data-ntab="blog" class="${NEWS_TAB==='blog'?'active':''}">${ICO.book}<span>KaposGO Blog</span></button>
+    </div><div id="newsBody"></div>`;
+  content.querySelectorAll('[data-ntab]').forEach(b=>b.onclick=()=>{
+    NEWS_TAB = b.dataset.ntab;
+    try{ localStorage.setItem('mik_newstab', NEWS_TAB); }catch(e){}
+    content.querySelectorAll('[data-ntab]').forEach(x=>x.classList.toggle('active', x===b));
+    showNewsTab();
+  });
+  showNewsTab();
+}
+function showNewsTab(){
+  const body = document.getElementById('newsBody');
+  if(!body) return;
+  const src = NEWS_SRC[NEWS_TAB];
+  const btn = document.getElementById('btn-newsrefresh');
+  if(btn) btn.classList.toggle('spin', src.loading);
+  if(src.cache){
+    drawNews(body, src.cache, NEWS_TAB);
+    if(Date.now() - src.ts > 60*1000) loadNews(NEWS_TAB, false);
   }else{
-    content.innerHTML = `<div class="card"><div class="loadingrow"><span class="spinner"></span>Hírek betöltése…</div></div>`;
-    reanimate(content);
-    loadNews(false);
+    body.innerHTML = `<div class="card"><div class="loadingrow"><span class="spinner"></span>Betöltés…</div></div>`;
+    loadNews(NEWS_TAB, false);
   }
 }
-function loadNews(manual){
-  if(NEWS_LOADING) return;
-  NEWS_LOADING = true;
+function loadNews(key, manual){
+  const src = NEWS_SRC[key];
+  if(src.loading) return;
+  src.loading = true;
   const btn = document.getElementById('btn-newsrefresh');
-  if(btn) btn.classList.add('spin');
-  fetchNewsItems().then(items=>{
-    NEWS_CACHE = items; NEWS_TS = Date.now();
-    try{ localStorage.setItem('mik_news', JSON.stringify({ts:NEWS_TS, items})); }catch(e){}
-    const content = document.getElementById('content');
-    if(state.view==='news' && content) drawNews(content, items);
+  if(btn && NEWS_TAB===key) btn.classList.add('spin');
+  src.fetch().then(items=>{
+    src.cache = items; src.ts = Date.now();
+    try{ localStorage.setItem(src.ls, JSON.stringify({ts:src.ts, items})); }catch(e){}
+    const body = document.getElementById('newsBody');
+    if(state.view==='news' && body && NEWS_TAB===key) drawNews(body, items, key);
   }).catch(()=>{
-    const content = document.getElementById('content');
-    if(state.view!=='news' || !content) return;
-    if(NEWS_CACHE){
+    const body = document.getElementById('newsBody');
+    if(state.view!=='news' || !body || NEWS_TAB!==key) return;
+    if(src.cache){
       const old = document.getElementById('newsStamp');
-      if(old) old.textContent = 'A frissítés nem sikerült, a legutóbb letöltött hírek láthatók.';
+      if(old) old.textContent = 'A frissítés nem sikerült, a legutóbb letöltött tartalom látható.';
       return;
     }
-    content.innerHTML = emptyHtml('cloudOff','A hírek jelenleg nem tölthetők be','Ellenőrizd az internetkapcsolatot, vagy nézd meg a híreket közvetlenül a hivatalos oldalon.')
-      .replace('</div>', `<a class="maplink" style="justify-content:center;width:100%;" href="https://www.kaposbusz.hu/hirek/" target="_blank" rel="noopener">Hírek megnyitása ${ICO.chevronRight}</a></div>`);
-    reanimate(content);
+    body.innerHTML = emptyHtml('cloudOff','A tartalom jelenleg nem tölthető be','Ellenőrizd az internetkapcsolatot, vagy nyisd meg közvetlenül az oldalon.')
+      .replace('</div>', `<a class="maplink" style="justify-content:center;width:100%;" href="${src.link}" target="_blank" rel="noopener">${src.linkText} ${ICO.chevronRight}</a></div>`);
   }).finally(()=>{
-    NEWS_LOADING = false;
-    const b2 = document.getElementById('btn-newsrefresh'); if(b2) b2.classList.remove('spin');
+    src.loading = false;
+    const b2 = document.getElementById('btn-newsrefresh'); if(b2 && NEWS_TAB===key) b2.classList.remove('spin');
   });
 }
-function drawNews(content, items){
+function drawNews(body, items, key){
+  const src = NEWS_SRC[key];
   if(!items.length){
-    content.innerHTML = emptyHtml('newspaper','Jelenleg nincs friss hír');
-    reanimate(content);
+    body.innerHTML = emptyHtml('newspaper','Jelenleg nincs friss bejegyzés');
     return;
   }
   let html = '<div class="card">';
   items.forEach(it=>{
     html += `<div class="newsitem">
+      ${it.thumb ? `<img class="nthumb" src="${escAttr(it.thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
       <div class="ndate">${esc(fmtNewsDate(it.date))}</div>
       <div class="ntitle">${esc(it.title)}</div>
-      <div class="ndesc">${esc(it.desc)}</div>
-      <a class="nlink" href="${it.link}" target="_blank" rel="noopener">Tovább olvasás →</a>
+      ${it.desc ? `<div class="ndesc">${esc(it.desc)}</div>` : ''}
+      <a class="nlink" href="${escAttr(it.link)}" target="_blank" rel="noopener">Tovább olvasás →</a>
     </div>`;
   });
   html += '</div>';
-  const d = new Date(NEWS_TS || Date.now());
+  const d = new Date(src.ts || Date.now());
   html += `<div class="feedinfo" id="newsStamp">Utoljára frissítve: ${pad2(d.getHours())}:${pad2(d.getMinutes())} · a ↻ gombbal frissíthetsz</div>`;
-  const keep = content.scrollTop;
-  content.innerHTML = html;
-  content.scrollTop = keep;
+  body.innerHTML = html;
 }
 
 /* ---- WIFI ---- */
@@ -3027,51 +3105,6 @@ function renderWifi(header, content){
   </div>`;
 
   content.innerHTML = html;
-}
-
-/* ---- KAPOSGO BLOG (RSS) ---- */
-const BLOG_FEED_URL = 'https://kaposgo.blogspot.com/feeds/posts/default?alt=rss';
-const BLOG_FALLBACK_URL = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(BLOG_FEED_URL);
-let BLOG_CACHE = null;
-function excerpt(text, max){
-  text = (text||'').trim();
-  return text.length > max ? text.slice(0, max).replace(/\s+\S*$/, '') + '…' : text;
-}
-async function fetchBlogItems(){
-  try{
-    const r = await fetch(BLOG_FEED_URL);
-    if(r.ok){
-      const items = parseRssXmlText(await r.text());
-      if(items.length) return items.map(it=>({...it, desc: excerpt(it.desc, 220)}));
-    }
-  }catch(e){ /* fall through */ }
-  const r2 = await fetch(BLOG_FALLBACK_URL);
-  if(!r2.ok) throw new Error('fallback failed');
-  const data = await r2.json();
-  if(data.status !== 'ok' || !Array.isArray(data.items)) throw new Error('bad fallback payload');
-  return data.items.map(it=>({
-    title: it.title || '',
-    link: it.link || '',
-    desc: excerpt(cleanDesc(it.description || ''), 220),
-    date: new Date(it.pubDate || Date.now())
-  }));
-}
-function renderBlog(header, content){
-  header.innerHTML = headerBack('KaposGO Blog','Beszámolók a helyi közlekedésről');
-  document.getElementById('btn-back').onclick = goBack;
-  content.innerHTML = `<div class="card"><div class="loadingrow"><span class="spinner"></span>Bejegyzések betöltése…</div></div>`;
-  reanimate(content);
-
-  if(BLOG_CACHE){ drawNews(content, BLOG_CACHE); return; }
-
-  fetchBlogItems().then(items=>{
-    BLOG_CACHE = items;
-    drawNews(content, items);
-  }).catch(()=>{
-    content.innerHTML = emptyHtml('cloudOff','A blog jelenleg nem tölthető be','Ellenőrizd az internetkapcsolatot, vagy nyisd meg a blogot közvetlenül.')
-      .replace('</div>', `<a class="maplink" style="justify-content:center;width:100%;" href="https://kaposgo.blogspot.com/" target="_blank" rel="noopener">Blog megnyitása ${ICO.chevronRight}</a></div>`);
-    reanimate(content);
-  });
 }
 
 /* ---- KAPOSVÁRI TEKERGŐ ---- */
