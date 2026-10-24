@@ -2408,6 +2408,9 @@ const PLAN_LONG_WALK = 900, PLAN_LONG_WAIT = 3600, PLAN_SPEED = 1.25, PLAN_DETOU
 let PLAN_WALK_ON = true;
 let PLAN_DATA = null;
 const PLAN_DAYCACHE = {};
+const WALK_REAL = {};          // planner overrides: 'a>b' -> {secs, m}
+const WALK_ROUTES = {};        // routed footpaths by coordinate key -> {geom, m} | 'fail'
+function walkGeoKey(pt){ return 'g'+pt.lat.toFixed(5)+','+pt.lon.toFixed(5); }
 function planInit(){
   if(PLAN_DATA) return PLAN_DATA;
   const names = Object.keys(STOPS_BY_NAME);
@@ -2475,7 +2478,7 @@ function planRaptor(day, srcs, dsts, t0, longWalk){
     const cand = [];
     list.forEach(p=>{
       const base = tau[k][p];
-      ADJ[p].forEach(([q,secs,m])=>{ cand.push([q, base+secs, p, secs, m]); });
+      ADJ[p].forEach(([q,secs,m])=>{ const ov = WALK_REAL[p+'>'+q]; if(ov){ secs = ov.secs; m = ov.m; } cand.push([q, base+secs, p, secs, m]); });
     });
     const got = [];
     cand.forEach(([q,a,from,secs,m])=>{
@@ -2610,7 +2613,7 @@ function planResolve(pt){
   const arr = [];
   for(let i=0;i<P.names.length;i++){
     const d = haversineMetersStatic(pt.lat, pt.lon, P.lat[i], P.lon[i]);
-    if(d <= PLAN_GEO_RADIUS){ const m = d*PLAN_DETOUR; arr.push({p:i, walk:Math.round(m/PLAN_SPEED), meters:m}); }
+    if(d <= PLAN_GEO_RADIUS){ let m = d*PLAN_DETOUR, w = Math.round(m/PLAN_SPEED); const ov = WALK_REAL[walkGeoKey(pt)+'>'+i]; if(ov){ w = ov.secs; m = ov.m; } arr.push({p:i, walk:w, meters:m}); }
   }
   arr.sort((a,b)=>a.walk-b.walk);
   return arr.slice(0,12);
@@ -2881,6 +2884,8 @@ function planRunOnboard(initial){
   const sig = r.journeys.map(j=>j.key+'@'+planFmt(j.arr)).join('~');
   const same = PLAN.results && PLAN.results.sig===sig;
   PLAN.results = {journeys:r.journeys, ymd:toYMD(new Date()), t0:r.journeys.length?r.journeys[0].dep:0, onboard:true, sig};
+  r.journeys.forEach(planApplyWalk);
+  planPostResults(PLAN.results, false);
   if(initial){
     PLAN.sel = r.journeys.length ? 0 : -1;
     PLAN.notice = '';
@@ -3112,7 +3117,118 @@ function planAfterPick(keepStatus){
   planRenderPanel();
   if(PLAN.from && PLAN.to && !keepStatus) planRun();
 }
-function planRun(){
+/* ---- real (routed) walking paths ---- */
+const WALK_ROUTER = 'https://routing.openstreetmap.de/routed-foot/route/v1/foot/';
+function walkKey(a,b){ return a[0].toFixed(5)+','+a[1].toFixed(5)+'>'+b[0].toFixed(5)+','+b[1].toFixed(5); }
+function fetchWalkRoute(a,b){
+  const k = walkKey(a,b);
+  if(WALK_ROUTES[k] && WALK_ROUTES[k]!=='pending') return Promise.resolve(WALK_ROUTES[k]==='fail' ? null : WALK_ROUTES[k]);
+  const ctl = (typeof AbortController!=='undefined') ? new AbortController() : null;
+  const to = setTimeout(()=>{ if(ctl) ctl.abort(); }, 8000);
+  return fetch(WALK_ROUTER+a[1]+','+a[0]+';'+b[1]+','+b[0]+'?overview=full&geometries=geojson', ctl?{signal:ctl.signal}:undefined)
+    .then(r=>{ if(!r.ok) throw 0; return r.json(); })
+    .then(d=>{
+      const rt = d && d.routes && d.routes[0];
+      if(!rt) throw 0;
+      const out = {geom: rt.geometry.coordinates.map(c=>[c[1],c[0]]), m: rt.distance};
+      WALK_ROUTES[k] = out; return out;
+    })
+    .catch(()=>{ WALK_ROUTES[k] = 'fail'; return null; })
+    .finally(()=>clearTimeout(to));
+}
+function planPtInfo(pt){
+  const P = planInit();
+  if(pt.type==='place'){ const i = P.idx[pt.name]; return {ll:[P.lat[i],P.lon[i]], k:String(i)}; }
+  return {ll:[pt.lat, pt.lon], k:walkGeoKey(pt)};
+}
+function planWalkEnds(j){
+  // returns [{leg, a, b}] with start/end points (+ planner keys) of every walk leg
+  const P = planInit(), out = [];
+  const stopInfo = (v,i)=>{ const s = STOPS[v.stops[i]]; return {ll:[s[1],s[2]], k:String(P.stopPlace[v.stops[i]])}; };
+  let cur = PLAN.from ? planPtInfo(PLAN.from) : null;
+  const dest = PLAN.to ? planPtInfo(PLAN.to) : null;
+  j.legs.forEach((l,i)=>{
+    if(l.type==='walk'){
+      const nxt = j.legs.slice(i+1).find(x=>x.type==='ride');
+      const end = nxt ? stopInfo(nxt.v, nxt.from) : dest;
+      if(cur && end) out.push({leg:l, a:cur, b:end});
+      if(end) cur = end;
+    }else{
+      cur = stopInfo(l.v, l.to);
+    }
+  });
+  return out;
+}
+function planRetime(j){
+  const L = j.legs;
+  L.forEach((l,i)=>{
+    if(l.type!=='walk') return;
+    const nxt = L.slice(i+1).find(x=>x.type==='ride'), prv = L.slice(0,i).reverse().find(x=>x.type==='ride');
+    if(!prv && nxt){ l.end = nxt.dep; l.start = nxt.dep - l.secs; }
+    else if(prv){ l.start = prv.arr; l.end = prv.arr + l.secs; }
+  });
+  if(j.walkOnly){ const w = L.reduce((a,l)=>a+l.secs,0); j.arr = j.dep + w; return; }
+  const first = L[0], last = L[L.length-1];
+  if(!j.onboard) j.dep = first.type==='walk' ? first.start : first.dep;
+  j.arr = last.type==='walk' ? last.end : last.arr;
+  // feasibility of walking transfers
+  j.risky = false;
+  let prevRide = null, wsum = 0;
+  L.forEach(l=>{
+    if(l.type==='walk'){ if(prevRide) wsum += l.secs; return; }
+    if(prevRide && wsum>0 && prevRide.arr + wsum > l.dep) j.risky = true;
+    prevRide = l; wsum = 0;
+  });
+}
+function planApplyWalk(j){
+  let changed = false, missing = [];
+  planWalkEnds(j).forEach(e=>{
+    const rt = WALK_ROUTES[walkKey(e.a.ll, e.b.ll)];
+    if(rt && rt!=='fail' && rt!=='pending'){
+      if(!e.leg.real){
+        e.leg.real = true; e.leg.geom = rt.geom; e.leg.meters = rt.m; e.leg.secs = Math.max(30, Math.round(rt.m/PLAN_SPEED));
+        WALK_REAL[e.a.k+'>'+e.b.k] = WALK_REAL[e.b.k+'>'+e.a.k] = {secs:e.leg.secs, m:rt.m};
+        changed = true;
+      }
+    }else if(!rt) missing.push(e);
+  });
+  if(changed) planRetime(j);
+  return {changed, missing};
+}
+function planPostResults(R, replan){
+  if(!R || !R.journeys) return;
+  let miss = [], changed = false;
+  R.journeys.forEach(j=>{ const r = planApplyWalk(j); changed = changed || r.changed; miss = miss.concat(r.missing); });
+  if(changed) planWalkRefresh();
+  if(!miss.length) return;
+  const uniq = {}; miss.forEach(e=>{ uniq[walkKey(e.a.ll,e.b.ll)] = e; });
+  Promise.all(Object.keys(uniq).map(k=>{ const e = uniq[k]; return fetchWalkRoute(e.a.ll, e.b.ll); })).then(()=>{
+    if(PLAN.results !== R) return;
+    let ch = false, big = false;
+    R.journeys.forEach(j=>{
+      const before = j.arr, r = planApplyWalk(j);
+      if(r.changed){ ch = true; if(Math.abs(j.arr-before) > 120 || j.risky) big = true; }
+    });
+    if(!ch) return;
+    // walking was longer/shorter than estimated: plan once more with the real walking times
+    if(big && replan && !PLAN.onboard && !PLAN.replanned){
+      PLAN.replanned = true;
+      const keyBefore = PLAN.selKey;
+      planRun(true);
+      if(keyBefore && PLAN.results && PLAN.results.journeys){ const i = PLAN.results.journeys.findIndex(x=>x.key===keyBefore); if(i>=0 && PLAN.sel<0 && PLAN.selWas){ planShow(i); } }
+      return;
+    }
+    planWalkRefresh();
+  });
+}
+function planWalkRefresh(){
+  planUpdateBar(); planDrawResults(true);
+  if(PLAN.sel>=0) planDrawMap(true);
+  planFullRefresh();
+}
+function planRun(internal){
+  if(!internal){ PLAN.replanned = false; }
+  PLAN.selWas = PLAN.sel>=0;
   if(PLAN.onboard){ planRunOnboard(true); return; }
   PLAN.sel = -1; planClearMap();
   if(!PLAN.from || !PLAN.to){ PLAN.status = 'Add meg az indulási és az érkezési helyet.'; PLAN.results = null; planUpdateBar(); planDrawResults(); return; }
@@ -3124,8 +3240,10 @@ function planRun(){
   PLAN.status = '';
   PLAN.results = PLAN.mode==='arrive' ? planJourneysArrive(PLAN.from, PLAN.to, w.ymd, w.t) : planJourneys(PLAN.from, PLAN.to, w.ymd, w.t);
   PLAN.results.ymd = w.ymd; PLAN.results.t0 = w.t; PLAN.results.arrive = PLAN.mode==='arrive' ? w.t : null;
+  if(PLAN.results.journeys) PLAN.results.journeys.forEach(planApplyWalk);
   planUpdateBar();
   planDrawResults();
+  planPostResults(PLAN.results, true);
 }
 function planLegHtml(l, prev){
   if(l.type === 'walk'){
@@ -3225,8 +3343,15 @@ function planDrawMap(noFit){
     if(l.type === 'walk'){
       const nxt = j.legs.slice(i+1).find(x=>x.type==='ride');
       const end = nxt ? stopLL(nxt.v, nxt.from) : dest;
-      L.polyline([cur,end], {color:'#6f6259', weight:4, dashArray:'1 9', lineCap:'round'}).addTo(g);
-      all.push(cur, end); cur = end;
+      if(l.geom && l.geom.length>1){
+        L.polyline(l.geom, {color:'#fff', weight:8, opacity:.9, lineCap:'round', lineJoin:'round'}).addTo(g);
+        L.polyline(l.geom, {color:'#6f6259', weight:4, dashArray:'1 9', lineCap:'round', lineJoin:'round'}).addTo(g);
+        l.geom.forEach(q=>all.push(q));
+      }else{
+        L.polyline([cur,end], {color:'#6f6259', weight:4, dashArray:'1 9', lineCap:'round'}).addTo(g);
+        all.push(cur, end);
+      }
+      cur = end;
     }else{
       const col = PLAN_COLORS[ci++ % PLAN_COLORS.length];
       const sl = planShapeSlice(l);
