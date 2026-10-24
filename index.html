@@ -809,6 +809,30 @@ html,body{background:var(--bg-base-a)!important;}
 .routemappanel.full .leaflet-top.leaflet-left{margin-top:56px;}
 .headerbtn.spin svg{animation:spin .8s linear infinite;}
 .newsseg{margin-bottom:10px;}
+.planonb.hidden,.plantime.hidden{display:none;}
+.uloc{position:relative;width:22px;height:22px;}
+.uloc-dot{position:absolute;left:4px;top:4px;width:14px;height:14px;border-radius:50%;background:#2B6FD4;border:3px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4);box-sizing:border-box;}
+.uloc-pulse{position:absolute;inset:0;border-radius:50%;background:rgba(43,111,212,.35);animation:ulocp 2s ease-out infinite;}
+@keyframes ulocp{0%{transform:scale(.5);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+.leaflet-marker-icon.boarded{z-index:1000!important;}
+.boarded .vdrop{box-shadow:0 0 0 4px rgba(30,156,147,.55),0 2px 8px rgba(0,0,0,.35);}
+.mp-board{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-weight:700;color:var(--turquoise)!important;}
+.mp-board svg{width:15px;height:15px;}
+.planonb{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 2px;padding:11px 14px;border:1px dashed var(--turquoise);background:var(--turquoise-dim);color:var(--ink);border-radius:14px;font:inherit;text-align:left;cursor:pointer;}
+.planonb svg{width:22px;height:22px;color:var(--turquoise);flex:none;}
+.planonb span{display:flex;flex-direction:column;}
+.planonb b{font-size:14px;}
+.planonb i{font-style:normal;font-size:12px;color:var(--ink-soft);}
+.onbstrip{margin:12px 0 4px;padding:12px;border-radius:14px;background:var(--turquoise-dim);border:1px solid rgba(30,156,147,.35);}
+.onbtop{display:flex;align-items:center;gap:10px;}
+.onbtx{display:flex;flex-direction:column;min-width:0;}
+.onbtx b{font-size:14px;}
+.onbtx span{font-size:12.5px;color:var(--ink-soft);}
+.onbbtns{display:flex;gap:8px;margin-top:10px;}
+.onbbtns .planchip{display:flex;align-items:center;justify-content:center;gap:6px;}
+.onbbtns .planchip svg{width:14px;height:14px;}
+.plannotice{display:flex;gap:8px;align-items:flex-start;margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(201,122,43,.16);font-size:12.5px;line-height:1.5;}
+.plannotice svg{width:16px;height:16px;flex:none;margin-top:1px;}
 .newbadge{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:var(--turquoise);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;vertical-align:1px;}
 .nthumb{width:100%;max-height:170px;object-fit:cover;border-radius:12px;margin-bottom:9px;display:block;background:var(--surface-solid-2);}
 </style></head>
@@ -1972,6 +1996,32 @@ function openStopsListOverlay(){
 /* ---- stops map (Leaflet + estimated vehicle positions) ---- */
 let STOPS_MAP = null, STOPS_MAP_VEHLAYER = null, STOPS_MAP_TIMER = null;
 let stopMarkers = {}, vehicleMarkers = {};
+const USERLOC = {watch:null, dot:null, ring:null, last:null, acc:0, ts:0};
+function userLocUpdate(pos, center){
+  USERLOC.last = [pos.coords.latitude, pos.coords.longitude]; USERLOC.acc = pos.coords.accuracy||0; USERLOC.ts = Date.now();
+  try{ localStorage.setItem('mik_loc_on','1'); }catch(e){}
+  if(!STOPS_MAP || !window.L){ if(PLAN.onboard && Date.now() - (PLAN.lastTick||0) > 4000) planOnboardTick(false); return; }
+  if(!USERLOC.dot){
+    USERLOC.ring = L.circle(USERLOC.last, {radius:Math.max(USERLOC.acc,10), color:'#2B6FD4', weight:1, fillColor:'#2B6FD4', fillOpacity:.12, interactive:false}).addTo(STOPS_MAP);
+    USERLOC.dot = L.marker(USERLOC.last, {interactive:false, zIndexOffset:900, icon:L.divIcon({className:'', html:'<div class="uloc"><span class="uloc-pulse"></span><span class="uloc-dot"></span></div>', iconSize:[22,22], iconAnchor:[11,11]})}).addTo(STOPS_MAP);
+  }else{
+    USERLOC.dot.setLatLng(USERLOC.last); USERLOC.ring.setLatLng(USERLOC.last); USERLOC.ring.setRadius(Math.max(USERLOC.acc,10));
+  }
+  if(center) STOPS_MAP.setView(USERLOC.last, Math.max(STOPS_MAP.getZoom(), 15));
+  if(PLAN.onboard && Date.now() - (PLAN.lastTick||0) > 4000) planOnboardTick(false);
+}
+function userLocStart(center){
+  if(!navigator.geolocation) return;
+  if(USERLOC.watch!==null){ if(center && USERLOC.last && STOPS_MAP) STOPS_MAP.setView(USERLOC.last, Math.max(STOPS_MAP.getZoom(),15)); return; }
+  let first = !!center;
+  USERLOC.watch = navigator.geolocation.watchPosition(pos=>{ userLocUpdate(pos, first); first = false; },
+    err=>{ if(err && err.code===1 && USERLOC.watch!==null){ navigator.geolocation.clearWatch(USERLOC.watch); USERLOC.watch=null; } },
+    {enableHighAccuracy:true, maximumAge:10000, timeout:60000});
+}
+function userLocStop(){
+  if(USERLOC.watch!==null){ try{ navigator.geolocation.clearWatch(USERLOC.watch); }catch(e){} USERLOC.watch=null; }
+  USERLOC.dot = USERLOC.ring = null;
+}
 function ensureLeaflet(cb, onerror){
   if(window.L){ cb(); return; }
   const existing = document.getElementById('leaflet-js');
@@ -2017,7 +2067,7 @@ function computeVehiclePositions(){
         brg = headingAt(v, idx, nextIdx, null);
       }
       out.push({ brg,
-        key: v.id+'_'+ti, routeId: v.r, route: ROUTES[v.r][0], head: v.head,
+        key: v.id+'_'+ti, vId: v.id, ti, idx, nextIdx, routeId: v.r, route: ROUTES[v.r][0], head: v.head,
         variantIndex: VARIANT_INDEX_IN_ROUTE[v.id] || 0,
         lat, lon,
         nextStop: STOPS[v.stops[nextIdx]][0], nextTime: t.t[nextIdx]
@@ -2055,16 +2105,18 @@ function initStopsMap(){
     STOPS_MAP_TIMER = setInterval(()=>{
       if(state.view !== 'stops'){ stopStopsMapRefresh(); return; }
       refreshVehicleMarkers();
-    }, 15000);
+      planOnboardTick(false);
+    }, 10000);
 
     const locateBtn = document.getElementById('mapLocateBtn');
-    if(locateBtn) locateBtn.onclick = ()=>{
-      if(!navigator.geolocation) return;
-      navigator.geolocation.getCurrentPosition(pos=>{
-        map.setView([pos.coords.latitude, pos.coords.longitude], 15);
-        L.circleMarker([pos.coords.latitude, pos.coords.longitude], {radius:6, color:'#1E9C93', fillColor:'#1E9C93', fillOpacity:0.9, weight:2}).addTo(map);
-      });
-    };
+    if(locateBtn) locateBtn.onclick = ()=>{ if(PLAN.onboard) PLAN.follow=false; userLocStart(true); };
+    map.on('dragstart', ()=>{ if(PLAN.onboard && PLAN.follow){ PLAN.follow=false; planOnbFollowBtn(); } });
+    let wasOn = false; try{ wasOn = localStorage.getItem('mik_loc_on')==='1'; }catch(e){}
+    if(USERLOC.last){ userLocUpdate({coords:{latitude:USERLOC.last[0], longitude:USERLOC.last[1], accuracy:USERLOC.acc}}, false); }
+    if(navigator.permissions && navigator.permissions.query){
+      navigator.permissions.query({name:'geolocation'}).then(r=>{ if(r.state==='granted') userLocStart(false); }).catch(()=>{ if(wasOn) userLocStart(false); });
+    }else if(wasOn) userLocStart(false);
+    planOnboardTick(true);
   }, ()=>{
     const wrap = document.getElementById('stopsMapWrap');
     if(wrap) wrap.innerHTML = emptyHtml('cloudOff','A térkép nem tölthető be','Ellenőrizd az internetkapcsolatot, és próbáld újra.');
@@ -2075,6 +2127,7 @@ function refreshVehicleMarkers(){
   const positions = computeVehiclePositions();
   const seenKeys = new Set();
   positions.forEach(p=>{
+    if(PLAN.onboard && PLAN.onboard.key===p.key) return;
     seenKeys.add(p.key);
     let marker = vehicleMarkers[p.key];
     if(marker){
@@ -2086,12 +2139,15 @@ function refreshVehicleMarkers(){
       marker.on('popupopen', (e)=>{
         const el = e.popup.getElement().querySelector('[data-popup-open-route]');
         if(el) el.onclick = (ev)=>{ ev.preventDefault(); openRoute(marker._routeId, marker._variantIndex); };
+        const bd = e.popup.getElement().querySelector('[data-popup-board]');
+        if(bd) bd.onclick = (ev)=>{ ev.preventDefault(); STOPS_MAP.closePopup(); planBoard(marker._vkey); };
       });
       vehicleMarkers[p.key] = marker;
     }
     marker._routeId = p.routeId;
     marker._variantIndex = p.variantIndex;
-    marker.bindPopup(`<div class="mappopup"><b>${esc(p.route)}</b> → ${esc(p.head)}<br><span class="mp-sub">Becsült pozíció · köv. megálló: ${esc(p.nextStop)} (${esc(p.nextTime.slice(0,5))})</span><br><a href="#" data-popup-open-route="1">Menetrend megnyitása (ez az irány) →</a><br><span class="mp-note">${ICO.info} Ez nem élő adat, csak menetrendi információ. A hivatalos élő járatkövetés a Menüből érhető el.</span></div>`);
+    marker._vkey = p.key;
+    marker.bindPopup(`<div class="mappopup"><b>${esc(p.route)}</b> → ${esc(p.head)}<br><span class="mp-sub">Becsült pozíció · köv. megálló: ${esc(p.nextStop)} (${esc(p.nextTime.slice(0,5))})</span><br><a href="#" data-popup-open-route="1">Menetrend megnyitása (ez az irány) →</a><br><a href="#" class="mp-board" data-popup-board="1">${ICO.bus} Ezen utazom – tervezés a járművön</a><span class="mp-note" style="display:block">Aktív helymeghatározás szükséges.</span><br><span class="mp-note">${ICO.info} Ez nem élő adat, csak menetrendi információ. A hivatalos élő járatkövetés a Menüből érhető el.</span></div>`);
   });
   Object.keys(vehicleMarkers).forEach(k=>{
     if(!seenKeys.has(k)){ STOPS_MAP_VEHLAYER.removeLayer(vehicleMarkers[k]); delete vehicleMarkers[k]; }
@@ -2102,6 +2158,7 @@ function stopStopsMapRefresh(){
 }
 function destroyStopsMap(){
   stopStopsMapRefresh();
+  userLocStop(); PLAN.onbMarker = null;
   if(STOPS_MAP){ STOPS_MAP.remove(); STOPS_MAP = null; STOPS_MAP_VEHLAYER = null; }
   PLAN_LAYER = null;
   stopMarkers = {}; vehicleMarkers = {};
@@ -2529,13 +2586,231 @@ function planJourneys(from, to, ymd, t0){
   return {journeys: kept.slice(0,6)};
 }
 
+/* ---- onboard planning ---- */
+function planOnbText(o){
+  const d = Math.round((PLAN.onboard?PLAN.onboard.delay:0)/60);
+  const dl = d>=2 ? ' · késés ≈ '+d+' perc' : (d<=-2 ? ' · korábban jár ≈ '+(-d)+' perc' : ' · menetrend szerint');
+  return 'Köv. megálló: '+o.nextStop+' ('+o.nextTime.slice(0,5)+')'+dl;
+}
+function planOnbStripHtml(){
+  const o = PLAN.onbInfo, f = PLAN.from;
+  return `<div class="onbstrip"><div class="onbtop"><span class="badge sm">${esc(o?o.route:'')}</span><div class="onbtx"><b>Fedélzeten · ${esc(o?o.head:'')}</b><span id="onbInfo">${o?esc(planOnbText(o)):''}</span></div></div>
+    <div class="onbbtns"><button class="planchip ${PLAN.follow?'active':''}" id="onbFollow">${ICO.locate} Követés</button><button class="planchip" id="onbLeave">Leszálltam</button></div></div>`;
+}
+function planOnbFollowBtn(){ const b = document.getElementById('onbFollow'); if(b) b.classList.toggle('active', !!PLAN.follow); }
+function planLocFresh(){ return USERLOC.watch!==null && USERLOC.last && Date.now()-USERLOC.ts < 60000; }
+function planEnsureLoc(ok, fail){
+  if(planLocFresh()){ ok(); return; }
+  if(!navigator.geolocation){ fail('A böngésző nem támogatja a helymeghatározást.'); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    userLocStart(false); userLocUpdate(pos, false); ok();
+  }, ()=>fail('A tervezés a járművön csak aktív helymeghatározással működik. Engedélyezd a helyhozzáférést az eszközön vagy a böngészőben, majd próbáld újra.'),
+  {enableHighAccuracy:true, timeout:10000, maximumAge:15000});
+}
+function planPickVehicle(){
+  openSearchOverlay('Melyik járaton utazol?', (val, body)=>{
+    body.innerHTML = '<div class="card"><div class="loadingrow"><span class="spinner"></span>Helyzet meghatározása…</div></div>';
+    planEnsureLoc(()=>{
+      const q = norm(val.trim());
+      let list = computeVehiclePositions();
+      const ul = USERLOC.last;
+      list.forEach(p=>{ p.d = haversineMetersStatic(ul[0],ul[1],p.lat,p.lon); });
+      list = list.filter(p=>!q || norm(p.route).includes(q) || norm(p.head).includes(q));
+      list.sort((a,b)=> a.d-b.d);
+      if(!list.length){ body.innerHTML = emptyHtml('bus','Most nem közlekedik járat','Csak a menetrend szerint éppen úton lévő járatokat tudom felajánlani.'); return; }
+      let out = '<div class="section-label" style="margin-top:2px;">Hozzád legközelebbi járatok</div><div class="card">';
+      list.slice(0,40).forEach(p=>{
+        const dist = p.d>=950 ? (p.d/1000).toFixed(1).replace('.',',')+' km' : Math.round(p.d/10)*10+' m';
+        out += rowBtnHtml(`<div class="badge sm">${esc(p.route)}</div>`, esc(p.head)+' irányába', 'Köv. megálló: '+esc(p.nextStop)+' ('+esc(p.nextTime.slice(0,5))+') · '+dist, `data-pveh="${escAttr(p.key)}"`);
+      });
+      out += '</div>';
+      body.innerHTML = out;
+      body.querySelectorAll('[data-pveh]').forEach(b=>b.onclick=()=>{ closeSearchOverlay(); planBoard(b.dataset.pveh); });
+    }, msg=>{ body.innerHTML = emptyHtml('locate','Helymeghatározás szükséges', msg); });
+  });
+  const inp = document.getElementById('searchOverlayInput');
+  if(inp && inp.oninput) inp.oninput();
+}
+function planBoard(key){
+  const sp = computeVehiclePositions().find(p=>p.key===key);
+  if(!sp) return;
+  if(!planLocFresh()){ PLAN.status = 'Helyzet meghatározása…'; PLAN.open = true; planRenderPanel(); }
+  planEnsureLoc(()=>{
+    PLAN.status = '';
+    const v = VARIANTS.find(x=>x.id===sp.vId);
+    const prj = projectOnVariant(v, USERLOC.last[0], USERLOC.last[1], null);
+    if(!prj || prj.off > 250){
+      PLAN.status = 'Nem vagy a(z) '+sp.route+' járat útvonalának közelében, ezért nem tudom a járművön követni a helyzetedet.';
+      PLAN.open = true; planRenderPanel(); return;
+    }
+    PLAN.onboard = {key, vId:sp.vId, ti:sp.ti, route:sp.route, head:sp.head, d:null, delay:0};
+    PLAN.follow = true; PLAN.notice = ''; PLAN.selKey = null; PLAN.status = '';
+    PLAN.from = {type:'vehicle', key, label:'Fedélzeten: '+sp.route+' → '+sp.head, lat:USERLOC.last[0], lon:USERLOC.last[1]};
+    PLAN.onbInfo = {route:sp.route, head:sp.head, nextStop:sp.nextStop, nextTime:sp.nextTime};
+    PLAN.results = null; PLAN.sel = -1; planClearMap();
+    PLAN.open = true;
+    planRenderPanel();
+    if(PLAN.to) planRunOnboard(true);
+    else{ PLAN.status = 'Add meg az úti célt – az útvonal a pontos helyzetedből számolódik.'; planUpdateBar(); planDrawResults(); planOnbMarker(); }
+    refreshVehicleMarkers();
+    if(STOPS_MAP) STOPS_MAP.panTo(USERLOC.last);
+  }, msg=>{ PLAN.status = msg; PLAN.open = true; planRenderPanel(); });
+}
+function planOnbMarker(){
+  const ob = PLAN.onboard;
+  if(!STOPS_MAP || !STOPS_MAP_VEHLAYER || !ob || !PLAN.from) return;
+  const ll = [PLAN.from.lat, PLAN.from.lon];
+  if(!PLAN.onbMarker){
+    PLAN.onbMarker = L.marker(ll, {icon:vehPinIcon(ob.route, ob.brg||0), interactive:false, zIndexOffset:800}).addTo(STOPS_MAP_VEHLAYER);
+    const el = PLAN.onbMarker.getElement(); if(el) el.classList.add('boarded');
+  }else{ PLAN.onbMarker.setLatLng(ll); setPinHeading(PLAN.onbMarker, ob.brg||0); }
+}
+function planOnboardEnd(msg){
+  if(PLAN.onbMarker && STOPS_MAP_VEHLAYER){ try{ STOPS_MAP_VEHLAYER.removeLayer(PLAN.onbMarker); }catch(e){} }
+  PLAN.onbMarker = null;
+  PLAN.onboard = null; PLAN.follow = false; PLAN.from = null; PLAN.results = null; PLAN.sel = -1; PLAN.notice = '';
+  PLAN.status = typeof msg==='string' ? msg : '';
+  planClearMap(); PLAN.open = true; planRenderPanel(); refreshVehicleMarkers();
+}
+/* project a GPS point onto a variant's route; returns {d (m along route), off (m from route)} */
+function projectOnVariant(v, lat, lon, win){
+  let pts = v.shapePts, cum = v.shapeCumDist, sd = v.stopDist;
+  if(!pts || !cum || !sd){
+    pts = v.stops.map(s=>[STOPS[s][1], STOPS[s][2]]); cum = [0];
+    for(let i=1;i<pts.length;i++) cum.push(cum[i-1] + haversineMetersStatic(pts[i-1][0],pts[i-1][1],pts[i][0],pts[i][1]));
+    sd = cum;
+  }
+  const k = Math.cos(lat*Math.PI/180)*111320, kk = 110540;
+  function scan(lo, hi){
+    let best = null;
+    for(let i=0;i<pts.length-1;i++){
+      if(cum[i+1] < lo || cum[i] > hi) continue;
+      const ax=(pts[i][1]-lon)*k, ay=(pts[i][0]-lat)*kk, bx=(pts[i+1][1]-lon)*k, by=(pts[i+1][0]-lat)*kk;
+      const dx=bx-ax, dy=by-ay, l2=dx*dx+dy*dy;
+      let t = l2>0 ? Math.max(0, Math.min(1, -(ax*dx+ay*dy)/l2)) : 0;
+      const px=ax+t*dx, py=ay+t*dy, off=Math.sqrt(px*px+py*py);
+      if(!best || off < best.off) best = {off, d: cum[i] + t*(cum[i+1]-cum[i])};
+    }
+    return best;
+  }
+  let r = null;
+  if(win) r = scan(win[0], win[1]);
+  if(!r || r.off > 300) { const g = scan(-1e9, 1e12); if(g && (!r || g.off < r.off)) r = g; }
+  if(r){ r.sd = sd; r.len = sd[sd.length-1]; }
+  return r;
+}
+function planOnboardLocate(v, ts){
+  const ob = PLAN.onboard, ul = USERLOC.last;
+  const win = ob.d==null ? null : [ob.d - 120, ob.d + 3000];
+  const r = projectOnVariant(v, ul[0], ul[1], win);
+  if(!r) return null;
+  ob.d = r.d;
+  const sd = r.sd, n = v.stops.length;
+  if(r.d >= sd[n-1] - 40) return {end:true};
+  let idx = 0; for(let i=0;i<n;i++){ if(sd[i] <= r.d) idx = i; }
+  const nextIdx = Math.min(idx+1, n-1);
+  const span = sd[nextIdx]-sd[idx], frac = span>0 ? Math.min(1, Math.max(0,(r.d-sd[idx])/span)) : 0;
+  let sched = ts[idx] + (ts[nextIdx]-ts[idx])*frac;
+  if(isNaN(sched)) sched = timeToSec(nowTimeStr());
+  const nowSec = timeToSec(nowTimeStr());
+  const raw = Math.max(-600, Math.min(3600, nowSec - sched));
+  ob.delay = ob.delayInit ? ob.delay*0.5 + raw*0.5 : raw; ob.delayInit = true;
+  const brg = headingAt(v, idx, nextIdx, v.shapePts ? r.d : null);
+  ob.brg = brg;
+  return {idx, nextIdx, d:r.d, off:r.off, delay:ob.delay, lat:ul[0], lon:ul[1], brg};
+}
+function planOnboardCompute(){
+  const ob = PLAN.onboard;
+  const v = VARIANTS.find(x=>x.id===ob.vId);
+  const ts0 = v.trips[ob.ti].t.map(x=> x ? timeToSec(x) : NaN);
+  const loc = planOnboardLocate(v, ts0);
+  if(!loc) return null;
+  if(loc.end) return {end:true};
+  const ts = ts0.map(x=>x + ob.delay);
+  const pos = {key:ob.key, vId:ob.vId, ti:ob.ti, route:ob.route, head:ob.head, idx:loc.idx, nextIdx:loc.nextIdx, lat:loc.lat, lon:loc.lon, brg:loc.brg, delay:loc.delay, off:loc.off,
+    nextStop:STOPS[v.stops[loc.nextIdx]][0], nextTime:planFmt(ts[loc.nextIdx])};
+  const P = planInit(), ymd = toYMD(new Date()), day = planDay(ymd);
+  const nowSec = timeToSec(nowTimeStr());
+  const dsts = planResolve(PLAN.to);
+  if(!dsts.length) return {pos, error:'to'};
+  const cands = [];
+  for(let j=pos.nextIdx; j<v.stops.length; j++){
+    if(isNaN(ts[j])) continue;
+    const pj = P.stopPlace[v.stops[j]];
+    const opts = planRaptor(day, [{p:pj, walk:0, meters:0}], dsts, ts[j] + PLAN_XFER_BUF);
+    if(!opts.length) continue;
+    const c = opts[opts.length-1];
+    const arr = c.walkOnly ? c.arr - PLAN_XFER_BUF : c.arr;
+    const rideLeg = {type:'ride', onboard:true, v, route:ROUTES[v.r][0], routeId:v.r, vIdx:VARIANT_INDEX_IN_ROUTE[v.id]||0, head:v.head,
+      from:pos.nextIdx, to:j, dep:ts[pos.nextIdx], arr:ts[j], fromName:STOPS[v.stops[pos.nextIdx]][0], toName:STOPS[v.stops[j]][0], trip:{ts}};
+    const tail = c.legs.map(l=>Object.assign({}, l));
+    if(c.walkOnly){ // walking after alighting: timeline from the alight time
+      let t = ts[j]; tail.forEach(l=>{ l.start = t; l.end = t + l.secs; t = l.end; });
+    }
+    const rides = tail.filter(l=>l.type==='ride').length;
+    const walkSecs = tail.filter(l=>l.type==='walk').reduce((a,l)=>a+l.secs,0);
+    cands.push({legs:[rideLeg].concat(tail), dep:nowSec, arr, transfers:rides, onboard:true, walkSecs, alight:j, key:'ob'+j+'|'+(c.walkOnly?'w':c.key)});
+  }
+  cands.sort((a,b)=> a.arr-b.arr || a.transfers-b.transfers || a.walkSecs-b.walkSecs);
+  const kept = [];
+  cands.forEach(c=>{
+    if(kept.some(k=> k.transfers<=c.transfers && k.arr<=c.arr + 0 && (k.arr<c.arr || k.transfers<c.transfers || k.walkSecs<=c.walkSecs))) return;
+    kept.push(c);
+  });
+  return {pos, journeys: kept.slice(0,4)};
+}
+function planRunOnboard(initial){
+  if(!PLAN.onboard) return;
+  if(!PLAN.to){ PLAN.results = null; PLAN.status = 'Add meg az úti célt – az útvonal a jármű aktuális helyzetéből számolódik.'; planUpdateBar(); planDrawResults(); return; }
+  const r = planOnboardCompute();
+  if(!r){ planOnboardEnd('Nem sikerült meghatározni a helyzetedet a járat útvonalán, a tervezés a járművön véget ért.'); return; }
+  if(r.end){ planOnboardEnd('Megérkeztél a végállomásra – a tervezés a járművön véget ért.'); return; }
+  PLAN.onbInfo = r.pos;
+  PLAN.from.lat = r.pos.lat; PLAN.from.lon = r.pos.lon;
+  planOnbMarker();
+  const inf = document.getElementById('onbInfo'); if(inf) inf.textContent = planOnbText(r.pos);
+  if(r.error){ PLAN.results = {error:'to'}; planUpdateBar(); planDrawResults(); return; }
+  const prevSel = PLAN.sel, prevKey = PLAN.selKey;
+  const sig = r.journeys.map(j=>j.key+'@'+planFmt(j.arr)).join('~');
+  const same = PLAN.results && PLAN.results.sig===sig;
+  PLAN.results = {journeys:r.journeys, ymd:toYMD(new Date()), t0:r.journeys.length?r.journeys[0].dep:0, onboard:true, sig};
+  if(initial){
+    PLAN.sel = r.journeys.length ? 0 : -1;
+    PLAN.notice = '';
+    if(PLAN.sel>=0){ planShow(PLAN.sel); } else { planUpdateBar(); planDrawResults(); }
+    return;
+  }
+  if(prevSel>=0){
+    let i = r.journeys.findIndex(j=>j.key===prevKey);
+    if(i<0){
+      if(r.journeys.length){ i = 0; PLAN.notice = 'Az útvonal megváltozott a jármű haladása miatt ('+nowTimeStr().slice(0,5)+').'; try{ navigator.vibrate && navigator.vibrate(200); }catch(e){} }
+      else { PLAN.notice = 'Az eredeti útvonal már nem teljesíthető.'; }
+    }
+    PLAN.sel = i; PLAN.selKey = i>=0 ? r.journeys[i].key : null;
+  }
+  planUpdateBar();
+  if(!same || PLAN.notice) planDrawResults();
+  planDrawMap(true);
+}
+function planOnboardTick(initial){
+  if(!PLAN.onboard) return;
+  PLAN.lastTick = Date.now();
+  if(USERLOC.watch===null){ planOnboardEnd('A helymeghatározás megszakadt, ezért a tervezés a járművön leállt. A tervezés csak aktív helymeghatározással működik.'); return; }
+  if(Date.now()-USERLOC.ts > 90000){
+    if(!PLAN.noFix){ PLAN.noFix = true; PLAN.notice = 'Nincs friss helyadat – az útvonal az utolsó ismert helyzetből számolódik.'; planDrawResults(); }
+  }else if(PLAN.noFix){ PLAN.noFix = false; PLAN.notice = ''; planDrawResults(); }
+  if(PLAN.to) planRunOnboard(false);
+  else if(PLAN.from && USERLOC.last){ PLAN.from.lat = USERLOC.last[0]; PLAN.from.lon = USERLOC.last[1]; planOnbMarker(); }
+  if(PLAN.onboard && PLAN.follow && STOPS_MAP && PLAN.from && PLAN.from.lat) STOPS_MAP.panTo([PLAN.from.lat, PLAN.from.lon], {animate:true});
+}
+
 /* ---- planner UI (expandable panel on the stops map) ---- */
 let PLAN = {from:null, to:null, mode:'now', date:null, time:null, results:null, status:'', open:false, sel:-1};
 let PLAN_LAYER = null;
 const PLAN_COLORS = ['#7A2A3A','#1E9C93','#C97A2B','#2B6FD4','#8A4FB0'];
 function planFmt(sec){ const s = Math.round(sec); const h = Math.floor(s/3600)%24, m = Math.floor((s%3600)/60); return pad2(h)+':'+pad2(m); }
 function planMin(sec){ return Math.max(1, Math.round(sec/60)); }
-function planPtLabel(p){ return p ? (p.type==='geo' ? 'Jelenlegi helyzetem' : p.name) : ''; }
+function planPtLabel(p){ return p ? (p.type==='vehicle' ? p.label : p.type==='geo' ? 'Jelenlegi helyzetem' : p.name) : ''; }
 function planWhenSec(){
   const now = new Date();
   if(PLAN.mode === 'now') return {ymd: toYMD(now), t: now.getHours()*3600 + now.getMinutes()*60};
@@ -2555,7 +2830,7 @@ function planUpdateBar(){
   let t1, t2;
   if(sel){
     t1 = planFmt(sel.dep)+' → '+planFmt(sel.arr)+' · '+planMin(sel.arr-sel.dep)+' perc';
-    t2 = planPtLabel(PLAN.from)+' → '+planPtLabel(PLAN.to)+' · '+planMetaText(sel);
+    t2 = (PLAN.onboard ? 'Fedélzeten · ' : planPtLabel(PLAN.from)+' → ')+(PLAN.onboard ? planPtLabel(PLAN.to)+' · ' : planPtLabel(PLAN.to)+' · ')+planMetaText(sel);
   }else if(PLAN.from && PLAN.to){
     t1 = planPtLabel(PLAN.from)+' → '+planPtLabel(PLAN.to); t2 = 'Útvonaltervező';
   }else{
@@ -2585,9 +2860,11 @@ function planRenderPanel(){
       ${fld('pf-from','a','Honnan', planPtLabel(PLAN.from), 'Indulási megálló vagy helyzet')}
       <div class="planline"></div>
       ${fld('pf-to','b','Hová', planPtLabel(PLAN.to), 'Úti cél megállója')}
-      <button class="planswap" id="pswap" aria-label="Csere">${ICO.swap}</button>
+      <button class="planswap" id="pswap" style="${PLAN.onboard?'display:none':''}" aria-label="Csere">${ICO.swap}</button>
     </div>
-    <div class="plantime">
+    ${PLAN.onboard ? planOnbStripHtml() : ''}
+    <button class="planonb ${PLAN.onboard?'hidden':''}" id="ponb">${ICO.bus}<span><b>Tervezés a járművön</b><i>Aktív helymeghatározás szükséges</i></span></button>
+    <div class="plantime ${PLAN.onboard?'hidden':''}">
       <div class="planchips">
         <button class="planchip ${PLAN.mode==='now'?'active':''}" data-pmode="now">Indulás most</button>
         <button class="planchip ${PLAN.mode==='custom'?'active':''}" data-pmode="custom">Időpont megadása</button>
@@ -2604,11 +2881,12 @@ function planRenderPanel(){
   document.getElementById('planBar').onclick = ()=>{ PLAN.open = !PLAN.open; el.classList.toggle('open', PLAN.open); };
   document.getElementById('planClear').onclick = ()=>{
     if(PLAN.sel >= 0){ PLAN.sel = -1; planClearMap(); planUpdateBar(); PLAN.open = true; el.classList.add('open'); planDrawResults(); return; }
-    PLAN.from = PLAN.to = null; PLAN.results = null; PLAN.status = ''; PLAN.sel = -1; planClearMap(); planRenderPanel();
+    PLAN.from = PLAN.to = null; PLAN.onboard = null; PLAN.notice = ''; PLAN.results = null; PLAN.status = ''; PLAN.sel = -1; planClearMap(); planRenderPanel(); refreshVehicleMarkers();
   };
   document.getElementById('pf-from').onclick = ()=>planPick('from');
   document.getElementById('pf-to').onclick = ()=>planPick('to');
   document.getElementById('pswap').onclick = ()=>{
+    if(PLAN.onboard) return;
     const t = PLAN.from; PLAN.from = PLAN.to; PLAN.to = t; PLAN.results = null; PLAN.sel = -1; planClearMap();
     planRenderPanel(); run();
   };
@@ -2621,6 +2899,9 @@ function planRenderPanel(){
   document.getElementById('pdate').onchange = e=>{ if(e.target.value){ PLAN.date = e.target.value.replace(/-/g,''); run(); } };
   document.getElementById('ptime').onchange = e=>{ if(e.target.value){ PLAN.time = e.target.value; run(); } };
   document.getElementById('pgo').onclick = planRun;
+  const onb = document.getElementById('ponb'); if(onb) onb.onclick = planPickVehicle;
+  const lv = document.getElementById('onbLeave'); if(lv) lv.onclick = planOnboardEnd;
+  const fl = document.getElementById('onbFollow'); if(fl) fl.onclick = ()=>{ PLAN.follow = true; planOnbFollowBtn(); if(PLAN.from && PLAN.from.lat && STOPS_MAP) STOPS_MAP.panTo([PLAN.from.lat, PLAN.from.lon]); };
   planUpdateBar();
   planDrawResults();
 }
@@ -2643,6 +2924,7 @@ function planPick(which){
     if(q && !names.length && !norm('jelenlegi helyzetem').includes(q)) out = emptyHtml('search','Nincs találat','Próbálj más keresőszót.');
     body.innerHTML = out;
     body.querySelectorAll('[data-pstop]').forEach(b=>b.onclick=()=>{
+      if(which==='from') PLAN.onboard = null;
       PLAN[which] = {type:'place', name:b.dataset.pstop};
       closeSearchOverlay(); planAfterPick();
     });
@@ -2651,6 +2933,7 @@ function planPick(which){
       if(!navigator.geolocation){ PLAN.status = 'A böngésző nem támogatja a helymeghatározást.'; closeSearchOverlay(); planAfterPick(true); return; }
       g.querySelector('.rsub').textContent = 'Helyzet meghatározása…';
       navigator.geolocation.getCurrentPosition(pos=>{
+        if(which==='from') PLAN.onboard = null;
         PLAN[which] = {type:'geo', lat:pos.coords.latitude, lon:pos.coords.longitude};
         closeSearchOverlay(); planAfterPick();
       }, ()=>{
@@ -2670,6 +2953,7 @@ function planAfterPick(keepStatus){
   if(PLAN.from && PLAN.to && !keepStatus) planRun();
 }
 function planRun(){
+  if(PLAN.onboard){ planRunOnboard(true); return; }
   PLAN.sel = -1; planClearMap();
   if(!PLAN.from || !PLAN.to){ PLAN.status = 'Add meg az indulási és az érkezési helyet.'; PLAN.results = null; planUpdateBar(); planDrawResults(); return; }
   if(PLAN.from.type==='place' && PLAN.to.type==='place' && PLAN.from.name===PLAN.to.name){ PLAN.status = 'Az indulási és az érkezési hely megegyezik.'; PLAN.results = null; planUpdateBar(); planDrawResults(); return; }
@@ -2699,8 +2983,8 @@ function planLegHtml(l, prev){
   }
   return `${wait}<div class="jleg ride"><div class="jl-ic"><div class="badge sm" data-jroute="${l.routeId}" data-jv="${l.vIdx}">${esc(l.route)}</div></div>
     <div class="jl-tx">
-      <div class="jrow"><b>${esc(l.fromName)}</b><span class="jt">${planFmt(l.dep)}</span></div>
-      <div class="jsub">${esc(l.head)} irányába · ${nst} megálló · ${planMin(l.arr-l.dep)} perc</div>
+      <div class="jrow">${l.onboard ? `<b>Fedélzeten</b><span class="jt">most</span>` : `<b>${esc(l.fromName)}</b><span class="jt">${planFmt(l.dep)}</span>`}</div>
+      <div class="jsub">${esc(l.head)} irányába · ${l.onboard ? 'köv. megálló: '+esc(l.fromName)+' ('+planFmt(l.dep)+') · ' : ''}${nst+(l.onboard?1:0)} megálló · ${planMin(l.arr-(l.onboard?timeToSec(nowTimeStr()):l.dep))} perc`+`</div>
       <div class="jrow"><span>Leszállás: <b>${esc(l.toName)}</b></span><span class="jt">${planFmt(l.arr)}</span></div>
       <button class="jtoggle" data-jtoggle="1">Megállók mutatása</button>
       <div class="jstops hidden">${stops}</div>
@@ -2722,12 +3006,12 @@ function planDrawResults(){
     box.innerHTML = emptyHtml('bus','Nem találtam útvonalat','Erre az időpontra nincs megfelelő összeköttetés. Próbálj korábbi időpontot vagy másik napot.');
     return;
   }
-  let html = `<div class="section-label">Javasolt útvonalak · ${fmtDateLong(ymdToDate(R.ymd))}</div>`;
+  let html = (PLAN.notice ? `<div class="plannotice">${ICO.info} ${esc(PLAN.notice)}</div>` : '') + `<div class="section-label">${R.onboard ? 'Útvonalak a járműről · frissül a jármű haladásával' : 'Javasolt útvonalak · '+fmtDateLong(ymdToDate(R.ymd))}</div>`;
   R.journeys.forEach((j,ji)=>{
     const badges = j.legs.map(l=> l.type==='ride' ? `<span class="badge sm">${esc(l.route)}</span>` : `<span class="jwalkic">${ICO.walk}</span>`).join('<span class="jarrow">›</span>');
     html += `<div class="jcard ${ji===PLAN.sel?'sel':''}" data-ji="${ji}">
       <button class="jtop" data-jshow="${ji}">
-        <span class="jhead"><span class="jtimes"><b>${planFmt(j.dep)}</b><span class="jarrow">→</span><b>${planFmt(j.arr)}</b></span><span class="jdur">${planMin(j.arr-j.dep)} perc</span></span>
+        <span class="jhead"><span class="jtimes"><b>${j.onboard ? 'most' : planFmt(j.dep)}</b><span class="jarrow">→</span><b>${planFmt(j.arr)}</b></span><span class="jdur">${planMin(j.arr-j.dep)} perc</span></span>
         <span class="jbadges">${badges}<span class="jmeta">${planMetaText(j)}</span></span>
         <span class="jmapbtn">${ICO.mapPin} Megjelenítés a térképen</span>
       </button>
@@ -2746,6 +3030,7 @@ function planDrawResults(){
 }
 function planShow(ji){
   PLAN.sel = ji; PLAN.open = false;
+  { const jj = planSelJourney(); PLAN.selKey = jj ? jj.key : null; }
   const el = document.getElementById('planPanel');
   if(el) el.classList.remove('open');
   planUpdateBar();
@@ -2769,13 +3054,13 @@ function planShapeSlice(l){
   for(let i=l.from;i<=l.to;i++){ const s = STOPS[v.stops[i]]; out.push([s[1], s[2]]); }
   return out;
 }
-function planDrawMap(){
+function planDrawMap(noFit){
   planClearMap();
   if(!STOPS_MAP || !window.L) return;
   const j = planSelJourney();
   if(!j || !PLAN.from || !PLAN.to) return;
   const P = planInit(), g = L.layerGroup(), all = [];
-  const co = pt => pt.type==='geo' ? [pt.lat, pt.lon] : [P.lat[P.idx[pt.name]], P.lon[P.idx[pt.name]]];
+  const co = pt => (pt.type==='geo'||pt.type==='vehicle') ? [pt.lat, pt.lon] : [P.lat[P.idx[pt.name]], P.lon[P.idx[pt.name]]];
   const stopLL = (v,i)=>{ const s = STOPS[v.stops[i]]; return [s[1], s[2]]; };
   let cur = co(PLAN.from); const dest = co(PLAN.to);
   let ci = 0;
@@ -2788,24 +3073,25 @@ function planDrawMap(){
     }else{
       const col = PLAN_COLORS[ci++ % PLAN_COLORS.length];
       const sl = planShapeSlice(l);
+      if(l.onboard && PLAN.from && PLAN.from.lat) sl.unshift([PLAN.from.lat, PLAN.from.lon]);
       L.polyline(sl, {color:'#fff', weight:10, opacity:.95, lineJoin:'round'}).addTo(g);
       L.polyline(sl, {color:col, weight:6, lineJoin:'round'}).addTo(g);
       sl.forEach(p=>all.push(p));
       const mid = sl[Math.floor(sl.length/2)];
       L.marker(mid, {interactive:false, icon:L.divIcon({className:'', html:`<div class="jmapbadge" style="background:${col}">${esc(l.route)}</div>`, iconSize:[34,22], iconAnchor:[17,11]})}).addTo(g);
       const a = stopLL(l.v, l.from), b = stopLL(l.v, l.to);
-      [[a,l.fromName,l.dep,'Felszállás'],[b,l.toName,l.arr,'Leszállás']].forEach(([pt,nm,tm,lbl])=>{
+      (l.onboard ? [[b,l.toName,l.arr,'Leszállás']] : [[a,l.fromName,l.dep,'Felszállás'],[b,l.toName,l.arr,'Leszállás']]).forEach(([pt,nm,tm,lbl])=>{
         L.circleMarker(pt, {radius:6, color:col, weight:3, fillColor:'#fff', fillOpacity:1}).bindPopup(`<div class="mappopup"><b>${esc(nm)}</b><br><span class="mp-sub">${lbl} · ${l.route} · ${planFmt(tm)}</span></div>`).addTo(g);
       });
       cur = b;
     }
   });
-  L.circleMarker(co(PLAN.from), {radius:9, color:'#fff', weight:3, fillColor:'#1E9C93', fillOpacity:1}).addTo(g);
+  if(PLAN.from.type!=='vehicle') L.circleMarker(co(PLAN.from), {radius:9, color:'#fff', weight:3, fillColor:'#1E9C93', fillOpacity:1}).addTo(g);
   L.circleMarker(dest, {radius:9, color:'#fff', weight:3, fillColor:'#7A2A3A', fillOpacity:1}).addTo(g);
   g.addTo(STOPS_MAP);
   PLAN_LAYER = g;
   all.push(co(PLAN.from), dest);
-  try{ STOPS_MAP.fitBounds(L.latLngBounds(all), {paddingTopLeft:[24,100], paddingBottomRight:[24,160], maxZoom:16}); }catch(e){}
+  if(!noFit){ try{ STOPS_MAP.fitBounds(L.latLngBounds(all), {paddingTopLeft:[24,100], paddingBottomRight:[24,160], maxZoom:16}); }catch(e){} }
 }
 
 /* ---- VEHICLES ---- */
