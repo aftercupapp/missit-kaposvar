@@ -2404,7 +2404,7 @@ function renderMenu(header, content){
 }
 
 /* ---------------- ROUTE PLANNER (RAPTOR-style, runs fully offline) ---------------- */
-const PLAN_SPEED = 1.25, PLAN_DETOUR = 1.3, PLAN_MAX_FOOT = 300, PLAN_XFER_BUF = 60, PLAN_MAXK = 5, PLAN_GEO_RADIUS = 1000;
+const PLAN_LONG_WALK = 900, PLAN_LONG_WAIT = 3600, PLAN_SPEED = 1.25, PLAN_DETOUR = 1.3, PLAN_MAX_FOOT = 300, PLAN_XFER_BUF = 60, PLAN_MAXK = 5, PLAN_GEO_RADIUS = 1000;
 let PLAN_WALK_ON = true;
 let PLAN_DATA = null;
 const PLAN_DAYCACHE = {};
@@ -2428,8 +2428,19 @@ function planInit(){
   }
   const stopPlace = {};
   Object.keys(STOPS).forEach(sid=>{ stopPlace[sid] = idx[STOPS[sid][0]]; });
-  PLAN_DATA = {names, idx, lat, lon, adj, stopPlace};
+  PLAN_DATA = {names, idx, lat, lon, adj, stopPlace, adjLong:null};
   return PLAN_DATA;
+}
+function planAdjLong(){
+  const P = planInit();
+  if(P.adjLong) return P.adjLong;
+  const n = P.names.length, adj = P.names.map(()=>[]);
+  const maxStraight = PLAN_LONG_WALK * PLAN_SPEED / PLAN_DETOUR;
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+    const d = haversineMetersStatic(P.lat[i],P.lon[i],P.lat[j],P.lon[j]);
+    if(d<=maxStraight){ const m = d*PLAN_DETOUR, sc = Math.round(m/PLAN_SPEED); adj[i].push([j,sc,m]); adj[j].push([i,sc,m]); }
+  }
+  return P.adjLong = adj;
 }
 function planDay(ymd){
   if(PLAN_DAYCACHE[ymd]) return PLAN_DAYCACHE[ymd];
@@ -2450,8 +2461,8 @@ function planDay(ymd){
   pats.forEach((pt,pi)=>pt.seq.forEach((p,i)=>atPlace[p].push([pi,i])));
   return PLAN_DAYCACHE[ymd] = {pats, atPlace, count: pats.reduce((a,p)=>a+p.trips.length,0)};
 }
-function planRaptor(day, srcs, dsts, t0){
-  const P = PLAN_DATA, n = P.names.length, INF = 1e12, pats = day.pats, atPlace = day.atPlace;
+function planRaptor(day, srcs, dsts, t0, longWalk){
+  const P = PLAN_DATA, ADJ = longWalk ? planAdjLong() : PLAN_DATA.adj, n = P.names.length, INF = 1e12, pats = day.pats, atPlace = day.atPlace;
   const tau = [new Float64Array(n).fill(INF)], par = [new Array(n).fill(null)], via = [new Uint8Array(n)];
   const star = new Float64Array(n).fill(INF);
   let marked = new Set();
@@ -2464,7 +2475,7 @@ function planRaptor(day, srcs, dsts, t0){
     const cand = [];
     list.forEach(p=>{
       const base = tau[k][p];
-      P.adj[p].forEach(([q,secs,m])=>{ cand.push([q, base+secs, p, secs, m]); });
+      ADJ[p].forEach(([q,secs,m])=>{ cand.push([q, base+secs, p, secs, m]); });
     });
     const got = [];
     cand.forEach(([q,a,from,secs,m])=>{
@@ -2604,6 +2615,16 @@ function planResolve(pt){
   arr.sort((a,b)=>a.walk-b.walk);
   return arr.slice(0,12);
 }
+function planLongWait(j){
+  // a transfer wait (arrival of a ride -> departure of the next ride, walking included) over one hour
+  let prevArr = null, walk = 0;
+  for(const l of j.legs){
+    if(l.type==='walk'){ if(prevArr!==null) walk += l.secs; continue; }
+    if(prevArr!==null && l.dep - (prevArr + walk) > PLAN_LONG_WAIT) return true;
+    prevArr = l.arr; walk = 0;
+  }
+  return false;
+}
 function planJourneys(from, to, ymd, t0){
   planInit();
   const day = planDay(ymd);
@@ -2611,22 +2632,39 @@ function planJourneys(from, to, ymd, t0){
   if(!srcs.length) return {error:'from'};
   if(!dsts.length) return {error:'to'};
   if(!day.count) return {error:'noservice'};
-  const all = [], seen = new Set();
-  let t = t0;
-  for(let run=0; run<4; run++){
-    const opts = planRaptor(day, srcs, dsts, t);
-    if(!opts.length) break;
-    const take = run===0 ? opts : [opts[opts.length-1]];
-    let next = null;
-    take.forEach(j=>{ if(!seen.has(j.key)){ seen.add(j.key); all.push(j); } });
-    const best = opts[opts.length-1];
-    if(best.walkOnly) break;
-    next = Math.min(...take.map(j=>j.dep)) ;
-    const nt = Math.max(best.dep, next) + 60;
-    if(nt <= t) break;
-    t = nt;
+  function collect(longWalk){
+    const all = [], seen = new Set();
+    let t = t0;
+    for(let run=0; run<4; run++){
+      const opts = planRaptor(day, srcs, dsts, t, longWalk);
+      if(!opts.length) break;
+      const take = run===0 ? opts : [opts[opts.length-1]];
+      take.forEach(j=>{ if(!seen.has(j.key)){ seen.add(j.key); all.push(j); } });
+      const best = opts[opts.length-1];
+      if(best.walkOnly) break;
+      const next = Math.min(...take.map(j=>j.dep));
+      const nt = Math.max(best.dep, next) + 60;
+      if(nt <= t) break;
+      t = nt;
+    }
+    return all;
   }
-  const kept = all.filter(x=> !all.some(y=> y!==x && y.dep>=x.dep && y.arr<=x.arr && y.transfers<=x.transfers && (y.dep>x.dep || y.arr<x.arr || y.transfers<x.transfers)));
+  const dom = list => list.filter(x=> !list.some(y=> y!==x && y.dep>=x.dep && y.arr<=x.arr && y.transfers<=x.transfers && (y.dep>x.dep || y.arr<x.arr || y.transfers<x.transfers)));
+  let kept = dom(collect(false));
+  // long transfer waits (> 1 h): offer a walking alternative (up to ~15 min of walking) when it is not slower
+  const slow = kept.filter(planLongWait);
+  if(slow.length){
+    const ext = dom(collect(true)).filter(e=>!planLongWait(e));
+    const repl = new Set(), add = [];
+    slow.forEach(o=>{
+      const e = ext.filter(x=> x.arr <= o.arr).sort((a,b)=> a.arr-b.arr || b.dep-a.dep)[0];
+      if(e){ repl.add(o); if(!add.includes(e)) add.push(e); }
+    });
+    if(repl.size){
+      add.forEach(e=>{ e.walkAlt = true; });
+      kept = dom(kept.filter(x=>!repl.has(x)).concat(add.filter(e=>!kept.some(k=>k.key===e.key))));
+    }
+  }
   kept.sort((a,b)=> a.dep-b.dep || a.arr-b.arr);
   return {journeys: kept.slice(0,6)};
 }
@@ -2899,7 +2937,7 @@ function planSelJourney(){
   const R = PLAN.results;
   return (R && R.journeys && PLAN.sel>=0) ? R.journeys[PLAN.sel] : null;
 }
-function planMetaText(j){ return j.walkOnly ? 'Csak gyaloglás' : (j.transfers===0 ? 'Átszállás nélkül' : j.transfers+' átszállás'); }
+function planMetaText(j){ return j.walkOnly ? 'Csak gyaloglás' : (j.transfers===0 ? 'Átszállás nélkül' : j.transfers+' átszállás') + (j.walkAlt ? ' · sétával' : ''); }
 function planFullBtnUpdate(){
   const b = document.getElementById('planFullBtn'); if(!b) return;
   const R = PLAN.results;
