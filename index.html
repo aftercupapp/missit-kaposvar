@@ -2975,7 +2975,9 @@ function fetchNewsItems(){
   return tryList([
     async()=>{ const r = await fetch(bust(NEWS_FEED_URL)); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); },
     async()=>{ const r = await fetch(bust(rss2json(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRss2json(await r.json()); },
-    async()=>{ const r = await fetch(bust(allorigins(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); }
+    async()=>{ const r = await fetch(bust(allorigins(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); },
+    async()=>{ const r = await fetch('https://corsproxy.io/?'+encodeURIComponent(bust(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); },
+    async()=>{ const r = await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(bust(NEWS_FEED_URL))); if(!r.ok) throw 0; return parseRssXmlText(await r.text()); }
   ]);
 }
 function fetchBlogItems(){
@@ -2985,7 +2987,9 @@ function fetchBlogItems(){
     async()=>{ const r = await fetch(bust(BLOG_FEED_URL)); if(!r.ok) throw 0; return parseRssLoose(await r.text()).map(lim); },
     async()=>{ const r = await fetch(bust(allorigins(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRssLoose(await r.text()).map(lim); },
     async()=>{ const r = await fetch(bust(allorigins(BLOG_JSON_URL))); if(!r.ok) throw 0; return parseBloggerJson(await r.json()).map(lim); },
-    async()=>{ const r = await fetch(bust(rss2json(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRss2json(await r.json()).map(lim); }
+    async()=>{ const r = await fetch(bust(rss2json(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRss2json(await r.json()).map(lim); },
+    async()=>{ const r = await fetch('https://corsproxy.io/?'+encodeURIComponent(bust(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRssLoose(await r.text()).map(lim); },
+    async()=>{ const r = await fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(bust(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRssLoose(await r.text()).map(lim); }
   ]);
 }
 const BLOG_BASELINE = [
@@ -2994,6 +2998,7 @@ const BLOG_BASELINE = [
   {title:'Korrekciók a 83-as vonalon', date:'2024-11-20T12:00:00', link:'https://kaposgo.blogspot.com/2024/11/korrekciok-83-as-vonalon.html', desc:'A 83-as vonalon több olyan busz is közlekedik, melyek az eredeti útvonalon túl plusz városrészeket is megközelítenek.'},
   {title:'KaposGO Blog', date:'2024-11-12T12:00:00', link:'https://kaposgo.blogspot.com/2024/11/kaposgo-blog.html', desc:''}
 ].map(i=>({...i, date:new Date(i.date)}));
+const NEWS_BASELINE = [{"title": "Új menetrend 2026. november 1-jétől", "date": "2026-10-16T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-10-16/uj-menetrend-2026-november-1-jetol", "desc": "Új helyi menetrend november 1-jétől."}, {"title": "Anna utca lezárás", "date": "2026-07-30T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-07-30/anna-utca-lezaras", "desc": "Anna utcai útlezárás 2026. július 31-étől."}, {"title": "Véleményezze Ön is az új menetrend tervezetét!", "date": "2026-07-09T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-07-09/velemenyezze-on-is-az-uj-menetrend-tervezetet", "desc": "Az új kaposvári helyi menetrend tervezetének véleményezése."}, {"title": "Ballakuti u. megállóhely ideiglenes áthelyezése", "date": "2026-05-25T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-05-25/ballakuti-u-megallohely-ideiglenes-athelyezese", "desc": "A Ballakúti u. megálló ideiglenesen áthelyezve felújítás miatt."}, {"title": "2026.április 11. triatlon verseny miatti útvonal változások", "date": "2026-04-10T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-04-08/2026aprilis-11-triatlon-verseny-miatti-utvonal-valtozasok", "desc": "Útvonalváltozások a triatlon verseny miatt."}, {"title": "Közlekedési változások közvilágítási lámpák cseréje miatt", "date": "2026-01-16T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-01-16/kozlekedesi-valtozasok-kozvilagitasi-lampak-csereje-miatt", "desc": "Forgalmi változások 2026. január 20-án."}, {"title": "Az extrém időjárás miatt közlekedési fennakadások lehetnek Kaposváron", "date": "2026-01-07T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2026-01-07/az-extrem-idojaras-miatt-kozlekedesi-fennakadasok-lehetnek-kaposvaron", "desc": "Hóesés és hideg miatti fennakadások."}, {"title": "Ünnepi munkarend", "date": "2025-12-09T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2025-12-09/unnepi-munkarend", "desc": "Az év végi ünnepek munkarendje."}, {"title": "„A közösségi közlekedés fotós szemmel” c. fotópályázat", "date": "2025-10-08T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2025-10-08/a-kozossegi-kozlekedes-fotos-szemmel-c-fotopalyazat", "desc": "A VOLÁN Egyesülés fotópályázata."}, {"title": "82-es vonal menetrend változás", "date": "2025-09-30T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2025-09-30/82-es-vonal-menetrend-valtozas", "desc": "Menetrendváltozás a 82-es vonalon 2025. október 1-jétől."}, {"title": "Értesítés", "date": "2025-07-03T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2025-07-03/ertesites", "desc": "Értesítés a helyi járatokról."}, {"title": "Értesítés Anna utca részleges útlezárás", "date": "2025-07-01T12:00:00", "link": "https://www.kaposbusz.hu/hirek/2025-07-01/ertesites-anna-utca-reszleges-utlezaras", "desc": "Részleges útlezárás az Anna utcában 2025. július 3-tól."}].map(i=>({...i, date:new Date(i.date)}));
 function mergeItems(base, live){
   const seen = new Set(), out = [];
   [...live, ...base].forEach(i=>{
@@ -3022,6 +3027,7 @@ Object.keys(NEWS_SRC).forEach(k=>{
   }catch(e){}
 });
 NEWS_SRC.blog.cache = mergeItems(BLOG_BASELINE, NEWS_SRC.blog.cache||[]);
+NEWS_SRC.news.cache = mergeItems(NEWS_BASELINE, NEWS_SRC.news.cache||[]);
 let NEWS_TAB = 'news';
 try{ NEWS_TAB = localStorage.getItem('mik_newstab')==='blog' ? 'blog' : 'news'; }catch(e){}
 
@@ -3061,7 +3067,7 @@ function loadNews(key, manual){
   const btn = document.getElementById('btn-newsrefresh');
   if(btn && NEWS_TAB===key) btn.classList.add('spin');
   src.fetch().then(items=>{
-    if(key==='blog') items = mergeItems(BLOG_BASELINE, items);
+    items = mergeItems(key==='blog'?BLOG_BASELINE:NEWS_BASELINE, items);
     src.cache = items; src.ts = Date.now();
     try{ localStorage.setItem(src.ls, JSON.stringify({ts:src.ts, items})); }catch(e){}
     const body = document.getElementById('newsBody');
@@ -3071,7 +3077,7 @@ function loadNews(key, manual){
     if(state.view!=='news' || !body || NEWS_TAB!==key) return;
     if(src.cache){
       const old = document.getElementById('newsStamp');
-      if(old) old.textContent = 'A frissítés nem sikerült, a legutóbb letöltött tartalom látható.';
+      if(old) old.textContent = src.ts ? 'A frissítés nem sikerült, a legutóbb letöltött tartalom látható.' : 'Beépített lista – az élő frissítés nem sikerült. Próbáld újra a ↻ gombbal.';
       return;
     }
     body.innerHTML = emptyHtml('cloudOff','A tartalom jelenleg nem tölthető be','Ellenőrizd az internetkapcsolatot, vagy nyisd meg közvetlenül az oldalon.')
@@ -3097,8 +3103,8 @@ function drawNews(body, items, key){
     </div>`;
   });
   html += '</div>';
-  const d = new Date(src.ts || Date.now());
-  html += `<div class="feedinfo" id="newsStamp">Utoljára frissítve: ${pad2(d.getHours())}:${pad2(d.getMinutes())} · a ↻ gombbal frissíthetsz</div>`;
+  const d = new Date(src.ts);
+  html += `<div class="feedinfo" id="newsStamp">${src.ts ? `Utoljára frissítve: ${pad2(d.getHours())}:${pad2(d.getMinutes())} · a ↻ gombbal frissíthetsz` : (src.loading ? 'Frissítés folyamatban…' : 'Beépített lista – az élő frissítés nem sikerült. Próbáld újra a ↻ gombbal.')}</div>`;
   body.innerHTML = html;
   body.querySelectorAll('.nlink').forEach(a=>a.addEventListener('click',()=>{
     markRead(a.dataset.link);
