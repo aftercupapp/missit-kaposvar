@@ -809,6 +809,7 @@ html,body{background:var(--bg-base-a)!important;}
 .routemappanel.full .leaflet-top.leaflet-left{margin-top:56px;}
 .headerbtn.spin svg{animation:spin .8s linear infinite;}
 .newsseg{margin-bottom:10px;}
+.newbadge{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:var(--turquoise);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;vertical-align:1px;}
 .nthumb{width:100%;max-height:170px;object-fit:cover;border-radius:12px;margin-bottom:9px;display:block;background:var(--surface-solid-2);}
 </style></head>
 <body>
@@ -2987,6 +2988,29 @@ function fetchBlogItems(){
     async()=>{ const r = await fetch(bust(rss2json(BLOG_FEED_URL))); if(!r.ok) throw 0; return parseRss2json(await r.json()).map(lim); }
   ]);
 }
+const BLOG_BASELINE = [
+  {title:'Emelkedtek a jegyárak januártól', date:'2025-01-23T12:00:00', link:'https://kaposgo.blogspot.com/2025/01/enelkedtek-jegyarak-januartol.html', desc:'2025. január elsejétől ismét emelkedtek a kaposvári jegyek és bérletek árai.'},
+  {title:'Mi is kipróbáltuk a fénybuszt decemberben', date:'2025-01-21T12:00:00', link:'https://kaposgo.blogspot.com/2025/01/mi-is-kiprobaltuk-fenybuszt-decemberben.html', desc:'Gyönyörű égősorral feldíszített fénybusz járta Kaposvár utcáit az adventi és a karácsonyi időszakban.'},
+  {title:'Korrekciók a 83-as vonalon', date:'2024-11-20T12:00:00', link:'https://kaposgo.blogspot.com/2024/11/korrekciok-83-as-vonalon.html', desc:'A 83-as vonalon több olyan busz is közlekedik, melyek az eredeti útvonalon túl plusz városrészeket is megközelítenek.'},
+  {title:'KaposGO Blog', date:'2024-11-12T12:00:00', link:'https://kaposgo.blogspot.com/2024/11/kaposgo-blog.html', desc:''}
+].map(i=>({...i, date:new Date(i.date)}));
+function mergeItems(base, live){
+  const seen = new Set(), out = [];
+  [...live, ...base].forEach(i=>{
+    const k = (i.link||'').replace(/^http:/,'https:').replace(/[?#].*$/,'');
+    if(seen.has(k)) return; seen.add(k); out.push(i);
+  });
+  return out.sort((a,b)=>new Date(b.date)-new Date(a.date));
+}
+const NEWS_READ_KEY = 'mik_news_read';
+let NEWS_READ = new Set();
+try{ NEWS_READ = new Set(JSON.parse(localStorage.getItem(NEWS_READ_KEY)||'[]')); }catch(e){}
+function markRead(link){
+  if(NEWS_READ.has(link)) return;
+  NEWS_READ.add(link);
+  try{ localStorage.setItem(NEWS_READ_KEY, JSON.stringify([...NEWS_READ].slice(-300))); }catch(e){}
+}
+function isToday(d){ d=new Date(d); const n=new Date(); return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate(); }
 const NEWS_SRC = {
   news:{label:'Hivatalos hírek', ls:'mik_news', fetch:fetchNewsItems, link:'https://www.kaposbusz.hu/hirek/', linkText:'Hírek megnyitása', cache:null, ts:0, loading:false},
   blog:{label:'KaposGO Blog',   ls:'mik_blog', fetch:fetchBlogItems, link:'https://kaposgo.blogspot.com/', linkText:'Blog megnyitása', cache:null, ts:0, loading:false}
@@ -2997,6 +3021,7 @@ Object.keys(NEWS_SRC).forEach(k=>{
     if(c && Array.isArray(c.items)){ NEWS_SRC[k].cache = c.items.map(i=>Object.assign({}, i, {date:new Date(i.date)})); NEWS_SRC[k].ts = c.ts||0; }
   }catch(e){}
 });
+NEWS_SRC.blog.cache = mergeItems(BLOG_BASELINE, NEWS_SRC.blog.cache||[]);
 let NEWS_TAB = 'news';
 try{ NEWS_TAB = localStorage.getItem('mik_newstab')==='blog' ? 'blog' : 'news'; }catch(e){}
 
@@ -3036,6 +3061,7 @@ function loadNews(key, manual){
   const btn = document.getElementById('btn-newsrefresh');
   if(btn && NEWS_TAB===key) btn.classList.add('spin');
   src.fetch().then(items=>{
+    if(key==='blog') items = mergeItems(BLOG_BASELINE, items);
     src.cache = items; src.ts = Date.now();
     try{ localStorage.setItem(src.ls, JSON.stringify({ts:src.ts, items})); }catch(e){}
     const body = document.getElementById('newsBody');
@@ -3064,17 +3090,20 @@ function drawNews(body, items, key){
   let html = '<div class="card">';
   items.forEach(it=>{
     html += `<div class="newsitem">
-      ${it.thumb ? `<img class="nthumb" src="${escAttr(it.thumb)}" alt="" loading="lazy" onerror="this.remove()">` : ''}
-      <div class="ndate">${esc(fmtNewsDate(it.date))}</div>
+      <div class="ndate">${esc(fmtNewsDate(it.date))}${isToday(it.date) && !NEWS_READ.has(it.link) ? '<span class="newbadge">Új</span>' : ''}</div>
       <div class="ntitle">${esc(it.title)}</div>
       ${it.desc ? `<div class="ndesc">${esc(it.desc)}</div>` : ''}
-      <a class="nlink" href="${escAttr(it.link)}" target="_blank" rel="noopener">Tovább olvasás →</a>
+      <a class="nlink" data-link="${escAttr(it.link)}" href="${escAttr(it.link)}" target="_blank" rel="noopener">Tovább olvasás →</a>
     </div>`;
   });
   html += '</div>';
   const d = new Date(src.ts || Date.now());
   html += `<div class="feedinfo" id="newsStamp">Utoljára frissítve: ${pad2(d.getHours())}:${pad2(d.getMinutes())} · a ↻ gombbal frissíthetsz</div>`;
   body.innerHTML = html;
+  body.querySelectorAll('.nlink').forEach(a=>a.addEventListener('click',()=>{
+    markRead(a.dataset.link);
+    const b=a.closest('.newsitem').querySelector('.newbadge'); if(b) b.remove();
+  }));
 }
 
 /* ---- WIFI ---- */
