@@ -233,7 +233,7 @@ input, textarea{
 .planbar-x{border:none;background:none;color:var(--ink-soft);width:40px;height:40px;margin-right:6px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 .planbar-x.hidden{display:none;}
 .planbar-x svg{width:18px;height:18px;}
-.planbody{display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 12px 12px;border-top:1px solid var(--grey-line);}
+.planbody{display:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 14px;}
 .planpanel.open .planbody{display:block;animation:fadeInUp .22s ease both;}
 .planbox{position:relative;margin:4px 0 6px;}
 .planfield{display:flex;align-items:center;gap:12px;width:100%;border:none;background:none;color:inherit;font:inherit;text-align:left;padding:10px 52px 10px 4px;cursor:pointer;}
@@ -248,19 +248,20 @@ input, textarea{
 .planswap{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:none;background:var(--glass-strong);color:var(--maroon);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2);}
 .planswap svg{width:18px;height:18px;}
 .planswap:active{transform:translateY(-50%) scale(.92);}
-.plantime{margin-bottom:10px;}
-.planchips{display:flex;gap:8px;}
-.planchip{flex:1;border:1px solid var(--grey-line);background:none;color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:8px 6px;border-radius:10px;cursor:pointer;}
-.planchip.active{background:var(--maroon);border-color:var(--maroon);color:#fff;}
+.plantime{margin-bottom:6px;}
+.planchips{display:flex;gap:2px;padding:3px;border-radius:12px;background:var(--surface-solid-2);}
+.planchip{flex:1;border:none;background:none;color:var(--ink-soft);font:inherit;font-size:12px;font-weight:700;padding:8px 2px;border-radius:9px;cursor:pointer;white-space:nowrap;}
+.planchip.active{background:var(--maroon);color:#fff;}
 .planinputs{display:flex;gap:8px;margin-top:8px;}
 .planinputs.hidden{display:none;}
-.planinputs input{flex:1;min-width:0;font:inherit;font-size:15px;font-weight:600;padding:8px 10px;border-radius:10px;border:1px solid var(--grey-line);background:var(--glass);color:var(--ink);}
-.plango{width:100%;justify-content:center;margin-bottom:4px;}
+.planinputs input{flex:1;min-width:0;font:inherit;font-size:15px;font-weight:600;padding:8px 10px;border-radius:10px;border:none;background:var(--surface-solid-2);color:var(--ink);}
 .planmsg{margin-top:10px;font-size:12.5px;color:var(--ink-soft);line-height:1.6;}
 .planpanel .section-label{margin:14px 2px 8px;}
 .planpanel .feedinfo{padding:6px 0 0;}
-.jcard{padding:0;margin-bottom:10px;overflow:hidden;border-radius:14px;border:1px solid var(--grey-line);background:var(--glass);}
-.jcard.sel{border-color:var(--maroon);box-shadow:0 0 0 1px var(--maroon);}
+.jcard{display:block;width:100%;text-align:left;font:inherit;color:inherit;padding:2px 0 4px;margin-bottom:8px;overflow:hidden;border-radius:14px;border:1.5px solid transparent;background:var(--surface-solid-2);cursor:pointer;}
+.jcard.sel{border-color:var(--maroon);}
+.planhint{margin:6px 2px 0;font-size:11.5px;color:var(--ink-soft);line-height:1.5;}
+.planhint svg{width:12px;height:12px;vertical-align:-1px;}
 .jtop{display:block;width:100%;border:none;background:none;color:inherit;font:inherit;text-align:left;padding:0;cursor:pointer;}
 .jhead{display:flex;align-items:baseline;justify-content:space-between;padding:12px 14px 4px;}
 .jtimes{font-family:var(--mono);font-size:19px;}
@@ -836,11 +837,8 @@ html,body{background:var(--bg-base-a)!important;}
 .boarded .vdrop{box-shadow:0 0 0 4px rgba(30,156,147,.55),0 2px 8px rgba(0,0,0,.35);}
 .mp-board{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-weight:700;color:var(--turquoise)!important;}
 .mp-board svg{width:15px;height:15px;}
-.planonb{display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 2px;padding:11px 14px;border:1px dashed var(--turquoise);background:var(--turquoise-dim);color:var(--ink);border-radius:14px;font:inherit;text-align:left;cursor:pointer;}
-.planonb svg{width:22px;height:22px;color:var(--turquoise);flex:none;}
-.planonb span{display:flex;flex-direction:column;}
-.planonb b{font-size:14px;}
-.planonb i{font-style:normal;font-size:12px;color:var(--ink-soft);}
+.planonb{display:flex;align-items:center;gap:8px;margin:2px 0 12px 2px;padding:6px 0;border:none;background:none;color:var(--turquoise);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;}
+.planonb svg{width:18px;height:18px;flex:none;}
 .onbstrip{margin:12px 0 4px;padding:12px;border-radius:14px;background:var(--turquoise-dim);border:1px solid rgba(30,156,147,.35);}
 .onbtop{display:flex;align-items:center;gap:10px;}
 .onbtx{display:flex;flex-direction:column;min-width:0;}
@@ -2574,6 +2572,25 @@ function planCompile(raw, pats, d, t0){
   const arr = last.type==='walk' ? last.end : last.arr;
   return {legs:merged, dep, arr, transfers: rides.length-1, key: rides.map(r=>r.v.id+'@'+r.dep).join('|')};
 }
+function planJourneysArrive(from, to, ymd, T){
+  planInit();
+  let t = Math.max(0, T - 4*3600);
+  const all = [], seen = new Set();
+  let firstErr = null;
+  for(let it=0; it<30; it++){
+    const res = planJourneys(from, to, ymd, t);
+    if(res.error){ if(!all.length) firstErr = res; break; }
+    if(!res.journeys.length) break;
+    let maxDep = -1;
+    res.journeys.forEach(j=>{ maxDep = Math.max(maxDep, j.dep); if(j.arr <= T && !seen.has(j.key)){ seen.add(j.key); all.push(j); } });
+    if(maxDep >= T || maxDep+60 <= t) break;
+    t = maxDep + 60;
+  }
+  if(firstErr) return firstErr;
+  const kept = all.filter(x=> !all.some(y=> y!==x && y.dep>=x.dep && y.arr<=x.arr && y.transfers<=x.transfers && (y.dep>x.dep || y.arr<x.arr || y.transfers<x.transfers)));
+  kept.sort((a,b)=> a.dep-b.dep || a.arr-b.arr);
+  return {journeys: kept.slice(-4)};
+}
 function planResolve(pt){
   const P = planInit();
   if(pt.type === 'place'){
@@ -2874,6 +2891,7 @@ function planWhenSec(){
   const now = new Date();
   if(PLAN.mode === 'now') return {ymd: toYMD(now), t: now.getHours()*3600 + now.getMinutes()*60};
   const ymd = PLAN.date || toYMD(now);
+  // custom / arrive
   const tm = (PLAN.time || (pad2(now.getHours())+':'+pad2(now.getMinutes()))).split(':');
   return {ymd, t: (+tm[0])*3600 + (+tm[1])*60};
 }
@@ -2917,7 +2935,7 @@ function planFullRender(){
     R.journeys.forEach((x,i)=>{ if(i!==PLAN.sel) h += `<button data-pfalt="${i}">${x.onboard?'most':planFmt(x.dep)} → ${planFmt(x.arr)} · ${esc(planMetaText(x))}</button>`; });
     h += `</div>`;
   }
-  h += `</div>`;
+  h += `<div class="planhint">A tervezés a menetrendi adatok alapján készül, nem élő forgalmi adatokkal. A gyaloglási idők becsültek.</div></div>`;
   el.innerHTML = h;
   const nb = el.querySelector('.planfull-body'); if(nb) nb.scrollTop = st;
   document.getElementById('planFullX').onclick = planFullClose;
@@ -2966,18 +2984,18 @@ function planRenderPanel(){
       <button class="planswap" id="pswap" style="${PLAN.onboard?'display:none':''}" aria-label="Csere">${ICO.swap}</button>
     </div>
     ${PLAN.onboard ? planOnbStripHtml() : ''}
-    <button class="planonb ${PLAN.onboard?'hidden':''}" id="ponb">${ICO.bus}<span><b>Tervezés a járművön</b><i>Opcionális szinkron a helyzetemmel</i></span></button>
+    <button class="planonb ${PLAN.onboard?'hidden':''}" id="ponb">${ICO.bus}<span>Tervezés a járművön</span></button>
     <div class="plantime ${PLAN.onboard?'hidden':''}">
       <div class="planchips">
         <button class="planchip ${PLAN.mode==='now'?'active':''}" data-pmode="now">Indulás most</button>
-        <button class="planchip ${PLAN.mode==='custom'?'active':''}" data-pmode="custom">Időpont megadása</button>
+        <button class="planchip ${PLAN.mode==='custom'?'active':''}" data-pmode="custom">Indulás ekkor</button>
+        <button class="planchip ${PLAN.mode==='arrive'?'active':''}" data-pmode="arrive">Érkezés ekkorra</button>
       </div>
-      <div class="planinputs ${PLAN.mode==='custom'?'':'hidden'}" id="planinputs">
+      <div class="planinputs ${PLAN.mode==='now'?'hidden':''}" id="planinputs">
         <input type="date" id="pdate" value="${iso(PLAN.date)}" min="${iso(MIN_DATE)}" max="${iso(MAX_DATE)}">
         <input type="time" id="ptime" value="${PLAN.time}">
       </div>
     </div>
-    <button class="locbtn primary plango" id="pgo">${ICO.search} Útvonal keresése</button>
     <div id="planresults"></div>
   </div>`;
   const run = ()=>{ if(PLAN.from && PLAN.to) planRun(); };
@@ -2996,12 +3014,11 @@ function planRenderPanel(){
   el.querySelectorAll('[data-pmode]').forEach(b=>b.onclick=()=>{
     PLAN.mode = b.dataset.pmode;
     el.querySelectorAll('[data-pmode]').forEach(x=>x.classList.toggle('active', x===b));
-    document.getElementById('planinputs').classList.toggle('hidden', PLAN.mode!=='custom');
+    document.getElementById('planinputs').classList.toggle('hidden', PLAN.mode==='now');
     run();
   });
   document.getElementById('pdate').onchange = e=>{ if(e.target.value){ PLAN.date = e.target.value.replace(/-/g,''); run(); } };
   document.getElementById('ptime').onchange = e=>{ if(e.target.value){ PLAN.time = e.target.value; run(); } };
-  document.getElementById('pgo').onclick = planRun;
   const onb = document.getElementById('ponb'); if(onb) onb.onclick = planPickVehicle;
   const pfb = document.getElementById('planFullBtn'); if(pfb) pfb.onclick = planFullOpen;
   const sy = document.getElementById('onbSync'); if(sy) sy.onclick = planOnbToggleSync;
@@ -3067,8 +3084,8 @@ function planRun(){
     PLAN.status = 'Erre a napra nincs menetrendi adat ('+fmtShortRange()+').'; PLAN.results = null; planUpdateBar(); planDrawResults(); return;
   }
   PLAN.status = '';
-  PLAN.results = planJourneys(PLAN.from, PLAN.to, w.ymd, w.t);
-  PLAN.results.ymd = w.ymd; PLAN.results.t0 = w.t;
+  PLAN.results = PLAN.mode==='arrive' ? planJourneysArrive(PLAN.from, PLAN.to, w.ymd, w.t) : planJourneys(PLAN.from, PLAN.to, w.ymd, w.t);
+  PLAN.results.ymd = w.ymd; PLAN.results.t0 = w.t; PLAN.results.arrive = PLAN.mode==='arrive' ? w.t : null;
   planUpdateBar();
   planDrawResults();
 }
@@ -3111,20 +3128,17 @@ function planDrawResults(){
     box.innerHTML = emptyHtml('bus','Nem találtam útvonalat','Erre az időpontra nincs megfelelő összeköttetés. Próbálj korábbi időpontot vagy másik napot.');
     return;
   }
-  let html = (PLAN.notice ? `<div class="plannotice">${ICO.info} ${esc(PLAN.notice)}</div>` : '') + `<div class="section-label">${R.onboard ? 'Útvonalak a járműről · frissül a jármű haladásával' : 'Javasolt útvonalak · '+fmtDateLong(ymdToDate(R.ymd))}</div>`;
+  const dayLbl = (R.ymd && R.ymd!==toYMD(new Date())) ? ' · '+fmtDateLong(ymdToDate(R.ymd)) : '';
+  const lbl = R.onboard ? 'Útvonalak a járműről' : R.arrive!=null ? 'Érkezés legkésőbb '+planFmt(R.arrive)+dayLbl : 'Útvonalak'+dayLbl;
+  let html = (PLAN.notice ? `<div class="plannotice">${ICO.info} ${esc(PLAN.notice)}</div>` : '') + `<div class="section-label">${lbl}</div>`;
   R.journeys.forEach((j,ji)=>{
     const badges = j.legs.map(l=> l.type==='ride' ? `<span class="badge sm">${esc(l.route)}</span>` : `<span class="jwalkic">${ICO.walk}</span>`).join('<span class="jarrow">›</span>');
-    html += `<div class="jcard ${ji===PLAN.sel?'sel':''}" data-ji="${ji}">
-      <button class="jtop" data-jshow="${ji}">
-        <span class="jhead"><span class="jtimes"><b>${j.onboard ? 'most' : planFmt(j.dep)}</b><span class="jarrow">→</span><b>${planFmt(j.arr)}</b></span><span class="jdur">${planMin(j.arr-j.dep)} perc</span></span>
+    html += `<button class="jcard ${ji===PLAN.sel?'sel':''}" data-ji="${ji}" data-jshow="${ji}">
+        <span class="jhead"><span class="jtimes"><b>${j.onboard ? 'most' : planFmt(j.dep)}</b><span class="jarrow">→</span><b>${planFmt(j.arr)}</b></span><span class="jdur">${planMin(j.arr-(j.onboard?timeToSec(nowTimeStr()):j.dep))} perc</span></span>
         <span class="jbadges">${badges}<span class="jmeta">${planMetaText(j)}</span></span>
-        <span class="jmapbtn">${ICO.mapPin} Megjelenítés a térképen</span>
-      </button>
-      <div class="jlegs">`;
-    j.legs.forEach((l,i)=>{ html += planLegHtml(l, i? j.legs[i-1] : null); });
-    html += `</div></div>`;
+      </button>`;
   });
-  html += `<div class="feedinfo">A tervezés a menetrendi adatok alapján készül, nem élő forgalmi adatokkal. A gyaloglási idők becsültek.</div>`;
+  html += `<div class="planhint">Részletek a térkép jobb oldali ${ICO.expand} gombjával.</div>`;
   box.innerHTML = html;
   box.querySelectorAll('[data-jtoggle]').forEach(b=>b.onclick=()=>{
     const s = b.nextElementSibling; const h = s.classList.toggle('hidden');
