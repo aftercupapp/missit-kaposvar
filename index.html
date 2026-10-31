@@ -640,6 +640,13 @@ a.rowbtn{display:flex;}
   display:flex;align-items:center;justify-content:center;
 }
 .rowicon svg{width:18px;height:18px;stroke-width:2;}
+.gtfsnotice{margin:4px 0 14px;padding:14px;border-radius:16px;background:var(--turquoise-dim);border:1px solid rgba(30,156,147,.35);}
+.gn-head{display:flex;align-items:center;gap:8px;font-size:15px;}
+.gn-head svg{width:18px;height:18px;color:var(--turquoise);flex:none;}
+.gtfsnotice p{margin:8px 0 12px;font-size:13px;line-height:1.55;color:var(--ink-soft);}
+.gn-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:11px 14px;border-radius:12px;background:var(--maroon);color:#fff;font-weight:800;font-size:14px;text-decoration:none;}
+.gn-btn svg{width:16px;height:16px;}
+.gn-link{display:block;text-align:center;margin-top:10px;font-size:12.5px;font-weight:700;color:var(--maroon);text-decoration:none;}
 .infocard{
   background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
   border:1px solid var(--glass-border);border-radius:var(--radius);
@@ -1716,6 +1723,10 @@ function renderRoutes(header, searchSlot, content){
 
   const viewPref = getRouteViewPref();
   let html = '';
+  html += `<div class="gtfsnotice"><div class="gn-head">${ICO.info}<b>Új menetrend november 1-jétől</b></div>
+    <p>A hivatalos GTFS adatok frissítésére várunk. Amint ez megtörténik, az új menetrend elérhető lesz az appban. Addig az itt látható adatok a korábbi menetrendet mutatják.</p>
+    <a class="gn-btn" href="https://menetrend.kaposbusz.hu/" target="_blank" rel="noopener">Hivatalos menetrend megnyitása ${ICO.chevronRight}</a>
+    <a class="gn-link" href="https://www.kaposbusz.hu/hirek/2026-10-16/uj-menetrend-2026-november-1-jetol" target="_blank" rel="noopener">Az új menetrend közleménye</a></div>`;
 
   if(FAVORITES.length){
     html += collapseHeaderHtml('favorites','Kedvencek');
