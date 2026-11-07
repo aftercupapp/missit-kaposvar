@@ -2527,6 +2527,7 @@ const VEH_OVR = {};
 const VS = {key:null, ctx:'stops', el:null, timer:null, follow:true, sync:false, d:null, delay:0, delayInit:false, notice:'', handlers:null};
 function vsDirText(head){
   const s = String(head||'').trim().replace(/^[^A-Za-zÀ-žőűŐŰ0-9]+/,'');
+  if(/^(Répáspuszta|Töröcske|Toponár|Rómahegy|Kaposfüred|Kaposszentjakab)/i.test(s)) return head+' felé';
   let art = 'A';
   const m = /^\d+/.exec(s);
   if(m){ const n = +m[0]; if([1,5,50,500,1000].includes(n)) art = 'Az'; }
@@ -2765,7 +2766,7 @@ function renderMenu(header, content){
   html += `</div>` + mwClose();
 
   html += `<div class="infocard"><b>MissIt Kaposvár</b><br>
-    <b>Verzió</b><br><span id="diagTap">2.0 (2.1.3)</span><div id="diagBox" style="display:none;margin-top:8px;font:11px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;user-select:text;-webkit-user-select:text"></div><br><br>
+    <b>Verzió</b><br><span id="diagTap">2.0 (2.1.13)</span><div id="diagBox" style="display:none;margin-top:8px;font:11px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;user-select:text;-webkit-user-select:text"></div><br><br>
     <b>Elérhetőség</b><br><a href="mailto:aftercup@aftercup.space">aftercup@aftercup.space</a></div>`;
 
   content.innerHTML = html;
