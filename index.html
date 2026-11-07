@@ -920,21 +920,62 @@ html,body{background:var(--bg-base-a)!important;}
 @keyframes lbspin{to{transform:rotate(360deg);}}
 
 /* ---------- home sections: mini + reorder, live buttons ---------- */
-.hsec{position:relative;}
+.hsec{position:relative;margin-top:14px;}
+.hsec:first-child{margin-top:6px;}
+.hsec .hhead{margin-top:0;}
+.mappopup a svg{width:16px;height:16px;vertical-align:-3px;margin-right:4px;}
 .hsec .hmini{display:none;}
-.hsec.collapsed .hmini{display:flex;margin-top:9px;}
+.hsec.collapsed .hmini{display:flex;margin:0;}
 .hsec.collapsed .hhead{display:none;}
-.reorderbtns{position:absolute;right:6px;top:8px;display:none;gap:6px;z-index:3;}
-.hsec.collapsed .reorderbtns{top:5px;}
+.reorderbtns{position:absolute;right:6px;top:-1px;display:none;gap:6px;z-index:3;}
+.hsec.collapsed .reorderbtns{top:4px;}
 .reordering .reorderbtns{display:flex;}
 .reorderbtns button{width:32px;height:32px;border-radius:50%;border:none;background:var(--glass-strong);color:var(--maroon);display:flex;align-items:center;justify-content:center;box-shadow:var(--elev1);cursor:pointer;}
 .reorderbtns button:disabled{opacity:.3;}
 .reorderbtns svg{width:18px;height:18px;}
+.reordering .hsec .hhead{min-height:36px;margin-bottom:4px;}
 .reordering .hsec .collapse-chev,.reordering .hsec .hmini .chev{visibility:hidden;}
-.reordering .hsec{outline:1.5px dashed rgba(122,42,58,.35);outline-offset:3px;border-radius:12px;margin-bottom:6px;}
+.reordering .hsec{outline:1.5px dashed rgba(122,42,58,.35);outline-offset:4px;border-radius:12px;}
 .headerbtn.active{background:rgba(255,255,255,.28);}
 .livebtn{flex:none;margin-left:6px;width:34px;height:34px;border-radius:50%;border:none;background:var(--turquoise-dim);color:var(--turquoise);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
 .livebtn svg{width:19px;height:19px;}
+
+/* ---------- vehicle bottom sheet ---------- */
+.vsheet{position:fixed;left:0;right:0;bottom:0;z-index:1300;padding:38px 16px calc(16px + env(safe-area-inset-bottom, 0px));background:var(--surface-solid);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border-radius:28px 28px 0 0;box-shadow:0 -12px 44px rgba(40,10,16,.28);border-top:1px solid var(--glass-border);transform:translateY(108%);transition:transform .38s cubic-bezier(.2,.9,.25,1);color:var(--ink);font-family:var(--sans);}
+.vsheet.open{transform:none;}
+.vs-grab{position:absolute;top:8px;left:50%;width:38px;height:4px;margin-left:-19px;border-radius:2px;background:var(--grey-line);}
+.vs-badge{box-sizing:border-box;padding:0;line-height:1;text-align:center;position:absolute;left:50%;top:-26px;margin-left:-30px;width:60px;height:60px;border-radius:50%;background:var(--maroon);color:#fff;font-weight:800;font-size:19px;display:flex;align-items:center;justify-content:center;border:4px solid var(--surface-solid);box-shadow:0 6px 18px rgba(78,23,33,.35);}
+.vs-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:none;background:var(--grey-line);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.vs-x svg{width:19px;height:19px;}
+.vs-badge span{display:block;line-height:1;text-align:center;letter-spacing:-.3px;}
+.vs-title{text-align:center;font-size:18px;font-weight:800;margin:14px 28px 12px;line-height:1.25;}
+.vs-next{display:flex;align-items:baseline;gap:8px;padding:10px 14px;border-radius:16px;background:var(--glass-strong);border:1px solid var(--grey-line);}
+.vs-next span{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);}
+.vs-next b{flex:1;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vs-next i{font-style:normal;font-weight:800;color:var(--maroon);font-variant-numeric:tabular-nums;}
+.vs-prog{height:5px;border-radius:3px;background:var(--grey-line);margin:12px 2px 8px;overflow:hidden;}
+.vs-prog i{display:block;height:100%;width:0;border-radius:3px;background:var(--turquoise);transition:width .5s ease;}
+.vs-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);margin-bottom:12px;}
+.vs-meta span{flex:1;min-width:0;}
+.vs-follow{flex:none;display:flex;align-items:center;gap:5px;border:1px solid var(--grey-line);background:transparent;color:var(--ink-soft);font:inherit;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;cursor:pointer;}
+.vs-follow svg{width:15px;height:15px;}
+.vs-follow.on{background:var(--turquoise-dim);color:var(--turquoise);border-color:transparent;}
+.vs-notice{font-size:12.5px;color:var(--amber);background:rgba(201,122,43,.12);padding:8px 12px;border-radius:12px;margin-bottom:10px;}
+.vs-notice.hidden,.vs-foot.hidden{display:none;}
+.vs-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.vs-tile{position:relative;display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:16px;border:1px solid var(--grey-line);background:var(--glass-strong);color:var(--ink);font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .15s;}
+.vs-tile:active{transform:scale(.97);}
+.vs-tile .vi{flex:none;width:36px;height:36px;border-radius:12px;background:rgba(122,42,58,.10);color:var(--maroon);display:flex;align-items:center;justify-content:center;}
+.vs-tile .vi svg{width:20px;height:20px;}
+.vs-tile .vt{display:flex;flex-direction:column;min-width:0;}
+.vs-tile b{font-size:13.5px;}
+.vs-tile i{font-style:normal;font-size:11.5px;color:var(--ink-soft);}
+.vs-tile .sw{position:absolute;right:10px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--grey);opacity:.45;}
+.vs-tile.on{border-color:var(--turquoise);background:var(--turquoise-dim);}
+.vs-tile.on .vi{background:var(--turquoise);color:#fff;}
+.vs-tile.on .sw{background:var(--turquoise);opacity:1;}
+.vs-foot{display:flex;gap:7px;align-items:flex-start;margin-top:12px;font-size:11px;color:var(--ink-soft);line-height:1.45;}
+.vs-foot svg{flex:none;width:14px;height:14px;margin-top:1px;}
 </style></head>
 <body>
 <div id="app">
@@ -1155,6 +1196,7 @@ const ICO = {
   battery:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V3c0-.55-.45-1-1-1h-2c-.55 0-1 .45-1 1v1H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.34 22h7.32c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zm-1.06 9.24-2.67 5c-.24.45-.94.28-.94-.24v-3.5H9.83a.5.5 0 0 1-.44-.74l2.67-5c.24-.45.94-.28.94.24v3.5h1.17c.37 0 .62.4.44.74z"/></svg>',
   factory:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 10V8.48c0-.71-.71-1.19-1.37-.93L9 9v-.48c0-.72-.73-1.21-1.39-.92l-4.4 1.88C2.48 9.8 2 10.52 2 11.32V20c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10h-8zm-5 7c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2zm4 0c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2zm4 0c0 .55-.45 1-1 1s-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2zm3.12-15h-1.23c-.51 0-.93.38-.99.88l-.7 5.62h4.6l-.69-5.62c-.06-.5-.49-.88-.99-.88z"/></svg>',
   sliders:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18c0 .55.45 1 1 1h5v-2H4c-.55 0-1 .45-1 1zM3 6c0 .55.45 1 1 1h9V5H4c-.55 0-1 .45-1 1zm10 14v-1h7c.55 0 1-.45 1-1s-.45-1-1-1h-7v-1c0-.55-.45-1-1-1s-1 .45-1 1v4c0 .55.45 1 1 1s1-.45 1-1zM7 10v1H4c-.55 0-1 .45-1 1s.45 1 1 1h3v1c0 .55.45 1 1 1s1-.45 1-1v-4c0-.55-.45-1-1-1s-1 .45-1 1zm14 2c0-.55-.45-1-1-1h-9v2h9c.55 0 1-.45 1-1zm-5-3c.55 0 1-.45 1-1V7h3c.55 0 1-.45 1-1s-.45-1-1-1h-3V4c0-.55-.45-1-1-1s-1 .45-1 1v4c0 .55.45 1 1 1z"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.46v3.04c0 .28.22.5.5.5h3.04c.13 0 .26-.05.35-.15L17.81 9.94l-3.75-3.75L3.15 17.1c-.1.1-.15.22-.15.36zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>',
   reorder:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>',
   starO:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m19.65 9.04-4.84-.42-1.89-4.45c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18-1.1 4.72c-.2.86.73 1.54 1.49 1.08l4.15-2.5 4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.73 3.67-3.18c.67-.58.32-1.68-.56-1.75zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>',
   arrowUp:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 19V7.83l4.88 4.88c.39.39 1.03.39 1.42 0a.996.996 0 0 0 0-1.41l-6.59-6.59a.996.996 0 0 0-1.41 0l-6.6 6.58a.996.996 0 1 0 1.41 1.41L11 7.83V19c0 .55.45 1 1 1s1-.45 1-1z"/></svg>',
@@ -1808,7 +1850,7 @@ function nearbySearchOnlyHtml(){
 }
 
 function renderRoutes(header, searchSlot, content){
-  header.innerHTML = headerSimple('MissIt Kaposvár','', [{id:'btn-reorder', icon:'reorder'},{id:'btn-planner', icon:'route'},{id:'btn-headersearch', icon:'search'}]);
+  header.innerHTML = headerSimple('MissIt Kaposvár','', [{id:'btn-reorder', icon:'edit'},{id:'btn-planner', icon:'route'},{id:'btn-headersearch', icon:'search'}]);
   document.getElementById('btn-planner').onclick = ()=>{ PLAN.open = true; goRoot('stops'); };
   document.getElementById('btn-reorder').onclick = ()=>{
     const on = content.classList.toggle('reordering');
@@ -1976,6 +2018,7 @@ function renderRouteDetail(header, content){
 let RMAP = null, RMAP_VEHLAYER = null, RMAP_TIMER = null;
 let rmapVehicleMarkers = {};
 function destroyRouteMap(){
+  closeVehSheet(true);
   if(RMAP_TIMER){ clearInterval(RMAP_TIMER); RMAP_TIMER = null; }
   if(RMAP){ RMAP.remove(); RMAP = null; RMAP_VEHLAYER = null; }
   rmapVehicleMarkers = {};
@@ -2051,6 +2094,7 @@ function refreshRouteVehicleMarkers(v){
     }
     const key = v.id+'_'+ti;
     seenKeys.add(key);
+    { const ovr = VEH_OVR[key]; if(ovr){ lat = ovr.lat; lon = ovr.lon; brg = ovr.brg; } }
     let marker = rmapVehicleMarkers[key];
     if(marker){
       marker.setLatLng([lat, lon]);
@@ -2058,9 +2102,9 @@ function refreshRouteVehicleMarkers(v){
     }else{
       const icon = vehPinIcon(route, brg);
       marker = L.marker([lat, lon], {icon}).addTo(RMAP_VEHLAYER);
+      marker.on('click', ()=>openVehSheet(key, 'route'));
       rmapVehicleMarkers[key] = marker;
     }
-    marker.bindPopup(`<div class="mappopup"><b>${esc(route)}</b> → ${esc(v.head)}<br><span class="mp-sub">Becsült pozíció · köv. megálló: ${esc(STOPS[v.stops[nextIdx]][0])} (${esc(t.t[nextIdx].slice(0,5))})</span><br><a href="#" data-live-key="${escAttr(key)}">${ICO.radio} Élő követés a hivatalos oldalon →</a><br><span class="mp-note">${ICO.info} Ez nem élő adat, csak menetrendi információ.</span></div>`);
   });
   Object.keys(rmapVehicleMarkers).forEach(k=>{
     if(!seenKeys.has(k)){ RMAP_VEHLAYER.removeLayer(rmapVehicleMarkers[k]); delete rmapVehicleMarkers[k]; }
@@ -2241,7 +2285,7 @@ function computeVehiclePositions(){
         lat = lerp(s1[1], s2[1], frac); lon = lerp(s1[2], s2[2], frac);
         brg = headingAt(v, idx, nextIdx, null);
       }
-      out.push({ brg,
+      out.push({ brg, frac,
         key: v.id+'_'+ti, vId: v.id, ti, idx, nextIdx, routeId: v.r, route: ROUTES[v.r][0], head: v.head,
         variantIndex: VARIANT_INDEX_IN_ROUTE[v.id] || 0,
         lat, lon,
@@ -2303,6 +2347,7 @@ function refreshVehicleMarkers(){
   const seenKeys = new Set();
   positions.forEach(p=>{
     if(PLAN.onboard && PLAN.onboard.key===p.key) return;
+    { const ovr = VEH_OVR[p.key]; if(ovr){ p.lat = ovr.lat; p.lon = ovr.lon; p.brg = ovr.brg; } }
     seenKeys.add(p.key);
     let marker = vehicleMarkers[p.key];
     if(marker){
@@ -2311,18 +2356,12 @@ function refreshVehicleMarkers(){
     }else{
       const icon = vehPinIcon(p.route, p.brg);
       marker = L.marker([p.lat, p.lon], {icon}).addTo(STOPS_MAP_VEHLAYER);
-      marker.on('popupopen', (e)=>{
-        const el = e.popup.getElement().querySelector('[data-popup-open-route]');
-        if(el) el.onclick = (ev)=>{ ev.preventDefault(); openRoute(marker._routeId, marker._variantIndex); };
-        const bd = e.popup.getElement().querySelector('[data-popup-board]');
-        if(bd) bd.onclick = (ev)=>{ ev.preventDefault(); STOPS_MAP.closePopup(); planBoard(marker._vkey); };
-      });
+      marker.on('click', ()=>openVehSheet(p.key, 'stops'));
       vehicleMarkers[p.key] = marker;
     }
     marker._routeId = p.routeId;
     marker._variantIndex = p.variantIndex;
     marker._vkey = p.key;
-    marker.bindPopup(`<div class="mappopup"><b>${esc(p.route)}</b> → ${esc(p.head)}<br><span class="mp-sub">Becsült pozíció · köv. megálló: ${esc(p.nextStop)} (${esc(p.nextTime.slice(0,5))})</span><br><a href="#" data-popup-open-route="1">Menetrend megnyitása (ez az irány) →</a><br><a href="#" data-live-key="${escAttr(p.key)}">${ICO.radio} Élő követés a hivatalos oldalon →</a><br><a href="#" class="mp-board" data-popup-board="1">${ICO.bus} Ezen utazom – tervezés a járművön</a><span class="mp-note" style="display:block">Opcionálisan a helyzetedhez igazítható.</span><br><span class="mp-note">${ICO.info} Ez nem élő adat, csak menetrendi információ. A hivatalos élő járatkövetés a Menüből érhető el.</span></div>`);
   });
   Object.keys(vehicleMarkers).forEach(k=>{
     if(!seenKeys.has(k)){ STOPS_MAP_VEHLAYER.removeLayer(vehicleMarkers[k]); delete vehicleMarkers[k]; }
@@ -2332,6 +2371,7 @@ function stopStopsMapRefresh(){
   if(STOPS_MAP_TIMER){ clearInterval(STOPS_MAP_TIMER); STOPS_MAP_TIMER = null; }
 }
 function destroyStopsMap(){
+  closeVehSheet(true);
   stopStopsMapRefresh();
   userLocStop(); PLAN.onbMarker = null; { const pf = document.getElementById('planFull'); if(pf) pf.remove(); }
   if(STOPS_MAP){ STOPS_MAP.remove(); STOPS_MAP = null; STOPS_MAP_VEHLAYER = null; }
@@ -2480,6 +2520,148 @@ document.addEventListener('click', e=>{
   e.preventDefault(); e.stopPropagation();
   liveOpenTrip(a.dataset.liveKey);
 }, true);
+
+
+/* ---------------- vehicle bottom sheet ---------------- */
+const VEH_OVR = {};
+const VS = {key:null, ctx:'stops', el:null, timer:null, follow:true, sync:false, d:null, delay:0, delayInit:false, notice:'', handlers:null};
+function vsDirText(head){
+  const s = String(head||'').trim().replace(/^[^A-Za-zÀ-žőűŐŰ0-9]+/,'');
+  let art = 'A';
+  const m = /^\d+/.exec(s);
+  if(m){ const n = +m[0]; if([1,5,50,500,1000].includes(n)) art = 'Az'; }
+  else if(/^[aeiouáéíóöőúüűAEIOUÁÉÍÓÖŐÚÜŰ]/.test(s)) art = 'Az';
+  return art+' '+head+' felé';
+}
+function vsMap(){ return VS.ctx==='route' ? RMAP : STOPS_MAP; }
+function vsMarker(){ return VS.ctx==='route' ? rmapVehicleMarkers[VS.key] : vehicleMarkers[VS.key]; }
+function vsRefreshMarkers(){
+  if(VS.ctx==='route'){ const m = /^(.*)_\d+$/.exec(VS.key); const v = m && VARIANTS.find(x=>x.id===m[1]); if(v) refreshRouteVehicleMarkers(v); }
+  else refreshVehicleMarkers();
+}
+function openVehSheet(key, ctx){
+  const p = computeVehiclePositions().find(x=>x.key===key); if(!p) return;
+  if(VS.key) closeVehSheet(true);
+  Object.assign(VS, {key, ctx, follow:true, sync:false, d:null, delay:0, delayInit:false, notice:''});
+  const el = document.createElement('div'); el.className = 'vsheet'; el.id = 'vsheet';
+  const stopsCtx = ctx==='stops';
+  el.innerHTML = `<div class="vs-grab"></div>
+    <div class="vs-badge"><span style="font-size:${String(p.route).length>3?14:String(p.route).length>2?17:20}px">${esc(p.route)}</span></div>
+    <button class="vs-x" aria-label="Bezárás">${ICO.close}</button>
+    <div class="vs-title">${esc(vsDirText(p.head))}</div>
+    <div class="vs-next"><span>Köv. megálló</span><b id="vsNext"></b><i id="vsNextT"></i></div>
+    <div class="vs-prog"><i id="vsProg"></i></div>
+    <div class="vs-meta"><span id="vsMeta"></span><button class="vs-follow on" id="vsFollow">${ICO.locate} Követés</button></div>
+    <div class="vs-notice hidden" id="vsNotice"></div>
+    <div class="vs-actions">
+      ${stopsCtx?`<button class="vs-tile" id="vsOpenRoute"><span class="vi">${ICO.list}</span><span class="vt"><b>Menetrend</b><i>Ez az irány</i></span></button>`:''}
+      <button class="vs-tile" data-live-key="${escAttr(key)}"><span class="vi">${ICO.radio}</span><span class="vt"><b>Élő követés</b><i>Hivatalos oldal</i></span></button>
+      ${stopsCtx?`<button class="vs-tile" id="vsBoard"><span class="vi">${ICO.bus}</span><span class="vt"><b>Ezen utazom</b><i>Tervezés a járművön</i></span></button>`:''}
+      <button class="vs-tile" id="vsSync"><span class="vi">${ICO.locate}</span><span class="vt"><b>Szinkron</b><i id="vsSyncSub">A helyzetemmel</i></span><span class="sw"></span></button>
+    </div>
+    <div class="vs-foot" id="vsFoot">${ICO.info}<span>Becsült pozíció a menetrend alapján, nem élő adat. A „Szinkron" a te helyzetedből pontosít.</span></div>`;
+  document.body.appendChild(el); VS.el = el;
+  requestAnimationFrame(()=>el.classList.add('open'));
+  el.querySelector('.vs-x').onclick = ()=>closeVehSheet();
+  el.querySelector('#vsFollow').onclick = ()=>{ VS.follow = !VS.follow; vsUpdateFollowBtn(); if(VS.follow) vsTick(); };
+  el.querySelector('#vsSync').onclick = vsToggleSync;
+  const orb = el.querySelector('#vsOpenRoute');
+  if(orb) orb.onclick = ()=>{ const q = computeVehiclePositions().find(x=>x.key===key); closeVehSheet(true); if(q) openRoute(q.routeId, q.variantIndex); };
+  const bb = el.querySelector('#vsBoard');
+  if(bb) bb.onclick = ()=>{ closeVehSheet(true); planBoard(key); };
+  // swipe down to close
+  let y0 = null;
+  el.addEventListener('touchstart', e=>{ y0 = e.touches[0].clientY; }, {passive:true});
+  el.addEventListener('touchend', e=>{ if(y0!=null && e.changedTouches[0].clientY - y0 > 70) closeVehSheet(); y0 = null; }, {passive:true});
+  const map = vsMap();
+  VS.handlers = {click:()=>closeVehSheet(), dragstart:()=>{ VS.follow = false; vsUpdateFollowBtn(); }};
+  if(map){ map.on('click', VS.handlers.click); map.on('dragstart', VS.handlers.dragstart); map.setView([p.lat, p.lon], Math.max(map.getZoom(), 15), {animate:true}); }
+  vsTick(true);
+  setTimeout(()=>{ if(VS.key===key) vsFollowMap(p.lat, p.lon); }, 450);
+  VS.timer = setInterval(()=>vsTick(false), 5000);
+}
+function closeVehSheet(instant){
+  if(!VS.key && !VS.el) return;
+  if(VS.timer){ clearInterval(VS.timer); VS.timer = null; }
+  const map = vsMap();
+  if(map && VS.handlers){ try{ map.off('click', VS.handlers.click); map.off('dragstart', VS.handlers.dragstart); }catch(e){} }
+  const mk = vsMarker(); if(mk && mk.getElement && mk.getElement()) mk.getElement().classList.remove('boarded');
+  delete VEH_OVR[VS.key];
+  const el = VS.el; VS.el = null; VS.key = null; VS.handlers = null;
+  if(el){ if(instant){ el.remove(); } else { el.classList.remove('open'); setTimeout(()=>el.remove(), 380); } }
+  if(!instant) setTimeout(()=>{ try{ if(state.view==='stops') refreshVehicleMarkers(); }catch(e){} }, 0);
+}
+function vsUpdateFollowBtn(){ const b = document.getElementById('vsFollow'); if(b) b.classList.toggle('on', VS.follow); }
+function vsFollowMap(lat, lon){
+  const map = vsMap(); if(!map || !VS.follow || !VS.el) return;
+  const c = map.getContainer(), r = c.getBoundingClientRect(), size = map.getSize();
+  const sheetTop = window.innerHeight - VS.el.offsetHeight;
+  const ty = Math.max(50, (sheetTop - r.top)/2);
+  const cur = map.latLngToContainerPoint([lat, lon]);
+  const dx = cur.x - size.x/2, dy = cur.y - ty;
+  if(Math.abs(dx) > 3 || Math.abs(dy) > 3) map.panBy([dx, dy], {animate:true, duration:.6});
+}
+function vsToggleSync(){
+  if(VS.sync){ VS.sync = false; VS.d = null; VS.delay = 0; VS.delayInit = false; VS.notice = ''; delete VEH_OVR[VS.key]; vsTick(); return; }
+  VS.notice = 'Helyzet meghatározása…'; vsUpdateTexts(null);
+  planEnsureLoc(()=>{
+    const m = /^(.*)_\d+$/.exec(VS.key), v = VARIANTS.find(x=>x.id===m[1]);
+    const prj = v && projectOnVariant(v, USERLOC.last[0], USERLOC.last[1], null);
+    if(!prj || prj.off > 250){ VS.notice = 'Nem vagy ennek a járatnak az útvonala közelében, ezért nem tudom a helyzetedhez igazítani.'; VS.sync = false; vsUpdateTexts(null); return; }
+    VS.sync = true; VS.d = null; VS.delayInit = false; VS.notice = ''; vsTick();
+  }, msg=>{ VS.notice = msg; vsUpdateTexts(null); });
+}
+function vsTick(first){
+  if(!VS.key || !VS.el) return;
+  const map = vsMap();
+  if(!map || !document.body.contains(map.getContainer()) || (VS.ctx==='stops' && state.view!=='stops') || (VS.ctx==='route' && state.view!=='routeDetail')){ closeVehSheet(true); return; }
+  const p = computeVehiclePositions().find(x=>x.key===VS.key);
+  if(!p){ VS.notice = 'A járat végállomásra ért.'; vsUpdateTexts(null); setTimeout(()=>closeVehSheet(), 1800); if(VS.timer){ clearInterval(VS.timer); VS.timer = null; } return; }
+  let pos = {lat:p.lat, lon:p.lon, brg:p.brg, idx:p.idx, nextIdx:p.nextIdx, frac:p.frac};
+  if(VS.sync){
+    if(!planLocFresh()){ VS.notice = 'Nincs friss helyzet, a menetrend szerinti pozíciót mutatom.'; delete VEH_OVR[VS.key]; }
+    else{
+      const v = VARIANTS.find(x=>x.id===p.vId), t = v.trips[p.ti], ts = t.t.map(timeToSec), ul = USERLOC.last;
+      const win = VS.d==null ? null : [VS.d - 120, VS.d + 3000];
+      const r = projectOnVariant(v, ul[0], ul[1], win);
+      if(!r || r.off > 300){ VS.notice = 'Eltávolodtál a járat útvonalától, a menetrend szerinti pozíciót mutatom.'; delete VEH_OVR[VS.key]; }
+      else{
+        VS.d = r.d; VS.notice = '';
+        const sd = r.sd, n = v.stops.length;
+        let idx = 0; for(let i=0;i<n;i++){ if(sd[i] <= r.d) idx = i; }
+        const nextIdx = Math.min(idx+1, n-1);
+        const span = sd[nextIdx]-sd[idx], frac = span>0 ? Math.min(1, Math.max(0,(r.d-sd[idx])/span)) : 0;
+        const sched = ts[idx] + (ts[nextIdx]-ts[idx])*frac;
+        const raw = Math.max(-600, Math.min(3600, timeToSec(nowTimeStr()) - sched));
+        VS.delay = VS.delayInit ? VS.delay*0.5 + raw*0.5 : raw; VS.delayInit = true;
+        const brg = headingAt(v, idx, nextIdx, v.shapePts ? r.d : null);
+        pos = {lat:ul[0], lon:ul[1], brg, idx, nextIdx, frac};
+        VEH_OVR[VS.key] = {lat:ul[0], lon:ul[1], brg};
+      }
+    }
+  } else delete VEH_OVR[VS.key];
+  vsRefreshMarkers();
+  const mk = vsMarker(); if(mk && mk.getElement && mk.getElement()) mk.getElement().classList.add('boarded');
+  vsUpdateTexts(p, pos);
+  if(!first) vsFollowMap(pos.lat, pos.lon);
+}
+function vsUpdateTexts(p, pos){
+  const el = VS.el; if(!el) return;
+  const nt = document.getElementById('vsNotice');
+  if(nt){ nt.textContent = VS.notice || ''; nt.classList.toggle('hidden', !VS.notice); }
+  const sy = document.getElementById('vsSync'); if(sy) sy.classList.toggle('on', VS.sync);
+  const sub = document.getElementById('vsSyncSub'); if(sub) sub.textContent = VS.sync ? 'Bekapcsolva' : 'A helyzetemmel';
+  const ft = document.getElementById('vsFoot'); if(ft) ft.classList.toggle('hidden', VS.sync && !VS.notice);
+  if(!p || !pos) return;
+  const m = /^(.*)_(\d+)$/.exec(VS.key), v = VARIANTS.find(x=>x.id===m[1]), t = v.trips[+m[2]], n = v.stops.length;
+  document.getElementById('vsNext').textContent = STOPS[v.stops[pos.nextIdx]][0];
+  document.getElementById('vsNextT').textContent = t.t[pos.nextIdx].slice(0,5);
+  const pct = n>1 ? Math.min(100, Math.max(0, (pos.idx + (pos.frac||0)) / (n-1) * 100)) : 0;
+  document.getElementById('vsProg').style.width = pct.toFixed(1)+'%';
+  const d = Math.round(VS.delay/60);
+  const dl = !VS.sync ? '' : d>=2 ? ' · késés ≈ '+d+' perc' : (d<=-2 ? ' · korábban jár ≈ '+(-d)+' perc' : ' · menetrend szerint');
+  document.getElementById('vsMeta').textContent = (VS.sync ? 'Helyzetedhez igazítva' : 'Becsült pozíció') + ' · ' + (Math.min(pos.idx+1, n)) + '/' + n + ' megálló' + dl;
+}
 
 /* ---- LIVE TRACKING (legacy embedded view, no longer linked) ---- */
 function renderLive(header, content){
