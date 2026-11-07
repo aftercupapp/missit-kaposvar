@@ -870,6 +870,50 @@ html,body{background:var(--bg-base-a)!important;}
 .plannotice svg{width:16px;height:16px;flex:none;margin-top:1px;}
 .newbadge{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;background:var(--turquoise);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;vertical-align:1px;}
 .nthumb{width:100%;max-height:170px;object-fit:cover;border-radius:12px;margin-bottom:9px;display:block;background:var(--surface-solid-2);}
+
+/* ---------- menu widgets ---------- */
+.mw{margin-bottom:2px;}
+.mw-head{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;font:inherit;font-size:11.5px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.6px;padding:0 4px;margin:16px 0 8px;cursor:pointer;text-align:left;-webkit-tap-highlight-color:transparent;}
+.mw-head span{flex:1;}
+.mwchev{display:flex;transition:transform .25s ease;font-style:normal;}
+.mwchev svg{width:16px;height:16px;}
+.mw-mini{display:none;align-items:center;gap:10px;width:100%;border:none;background:var(--glass);color:var(--ink-soft);font:inherit;font-size:13px;font-weight:700;padding:10px 14px;border-radius:var(--radius-sm);box-shadow:var(--elev1);cursor:pointer;margin:0 0 9px;text-align:left;-webkit-tap-highlight-color:transparent;}
+.mw-mini svg{width:16px;height:16px;color:var(--maroon);flex-shrink:0;}
+.mw-mini>span:first-of-type{flex:1;}
+.mw-mini .chev{display:flex;opacity:.5;}
+.mw.closed .mw-mini{display:flex;}
+.mw.closed .mw-head{display:none;}
+.mw-body{display:grid;grid-template-rows:1fr;transition:grid-template-rows .3s ease;}
+.mw-in{overflow:hidden;min-height:0;padding-bottom:10px;margin-bottom:-10px;}
+.mw.closed .mw-body{grid-template-rows:0fr;}
+.mw.closed .mw-in{padding-bottom:0;margin-bottom:0;}
+.setlabel{font-size:11px;font-weight:800;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.5px;margin:4px 4px 7px;}
+.setlabel:not(:first-child){margin-top:14px;}
+.vcar{position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--glass-border);box-shadow:0 6px 22px rgba(78,23,33,0.16);margin-bottom:9px;background:rgba(122,42,58,0.08);}
+.vcar-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.vcar-track::-webkit-scrollbar{display:none;}
+.vcar-slide{flex:0 0 100%;scroll-snap-align:center;position:relative;aspect-ratio:16/9;border:none;padding:0;background:none;cursor:pointer;display:block;color:#fff;font:inherit;text-align:left;}
+.vcar-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+.vcar-cap{position:absolute;left:0;right:0;bottom:0;padding:26px 14px 24px;background:linear-gradient(to top,rgba(20,8,10,.72),rgba(20,8,10,0));display:flex;flex-direction:column;gap:1px;}
+.vcar-cap b{font-size:14px;font-weight:800;}
+.vcar-cap i{font-style:normal;font-size:12px;opacity:.85;}
+.vcar-dots{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:5px;pointer-events:none;}
+.vcar-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5);transition:all .25s;}
+.vcar-dots i.on{width:16px;border-radius:3px;background:#fff;}
+.vherow{position:relative;}
+.vbadge{position:absolute;right:11px;bottom:23px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(20,8,10,.5);color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);pointer-events:none;}
+.vbadge svg{width:16px;height:16px;}
+.lightbox{position:fixed;inset:0;z-index:6000;background:rgba(8,4,5,.94);display:flex;align-items:center;justify-content:center;}
+.lb-scroll{position:absolute;inset:0;overflow:auto;display:flex;-webkit-overflow-scrolling:touch;}
+.lb-img{margin:auto;max-width:100%;max-height:100%;object-fit:contain;opacity:0;transition:opacity .3s;cursor:zoom-in;}
+.lb-img.ready{opacity:1;}
+.lb-img.zoomed{max-width:none;max-height:none;width:260%;height:auto;cursor:zoom-out;margin:0;}
+.lb-x{position:absolute;z-index:2;top:calc(env(safe-area-inset-top, 0px) + 14px);right:14px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.16);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);}
+.lb-x svg{width:20px;height:20px;}
+.lb-spin{position:absolute;width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;animation:lbspin .8s linear infinite;}
+.lb-spin.hidden,.lb-msg.hidden{display:none;}
+.lb-msg{position:absolute;color:#fff;font-size:14px;opacity:.85;}
+@keyframes lbspin{to{transform:rotate(360deg);}}
 </style></head>
 <body>
 <div id="app">
@@ -1089,6 +1133,7 @@ const ICO = {
   ruler:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>',
   battery:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M6 11v2"/><path d="M10 11v2"/></svg>',
   factory:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l6 4V8l6 4V5h3v15Z"/><path d="M2 20h20"/><path d="M17 20h5V9h-5"/></svg>',
+  sliders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/></svg>',
   chevronDown:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   swaph:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3.5l4 4-4 4"/><path d="M3 7.5h18"/><path d="M7 12.5l-4 4 4 4"/><path d="M21 16.5H3"/></svg>',
   book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6"/></svg>',
@@ -1097,39 +1142,49 @@ const ICO = {
   grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.6"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.6"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.6"/></svg>',
 };
 /* ---------------- vehicle fleet (static app data) ---------------- */
+const MEDIA_CDN = 'https://cdn.jsdelivr.net/gh/aftercupapp/missit-kaposvar@main/media/';
+const MEDIA_RAW = 'https://raw.githubusercontent.com/aftercupapp/missit-kaposvar/main/media/';
 const VEHICLES = [
   {
     id:'man1', name:"Man Lion's City A21 CNG szólóbusz", type:'Szólóbusz · CNG',
-    img:'https://i.postimg.cc/Bby5FDvt/20240222-153605.jpg',
-    gallery:'https://aftercup.neocities.org/KaposGO/img_man1',
+    img:'https://i.postimg.cc/Bby5FDvt/20240222-153605.jpg', bigFile:'man_szolo.jpg',
     seats:'35+1', standing:'49', total:'85',
     features:['ac','heat','low','wifi','cam'],
     year:'2015', fleet:'25 db', drivetrain:{icon:'fuel', label:'CNG meghajtás'}
   },
   {
     id:'man2', name:"Man Lion's City A23 CNG csuklós busz", type:'Csuklós busz · CNG',
-    img:'https://i.postimg.cc/RCbL2rT9/20241107-162839.jpg',
-    gallery:'https://aftercup.neocities.org/KaposGO/img_man2',
+    img:'https://i.postimg.cc/RCbL2rT9/20241107-162839.jpg', bigFile:'man_csuklos.jpg',
     seats:'49', standing:'109', total:'158',
     features:['ac','heat','low','wifi','cam'],
     year:'2015', fleet:'15 db', drivetrain:{icon:'fuel', label:'CNG meghajtás'}
   },
   {
     id:'ikarus1', name:'Ikarus 120e szólóbusz', type:'Szólóbusz · Elektromos',
-    img:'https://i.postimg.cc/XqXcXx4T/20241107-143305.jpg',
-    gallery:'https://aftercup.neocities.org/KaposGO/img_ikarus1',
+    img:'https://i.postimg.cc/XqXcXx4T/20241107-143305.jpg', bigFile:'ikarus_szolo_regi_festes.jpg',
     seats:'28+2', standing:'55', total:'85',
     features:['ac','heat','low','wifi','usb','cam'],
     year:'2022', fleet:'2 db', drivetrain:{icon:'zap', label:'Elektromos meghajtás'}
   },
   {
     id:'byd1', name:'BYD B12.b szólóbusz', type:'Szólóbusz · Elektromos',
-    img:'https://i.postimg.cc/sgK9W77R/IMG-0921.jpg',
+    img:'https://i.postimg.cc/sgK9W77R/IMG-0921.jpg', bigFile:'BYD_szolo.HEIC',
     seats:'37', standing:'68', total:'105',
     features:['ac','heat','low'],
+    specs:[['battery','Akkumulátor','491 kWh, LFP (lítium-vasfoszfát)'],['bus','Ajtók','2-2-2 elrendezés'],['factory','Gyártás','BYD, Komárom']],
     year:'2026', fleet:'10 db', drivetrain:{icon:'zap', label:'Elektromos meghajtás'}
+  },
+  {
+    id:'byd2', name:'BYD B19 csuklós busz', type:'Csuklós busz · Elektromos',
+    img:'https://i.postimg.cc/vHPDcvzM/BYD-csuklos.jpg', bigFile:'BYD_csuklos.JPG',
+    seats:null, standing:null, total:'140',
+    capNote:'A 140 fős érték a gyártó által megadott maximális utaslétszám. A kaposvári járművek ülő- és állóhelyeinek számát még nem közölték.',
+    features:['ac','heat','low'],
+    specs:[['ruler','Hossz','18,75 m (gyártói adat)'],['battery','Akkumulátor','563 kWh, LFP (lítium-vasfoszfát)'],['zap','Hatótáv','akár 470 km (gyártói adat)'],['plug','Töltés','Dugós (CCS)'],['bus','Ajtók','2-2-2-2 elrendezés'],['factory','Gyártás','BYD, Komárom']],
+    year:'2026', fleet:'3 db', drivetrain:{icon:'zap', label:'Elektromos meghajtás'}
   }
 ];
+VEHICLES.forEach(v=>{ if(v.bigFile) v.bigSrcs = [MEDIA_CDN+v.bigFile, MEDIA_RAW+v.bigFile]; });
 const VEHICLE_BY_ID = {};
 VEHICLES.forEach(v => VEHICLE_BY_ID[v.id] = v);
 const FEATURE_LABEL = {
@@ -2335,6 +2390,33 @@ function menuLinkHtml(icon, name, sub, href){
 function menuNavHtml(icon, name, sub, dataAttr){
   return `<button class="rowbtn" ${dataAttr}><div class="rowicon">${ICO[icon]}</div><div class="rt"><div class="rname">${esc(name)}</div><div class="rsub">${esc(sub)}</div></div><span class="chev">${ICO.chevronRight}</span></button>`;
 }
+function mwClosedSet(){ try{ return JSON.parse(localStorage.getItem('mik_menu_closed')||'[]'); }catch(e){ return []; } }
+const MW_ICON = {veh:'bus', kt:'mapPin', set:'sliders', ext:'globe', app:'play'};
+function mwOpen(id, title){
+  const closed = mwClosedSet().includes(id);
+  return `<div class="mw ${closed?'closed':''}" data-w="${id}"><button class="mw-mini" aria-label="${escAttr(title)} megnyitása">${ICO[MW_ICON[id]]||ICO.info}<span>${esc(title)}</span><span class="chev">${ICO.chevronRight}</span></button><button class="mw-head" aria-expanded="${!closed}"><span>${esc(title)}</span><i class="mwchev">${ICO.chevronDown}</i></button><div class="mw-body"><div class="mw-in">`;
+}
+function mwClose(){ return `</div></div></div>`; }
+let MENU_CAR_TIMER = null;
+function menuInitCarousel(content){
+  if(MENU_CAR_TIMER){ clearInterval(MENU_CAR_TIMER); MENU_CAR_TIMER = null; }
+  const track = content.querySelector('#vcarTrack'); if(!track) return;
+  const dots = [...content.querySelectorAll('#vcarDots i')];
+  const n = dots.length; let cur = 0, pausedUntil = 0;
+  const w = ()=>track.clientWidth || 1;
+  track.addEventListener('scroll', ()=>{ const k = Math.round(track.scrollLeft / w()); if(k!==cur){ cur = k; dots.forEach((d,j)=>d.classList.toggle('on', j===k)); } }, {passive:true});
+  const pause = ()=>{ pausedUntil = Date.now() + 7000; };
+  ['pointerdown','touchstart','wheel'].forEach(ev=>track.addEventListener(ev, pause, {passive:true}));
+  content.querySelectorAll('.vcar-slide').forEach(b=>b.onclick = ()=>go('vehicles'));
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce || n < 2) return;
+  MENU_CAR_TIMER = setInterval(()=>{
+    if(!document.body.contains(track)){ clearInterval(MENU_CAR_TIMER); MENU_CAR_TIMER = null; return; }
+    if(document.hidden || Date.now() < pausedUntil || track.offsetWidth === 0) return;
+    const next = (cur + 1) % n;
+    track.scrollTo({left: next * w(), behavior: 'smooth'});
+  }, 3800);
+}
 function renderMenu(header, content){
   header.innerHTML = headerSimple('MissIt Kaposvár','Menü · további információk és hivatkozások');
   let html = '';
@@ -2350,53 +2432,61 @@ function renderMenu(header, content){
     <div class="legalactions"><button class="locbtn" id="legalOk">Rendben</button></div>
   </div></div>`;
 
-  html += `<div class="section-label">Megjelenés</div><div class="card themecard">`;
-  const themePref = getThemePref();
-  const themeOpts = [['auto','auto','Rendszer'],['light','sun','Világos'],['dark','moon','Sötét']];
-  html += `<div class="themerow">` + themeOpts.map(([id,icon,lbl])=>
-    `<button class="themebtn ${themePref===id?'active':''}" data-theme-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`
-  ).join('') + `</div>`;
-  html += `</div>`;
+  html += mwOpen('veh','Járművek');
+  html += `<div class="vcar" id="vcar"><div class="vcar-track" id="vcarTrack">` + VEHICLES.map((v,i)=>
+    `<button class="vcar-slide" data-i="${i}" aria-label="${escAttr(v.name)}"><img src="${v.img}" alt="${escAttr(v.name)}" ${i?'loading="lazy"':''}><span class="vcar-cap"><b>${esc(v.name)}</b><i>${esc(v.type)}</i></span></button>`).join('')
+    + `</div><div class="vcar-dots" id="vcarDots">` + VEHICLES.map((v,i)=>`<i class="${i?'':'on'}"></i>`).join('') + `</div></div>`;
+  html += mwClose();
 
-  html += `<div class="section-label">Vonalak nézete</div><div class="card themecard">`;
-  const routeViewPref = getRouteViewPref();
-  const routeViewOpts = [['grid','grid','Egyszerűsített'],['list','list','Részletes']];
-  html += `<div class="themerow">` + routeViewOpts.map(([id,icon,lbl])=>
-    `<button class="themebtn ${routeViewPref===id?'active':''}" data-routeview-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`
-  ).join('') + `</div>`;
-  html += `</div>`;
-
-  html += `<div class="section-label">Adatforrás</div><div class="card themecard">`;
-  html += `<div class="themerow">` + [['own','database','Saját adatok'],['gtfs','file','Hivatalos GTFS']].map(([id,icon,lbl])=>
-    `<button class="themebtn ${DATA_SOURCE===id?'active':''}" data-source-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`).join('') + `</div>`;
-  html += `<div class="srcnote">${DATA_SOURCE==='gtfs' ? 'A hivatalos GTFS-feed legutóbbi állapota (2026. nov. 5.), 2026. dec. 12-ig érvényes menetrenddel.' : 'A hivatalosan közzétett menetrendből összeállított saját adatbázis (2026. nov. 3.), hibák előfordulhatnak benne.'}</div>`;
-  html += `</div>`;
-
-  html += `<div class="section-label">Kaposvári közlekedés</div><div class="card">`;
+  html += mwOpen('kt','Kaposvári közlekedés') + `<div class="card">`;
   html += menuNavHtml('radio','Élő járatkövetés','Hivatalos webes menetrend','data-nav-live="1"');
-  html += menuNavHtml('bus','Járművek','A helyi buszflotta bemutatása','data-nav-vehicles="1"');
   html += menuNavHtml('ticket','Értékesítési pontok','Jegy- és bérletárusítás, nyitvatartás','data-nav-tickets="1"');
   html += menuNavHtml('wifi','Wifi hozzáférés','Elérhető hálózatok a járműveken','data-nav-wifi="1"');
   html += menuNavHtml('bike','Kaposvári Tekergő','Közbringa-rendszer, dokkolók','data-nav-tekergo="1"');
-  html += `</div>`;
+  html += `</div>` + mwClose();
 
-  html += `<div class="section-label">Külső hivatkozások</div><div class="card">`;
+  html += mwOpen('set','Beállítások') + `<div class="card themecard">`;
+  const themePref = getThemePref();
+  const themeOpts = [['auto','auto','Rendszer'],['light','sun','Világos'],['dark','moon','Sötét']];
+  html += `<div class="setlabel">Megjelenés</div><div class="themerow">` + themeOpts.map(([id,icon,lbl])=>
+    `<button class="themebtn ${themePref===id?'active':''}" data-theme-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`
+  ).join('') + `</div>`;
+  const routeViewPref = getRouteViewPref();
+  const routeViewOpts = [['grid','grid','Egyszerűsített'],['list','list','Részletes']];
+  html += `<div class="setlabel">Vonalak nézete</div><div class="themerow">` + routeViewOpts.map(([id,icon,lbl])=>
+    `<button class="themebtn ${routeViewPref===id?'active':''}" data-routeview-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`
+  ).join('') + `</div>`;
+  html += `<div class="setlabel">Adatforrás</div><div class="themerow">` + [['own','database','Saját adatok'],['gtfs','file','Hivatalos GTFS']].map(([id,icon,lbl])=>
+    `<button class="themebtn ${DATA_SOURCE===id?'active':''}" data-source-opt="${id}">${ICO[icon]}<span>${lbl}</span></button>`).join('') + `</div>`;
+  html += `<div class="srcnote" style="padding:8px 4px 2px">${DATA_SOURCE==='gtfs' ? 'A hivatalos GTFS-feed legutóbbi állapota (2026. nov. 5.), 2026. dec. 12-ig érvényes menetrenddel.' : 'A hivatalosan közzétett menetrendből összeállított saját adatbázis (2026. nov. 3.), hibák előfordulhatnak benne.'}</div>`;
+  html += `</div>` + mwClose();
+
+  html += mwOpen('ext','Külső hivatkozások') + `<div class="card">`;
   html += menuLinkHtml('globe','Hivatalos webapp','menetrend.kaposbusz.hu','https://menetrend.kaposbusz.hu/');
   html += menuLinkHtml('globe','Kaposbusz.hu','A Kaposvári Közlekedési Zrt. oldala','https://www.kaposbusz.hu/');
   html += menuLinkHtml('globe','Kaposvár weboldala','Kaposvár Megyei Jogú Város','https://www.kaposvar.hu/hu/');
-  html += `</div>`;
+  html += `</div>` + mwClose();
 
-  html += `<div class="section-label">Alkalmazás</div><div class="card">`;
+  html += mwOpen('app','Alkalmazás') + `<div class="card">`;
   html += menuLinkHtml('play','Google Play','Értékelés, egyéb Aftercup appok','https://play.google.com/store/apps/details?id=com.aftercup.menetrendk');
   html += menuLinkHtml('shield','Adatvédelmi irányelvek','','https://aftercupcompass.wordpress.com/kaposgo-privacy-policy/');
   html += menuLinkHtml('info','Adatforrások','Nyilatkozat a menetrendi adatokról','https://aftercup.wordpress.com/kaposgo-disclaimer/');
-  html += `</div>`;
+  html += `</div>` + mwClose();
 
   html += `<div class="infocard"><b>MissIt Kaposvár</b><br>
     <b>Verzió</b><br><span id="diagTap">2.0 (2.1.3)</span><div id="diagBox" style="display:none;margin-top:8px;font:11px/1.45 ui-monospace,Menlo,monospace;white-space:pre-wrap;user-select:text;-webkit-user-select:text"></div><br><br>
     <b>Elérhetőség</b><br><a href="mailto:aftercup@aftercup.space">aftercup@aftercup.space</a></div>`;
 
   content.innerHTML = html;
+  menuInitCarousel(content);
+  content.querySelectorAll('.mw-head, .mw-mini').forEach(b=>b.onclick = ()=>{
+    const wEl = b.parentElement, id = wEl.dataset.w;
+    const closed = wEl.classList.toggle('closed');
+    const hd = wEl.querySelector('.mw-head'); if(hd) hd.setAttribute('aria-expanded', String(!closed));
+    let set = mwClosedSet().filter(x=>x!==id); if(closed) set.push(id);
+    try{ localStorage.setItem('mik_menu_closed', JSON.stringify(set)); }catch(e){}
+    if(!closed && id==='veh'){ const t = content.querySelector('#vcarTrack'); if(t) t.scrollLeft = 0; }
+  });
   const dt = content.querySelector('#diagTap');
   if(dt) dt.onclick = ()=>{
     const box = content.querySelector('#diagBox');
@@ -2446,8 +2536,6 @@ function renderMenu(header, content){
   });
   const lbtn = content.querySelector('[data-nav-live]');
   if(lbtn) lbtn.onclick = ()=>go('live');
-  const vbtn = content.querySelector('[data-nav-vehicles]');
-  if(vbtn) vbtn.onclick = ()=>go('vehicles');
   const tbtn = content.querySelector('[data-nav-tickets]');
   if(tbtn) tbtn.onclick = ()=>go('tickets');
   const wbtn = content.querySelector('[data-nav-wifi]');
@@ -3429,6 +3517,32 @@ function planDrawMap(noFit){
   if(!noFit){ try{ STOPS_MAP.fitBounds(L.latLngBounds(all), {paddingTopLeft:[24,100], paddingBottomRight:[24,160], maxZoom:16}); }catch(e){} }
 }
 
+/* ---- LIGHTBOX (full-size vehicle photos) ---- */
+function openLightbox(srcs, alt){
+  const old = document.getElementById('lightbox'); if(old) old.remove();
+  const lb = document.createElement('div'); lb.id = 'lightbox'; lb.className = 'lightbox';
+  lb.innerHTML = `<button class="lb-x" aria-label="Bezárás">${ICO.close}</button><div class="lb-spin"></div><div class="lb-scroll"><img class="lb-img" alt="${escAttr(alt||'')}"></div><div class="lb-msg hidden">A kép nem tölthető be.</div>`;
+  document.body.appendChild(lb);
+  const img = lb.querySelector('.lb-img'), sc = lb.querySelector('.lb-scroll'), spin = lb.querySelector('.lb-spin'), msg = lb.querySelector('.lb-msg');
+  let i = 0;
+  const close = ()=>{ lb.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e=>{ if(e.key==='Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  lb.querySelector('.lb-x').onclick = close;
+  img.onload = ()=>{ spin.classList.add('hidden'); img.classList.add('ready'); };
+  img.onerror = ()=>{ i++; if(i < srcs.length){ img.src = srcs[i]; } else { spin.classList.add('hidden'); msg.classList.remove('hidden'); } };
+  img.onclick = e=>{
+    const zoomed = img.classList.toggle('zoomed');
+    if(zoomed){
+      const r = img.getBoundingClientRect();
+      const fx = (e.clientX - r.left)/r.width, fy = (e.clientY - r.top)/r.height;
+      requestAnimationFrame(()=>{ sc.scrollLeft = fx*img.scrollWidth - sc.clientWidth/2; sc.scrollTop = fy*img.scrollHeight - sc.clientHeight/2; });
+    }
+  };
+  sc.onclick = e=>{ if(e.target===sc && !img.classList.contains('zoomed')) close(); };
+  img.src = srcs[0];
+}
+
 /* ---- VEHICLES ---- */
 function renderVehicles(header, content){
   header.innerHTML = headerBack('Járművek','A kaposvári helyi buszflotta');
@@ -3446,13 +3560,15 @@ function renderVehicleDetail(header, content){
   header.innerHTML = headerBack(v.name, v.type, {keepMeta:true});
   document.getElementById('btn-back').onclick = goBack;
 
-  let html = `<img class="vhero" src="${v.img}" alt="${escAttr(v.name)}" id="vimg">`;
+  let html = `<div class="vherow"><img class="vhero" src="${v.img}" alt="${escAttr(v.name)}" id="vimg"><span class="vbadge">${ICO.expand}</span></div>`;
 
   html += `<div class="section-label">Kapacitás</div><div class="card">`;
-  html += `<div class="specrow"><div class="si">${ICO.armchair}</div><div class="st">Ülőhelyek<span class="muted">${esc(v.seats)}</span></div></div>`;
+  if(v.seats) html += `<div class="specrow"><div class="si">${ICO.armchair}</div><div class="st">Ülőhelyek<span class="muted">${esc(v.seats)}</span></div></div>`;
   if(v.standing) html += `<div class="specrow"><div class="si">${ICO.user}</div><div class="st">Állóhelyek<span class="muted">${esc(v.standing)}</span></div></div>`;
   if(v.total) html += `<div class="specrow"><div class="si">${ICO.users}</div><div class="st">Teljes férőhely<span class="muted">${esc(v.total)}</span></div></div>`;
   html += `</div>`;
+
+  if(v.capNote) html += `<div class="planhint" style="margin:-2px 4px 6px">${esc(v.capNote)}</div>`;
 
   html += `<div class="section-label">Felszereltség</div><div class="card">`;
   v.features.forEach(f=>{
@@ -3475,7 +3591,7 @@ function renderVehicleDetail(header, content){
 
   content.innerHTML = html;
   const img = document.getElementById('vimg');
-  if(img && v.gallery){ img.onclick = ()=>window.open(v.gallery, '_blank', 'noopener'); } else if(img){ img.style.cursor='default'; }
+  if(img) img.onclick = ()=>openLightbox((v.bigSrcs||[]).concat([v.img]), v.name);
   content.querySelectorAll('[data-goto]').forEach(r=>r.onclick=()=>go(r.dataset.goto));
 }
 
